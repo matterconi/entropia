@@ -38,10 +38,7 @@ export default function Hero() {
   };
 
   return (
-    <section
-      className="min-h-custom relative flex w-screen flex-col items-center justify-center overflow-x-hidden"
-      onMouseMove={handleMouseMove}
-    >
+    <section className="min-h-custom relative flex w-screen flex-col items-center justify-center overflow-x-hidden">
       {/* Canvas for particles */}
       <canvas
         ref={canvasRef}
