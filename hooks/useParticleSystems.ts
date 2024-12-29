@@ -2,7 +2,18 @@ import { useEffect, useRef } from "react";
 
 import System from "../lib/classes/System";
 
-export default function useParticleSystems(canvasRef, isDarkMode) {
+interface CanvasRef {
+  current: HTMLCanvasElement | null;
+}
+
+interface UseParticleSystemsReturn {
+  handleMouseMove: (e: MouseEvent) => void;
+}
+
+export default function useParticleSystems(
+  canvasRef: CanvasRef,
+  isDarkMode: boolean,
+): UseParticleSystemsReturn {
   const systemsRef = useRef<System[]>([]);
 
   useEffect(() => {
@@ -26,7 +37,7 @@ export default function useParticleSystems(canvasRef, isDarkMode) {
     render();
   }, [canvasRef]);
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: MouseEvent) => {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
 
