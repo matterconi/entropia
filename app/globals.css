@@ -1,21 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Global Font Settings */
+body {
+  @apply font-sans;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-border-light dark:border-border-dark;
+  }
+  body {
+    @apply bg-background-light text-foreground-light dark:bg-background-dark dark:text-foreground-dark transition-colors;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+/* Animations */
+@keyframes gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
+
+.animated-gradient {
+  background-size: 200% 200%;
+  animation: gradient-move 3s ease infinite;
+}
+
+/* Utility Classes */
+.no-focus {
+  @apply focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0;
+}
+
+.min-h-custom {
+  min-height: calc(100vh - 105px);
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-cyan-400 via-pink-500 to-yellow-400 bg-clip-text text-transparent;
+}
+
+/* Typography */
+.font-color-paragraph {
+  @apply text-gray-700 dark:text-gray-300;
+}
+
+.font-typo-h1 {
+  @apply text-6xl font-extrabold sm:text-8xl;
+  line-height: 1.2;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+.font-typo-paragraph {
+  @apply mx-auto mt-6 max-w-prose font-sans text-lg leading-relaxed;
+}
+
+.font-typo-paragraph-semi {
+  @apply font-semibold;
+}
+
+.font-typo-paragraph-bold {
+  @apply font-bold;
+}
+
+/* Components */
+
