@@ -6,6 +6,8 @@ import { useTheme } from "next-themes";
 import React, { useEffect, useState } from "react";
 
 import { Input } from "@/components/ui/input";
+import { RainbowInput } from "@/components/ui/rainbow-input";
+import { cn } from "@/lib/utils";
 
 interface LocalSearchProps {
   route: string;
@@ -44,9 +46,7 @@ const LocalSearch = ({
   }, [searchQuery, router, route, searchParams, pathname]);
 
   return (
-    <div
-      className={`flex min-h-[56px] grow items-center gap-4 rounded-md bg-slate-100 px-4 dark:bg-slate-900 ${otherClasses}`}
-    >
+    <RainbowInput className="flex min-h-[56px] grow flex-1 items-center gap-4 rounded-md px-4  w-full">
       <Image
         src={imgSrc}
         width={24}
@@ -59,9 +59,9 @@ const LocalSearch = ({
         placeholder={placeholder}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        className={`no-focus w-full rounded-md border-none shadow-none outline-none`}
+        className={`no-focus w-full rounded-md border-none shadow-none outline-none focus:outline-none focus-visible:outline-none ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 ${otherClasses}`}
       />
-    </div>
+    </RainbowInput>
   );
 };
 

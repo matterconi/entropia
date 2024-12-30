@@ -9,12 +9,14 @@ import RetroGrid from "@/components/ui/retro-grid";
 import useFadeInEffect from "@/hooks/useFadeInEffect";
 import useHackerTextEffect from "@/hooks/useHackerTextEffect";
 import useParticleSystems from "@/hooks/useParticleSystems";
+import { useSystemTheme } from "@/hooks/useSystemTheme";
 
 import { SecondaryButton } from "../ui/secondary-button";
 
 export default function Hero() {
   const { theme } = useTheme();
-  const isDarkMode = theme === "dark";
+  const isSystemDark = useSystemTheme();
+  const isDarkMode = theme === "dark" || (theme === "system" && isSystemDark);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Use the hacker effect with the target text
@@ -54,7 +56,7 @@ export default function Hero() {
       <div className="z-10 w-full text-center">
         {/* Title */}
         <h1
-          className="font-title font-typo-h1 text-gradient"
+          className="font-title font-typo-h1 text-gradient animated-gradient"
           style={{
             opacity, // Apply fade-in effect
             transition: "opacity 0.5s ease-in-out",
@@ -66,7 +68,7 @@ export default function Hero() {
 
         {/* Subheading */}
         <div className="mx-6">
-          <p className="font-typo-paragraph font-color-paragraph font-sans">
+          <p className="font-typo-paragraph mt-6 font-color-paragraph font-sans">
             Esplora il confine tra{" "}
             <span className="font-typo-paragraph-bold">caos </span> e{" "}
             <span className="font-typo-paragraph-bold">ordine</span>, dove ogni

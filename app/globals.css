@@ -38,8 +38,10 @@
     --color-4: 195 100% 63%;
     --color-5: 90 100% 63%;
   }
+
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 220, 15%, 1%;
+    --navbar: 220, 15%, 1%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
@@ -89,6 +91,7 @@ body {
   }
 }
 
+
 .animated-gradient {
   background-size: 200% 200%;
   animation: gradient-move 3s ease infinite;
@@ -118,6 +121,10 @@ canvas {
   @apply bg-gradient-to-r from-cyan-400 via-pink-500 to-yellow-400 bg-clip-text text-transparent;
 }
 
+.border-gradient {
+  @apply bg-gradient-to-r from-cyan-400 via-pink-500 to-yellow-400;
+}
+
 .font-color-paragraph {
   @apply text-gray-700 dark:text-gray-300;
 }
@@ -131,8 +138,12 @@ canvas {
   text-align: center; /* Ensure the text stays centered */
 }
 
+.font-typo-menu {
+  @apply font-sans text-sm font-semibold;
+}
+
 .font-typo-paragraph {
-  @apply mx-auto mt-6 max-w-prose font-sans text-lg leading-relaxed;
+  @apply mx-auto max-w-prose font-sans text-lg leading-relaxed;
 }
 
 .font-typo-paragraph-semi {
