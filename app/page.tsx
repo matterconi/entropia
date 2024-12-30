@@ -5,7 +5,7 @@ import Hero from "@/components/sections/Hero";
 
 const page = () => {
   return (
-    <div>
+    <div className="min-h-screen relative">
       <Navbar />
       <Hero />
     </div>

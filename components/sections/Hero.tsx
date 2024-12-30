@@ -38,13 +38,14 @@ export default function Hero() {
   };
 
   return (
-    <section className="min-h-custom relative flex w-screen flex-col items-center justify-center overflow-x-hidden">
+    <section
+      className="min-h-custom relative flex w-screen flex-col items-center justify-center overflow-x-hidden"
+      onMouseMove={(e: React.MouseEvent<HTMLDivElement>) => handleMouseMove(e)}
+    >
       {/* Canvas for particles */}
       <canvas
         ref={canvasRef}
         className="absolute left-0 top-0 z-0 h-full w-full"
-        width={window.innerWidth}
-        height={window.innerHeight}
       ></canvas>
 
       {/* Content */}

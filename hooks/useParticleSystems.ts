@@ -7,7 +7,7 @@ interface CanvasRef {
 }
 
 interface UseParticleSystemsReturn {
-  handleMouseMove: (e: MouseEvent) => void;
+  handleMouseMove: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
 
 export default function useParticleSystems(
@@ -23,6 +23,18 @@ export default function useParticleSystems(
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    // Function to resize canvas to its container's size
+    const resizeCanvas = () => {
+      if (!canvas.parentElement) return;
+      canvas.width = canvas.parentElement.clientWidth; // Match container width
+      canvas.height = canvas.parentElement.clientHeight; // Match container height
+    };
+
+    // Set initial size and listen for resize events
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    // Render loop
     const render = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -35,9 +47,14 @@ export default function useParticleSystems(
     };
 
     render();
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("resize", resizeCanvas);
+    };
   }, [canvasRef]);
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
 
