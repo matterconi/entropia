@@ -1,4 +1,5 @@
 import React from "react";
+import { FaChevronDown } from "react-icons/fa";
 
 import { cn } from "@/lib/utils";
 
@@ -13,7 +14,7 @@ export function RainbowButton({
   return (
     <button
       className={cn(
-        "animate-rainbow text-primary-foreground focus-visible:ring-ring group relative inline-flex h-11 cursor-pointer items-center justify-center rounded-xl px-8 py-2 font-sans text-lg font-bold transition-colors [background-clip:padding-box,border-box,border-box] [background-origin:border-box] [border:calc(0.08*1rem)_solid_transparent] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+        "w-full animate-rainbow text-primary-foreground focus-visible:ring-ring group relative inline-flex h-11 cursor-pointer items-center justify-center rounded-xl px-8 py-2 font-sans text-lg font-bold transition-colors [background-clip:padding-box,border-box,border-box] [background-origin:border-box]focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 gap-2",
 
         // Before pseudo-element (glow effect)
         "before:animate-rainbow before:absolute before:bottom-[-20%] before:left-1/2 before:z-0 before:h-1/5 before:w-3/5 before:-translate-x-1/2 before:bg-[linear-gradient(90deg,hsl(var(--color-1)),hsl(var(--color-5)),hsl(var(--color-3)),hsl(var(--color-4)),hsl(var(--color-2)))] before:[filter:blur(calc(0.8*1rem))]",
@@ -32,6 +33,49 @@ export function RainbowButton({
       {...props}
     >
       {children}
+      <div className="relative">
+        {/* Gradient Definition */}
+        <svg width="0" height="0" className="absolute">
+          <defs>
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%">
+                <animate
+                  attributeName="stop-color"
+                  values="#00f5ff; #ff00f7; #ffb400; #00f5ff"
+                  dur="3s"
+                  repeatCount="indefinite"
+                />
+              </stop>
+              <stop offset="50%">
+                <animate
+                  attributeName="stop-color"
+                  values="#ff00f7; #ffb400; #00f5ff; #ff00f7"
+                  dur="3s"
+                  repeatCount="indefinite"
+                />
+              </stop>
+              <stop offset="100%">
+                <animate
+                  attributeName="stop-color"
+                  values="#ffb400; #00f5ff; #ff00f7; #ffb400"
+                  dur="3s"
+                  repeatCount="indefinite"
+                />
+              </stop>
+            </linearGradient>
+          </defs>
+        </svg>
+
+        {/* Icon with Animated Gradient */}
+        <FaChevronDown
+          className="h-5 w-5"
+          style={{
+            fill: "url(#gradient)",
+            filter: "drop-shadow(0 0 4px rgba(255, 0, 128, 0.5))",
+            transition: "transform 0.3s ease",
+          }}
+        />
+      </div>
     </button>
   );
 }

@@ -79,17 +79,23 @@ export default function Hero() {
 
           {/* Buttons */}
           <div className="mt-12 flex w-full flex-col justify-center max-md:space-y-8 sm:flex-row sm:space-x-12">
-            <RainbowButton className="h-full font-sans text-lg">
-              Vedi i post
-            </RainbowButton>
-            <SecondaryButton
-              icon="FaChevronDown"
-              onClick={() => alert("Clicked!")}
-              className="font-sans text-lg"
-              isDarkMode={isDarkMode}
-            >
-              Scopri di più
-            </SecondaryButton>
+            <div className="border-gradient rounded-xl animated-gradient p-[1px] sm:min-w-[200px]">
+              <RainbowButton className="h-full font-sans text-lg">
+                Vedi i post
+              </RainbowButton>
+            </div>
+            <div className="border-gradient rounded-xl animated-gradient p-[1px] sm:min-w-[200px]">
+              <div className="bg-background w-full h-full rounded-xl flex items-center justify-center">
+                <SecondaryButton
+                  icon="FaChevronDown"
+                  onClick={() => alert("Clicked!")}
+                  className="font-sans text-lg"
+                  isDarkMode={isDarkMode}
+                >
+                  Scopri di più
+                </SecondaryButton>
+              </div>
+            </div>
           </div>
         </div>
       </div>

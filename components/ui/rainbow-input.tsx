@@ -24,8 +24,8 @@ export function RainbowInput({
         // Light mode gradient background
         "bg-background",
 
-        // Hover effect
-        "hover:scale-102 hover:shadow-[0_0_12px_hsl(var(--color-1))] hover:brightness-110",
+        // Apply hover styles when focused or hovered
+        "focus-within:scale-102 focus-within:shadow-[0_0_12px_hsl(var(--color-1))] focus-within:brightness-110 ",
 
         className,
       )}

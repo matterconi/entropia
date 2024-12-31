@@ -2,34 +2,26 @@
 
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import React, { useEffect, useState } from "react";
-import { FaBars } from "react-icons/fa"; // Importing Hamburger Icon
+import React from "react";
 
+import Menu from "@/components/navigation/Menu";
 import LocalSearch from "@/components/shared/LocalSearch";
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarTrigger,
-} from "@/components/ui/menubar";
 
 import ThemeSwitch from "./ThemeSwitch";
 
 export default function Navbar() {
-  const { theme, setTheme } = useTheme();
-
+  const { theme } = useTheme();
   const pathname = usePathname();
 
   return (
-    <nav className="relative top-0 flex h-[105px] items-center justify-between space-x-16 px-12 py-6 ">
+    <nav className="relative top-0 flex h-[105px] items-center justify-between pt-8 pb-6 mx-6 md:mx-8 space-x-8">
       {/* Left Section: Brand Name */}
-      <div className="text-2xl font-bold text-gradient font-title">
+      <div className="text-2xl font-bold text-gradient font-title px-2">
         3NTR0P14
       </div>
 
       {/* Center Section: LocalSearch */}
-      <div className="mx-8 flex-grow border-gradient p-[1px] rounded-md animated-gradient max-md:hidden">
+      <div className="hidden flex-grow border-gradient p-[1px] rounded-md animated-gradient xl:flex">
         <LocalSearch
           route={pathname}
           imgSrc="/icons/search.svg"
@@ -38,28 +30,13 @@ export default function Navbar() {
         />
       </div>
 
-      {/* Right Section: Navigation Links and Theme Toggle */}
-      <div className="flex items-center space-x-8">
-        <div className="hidden lg:flex border-gradient rounded-md p-[1px] animated-gradient">
-          <Menubar className="hidden min-h-[56px] items-center gap-4 shadow-md lg:flex">
-            <MenubarMenu>
-              <MenubarTrigger className="font-typo-menu">
-                Chi Siamo
-              </MenubarTrigger>
-            </MenubarMenu>
-            <MenubarMenu>
-              <MenubarTrigger className="font-typo-menu">
-                Categorie
-              </MenubarTrigger>
-            </MenubarMenu>
-            <MenubarMenu>
-              <MenubarTrigger className="font-typo-menu">
-                Contatti
-              </MenubarTrigger>
-            </MenubarMenu>
-          </Menubar>
+      {/* Right Section: Navigation Menu and Theme Toggle */}
+      <div className="flex items-center h-[56px] justify-end lg:space-x-8">
+        {/* Navigation Menu */}
+        <div className="hidden w-[600px] lg:flex border-gradient p-[1px] rounded-md animated-gradient h-full">
+          <Menu />
         </div>
-
+        {/* Theme Toggle */}
         <ThemeSwitch />
       </div>
     </nav>

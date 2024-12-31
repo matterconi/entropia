@@ -64,8 +64,8 @@ export default {
       },
       fontFamily: {
         sans: ["var(--font-nunito)", "sans-serif"],
-        title: ["Orbitron", "sans-serif"], // Orbitron for titles
-        mono: ["Fira Code", "monospace"], // Example for mono fonts
+        title: ["Orbitron", "sans-serif"],
+        mono: ["Fira Code", "monospace"],
       },
       animation: {
         rainbow: "rainbow var(--speed, 2s) infinite linear",
@@ -106,4 +106,12 @@ export default {
     },
   },
   plugins: [require("tailwindcss-animate")],
+  // Add support for custom attributes
+  variants: {
+    extend: {
+      backgroundColor: ["group-data-[state=open]"],
+      textColor: ["group-data-[state=open]"],
+      rotate: ["group-data-[state=open]"],
+    },
+  },
 } satisfies Config;

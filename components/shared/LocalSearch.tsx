@@ -46,7 +46,7 @@ const LocalSearch = ({
   }, [searchQuery, router, route, searchParams, pathname]);
 
   return (
-    <RainbowInput className="flex min-h-[56px] grow flex-1 items-center gap-4 rounded-md px-4  w-full">
+    <RainbowInput className="flex min-h-[54px] grow flex-1 items-center gap-4 rounded-md px-4 w-full">
       <Image
         src={imgSrc}
         width={24}
