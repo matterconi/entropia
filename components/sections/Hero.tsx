@@ -41,7 +41,7 @@ export default function Hero() {
 
   return (
     <section
-      className="min-h-custom relative flex w-screen flex-col items-center justify-center overflow-x-hidden"
+      className="min-h-custom relative flex max-w-screen flex-col items-center justify-center overflow-x-hidden bg-background"
       onMouseMove={(e: React.MouseEvent<HTMLDivElement>) => handleMouseMove(e)}
     >
       {/* Canvas for particles */}
@@ -78,13 +78,16 @@ export default function Hero() {
           </p>
 
           {/* Buttons */}
-          <div className="mt-12 flex w-full flex-col justify-center max-md:space-y-8 sm:flex-row sm:space-x-12">
-            <div className="border-gradient rounded-xl animated-gradient p-[1px] sm:min-w-[200px]">
-              <RainbowButton className="h-full font-sans text-lg">
+          <div className="mt-12 flex w-full flex-col justify-center items-center max-sm:space-y-8 sm:flex-row sm:space-x-12">
+            <div className="border-gradient rounded-xl animated-gradient p-[1px] sm:min-w-[200px] h-fit max-sm:w-full max-sm:max-w-[300px]">
+              <RainbowButton
+                className="h-full font-sans text-lg"
+                icon="arrowDown"
+              >
                 Vedi i post
               </RainbowButton>
             </div>
-            <div className="border-gradient rounded-xl animated-gradient p-[1px] sm:min-w-[200px]">
+            <div className="border-gradient rounded-xl animated-gradient p-[1px] max-sm:w-full sm:min-w-[200px] max-sm:max-w-[300px]">
               <div className="bg-background w-full h-full rounded-xl flex items-center justify-center">
                 <SecondaryButton
                   icon="FaChevronDown"

@@ -93,7 +93,7 @@ function DropdownMenu({ title, items }: { title: string; items: MenuItem[] }) {
           onMouseEnter={() => handleMouseEnter(title)} // Cancel timer if content is hovered
           onMouseLeave={handleMouseLeave} // Set timer if leaving content
         >
-          <ul className="grid gap-3 p-4 md:grid-cols-2 w-[598px] bg-background rounded-md ">
+          <ul className="grid gap-3 p-4 md:grid-cols-2 max-xl:w-[398px] w-[598px] bg-background rounded-md ">
             {items.map((item) => (
               <ListItem key={item.title} title={item.title} href={item.href}>
                 {item.description}

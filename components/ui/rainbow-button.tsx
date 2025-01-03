@@ -1,16 +1,21 @@
-import React from "react";
-import { FaChevronDown } from "react-icons/fa";
+import React, { useId } from "react";
+import { FaChevronDown, FaSignInAlt } from "react-icons/fa";
 
 import { cn } from "@/lib/utils";
 
 interface RainbowButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  icon?: string;
+}
 
 export function RainbowButton({
   children,
   className,
+  icon,
   ...props
 }: RainbowButtonProps) {
+  const uniqueId = useId(); // Generate a unique ID for each button instance
+
   return (
     <button
       className={cn(
@@ -37,7 +42,13 @@ export function RainbowButton({
         {/* Gradient Definition */}
         <svg width="0" height="0" className="absolute">
           <defs>
-            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient
+              id={`gradient-${uniqueId}`} // Use the unique ID
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="100%"
+            >
               <stop offset="0%">
                 <animate
                   attributeName="stop-color"
@@ -67,14 +78,26 @@ export function RainbowButton({
         </svg>
 
         {/* Icon with Animated Gradient */}
-        <FaChevronDown
-          className="h-5 w-5"
-          style={{
-            fill: "url(#gradient)",
-            filter: "drop-shadow(0 0 4px rgba(255, 0, 128, 0.5))",
-            transition: "transform 0.3s ease",
-          }}
-        />
+        {icon === "arrowDown" && (
+          <FaChevronDown
+            className="h-5 w-5 ml-1 flex-shrink-0"
+            style={{
+              fill: `url(#gradient-${uniqueId})`, // Use the unique gradient ID
+              filter: "drop-shadow(0 0 4px rgba(255, 0, 128, 0.5))",
+              transition: "transform 0.5s ease",
+            }}
+          />
+        )}
+        {icon === "signIn" && (
+          <FaSignInAlt
+            className="h-5 w-5 ml-1 flex-shrink-0"
+            style={{
+              fill: `url(#gradient-${uniqueId})`, // Use the unique gradient ID
+              filter: "drop-shadow(0 0 4px rgba(255, 0, 128, 0.5))",
+              transition: "transform 0.3s ease",
+            }}
+          />
+        )}
       </div>
     </button>
   );

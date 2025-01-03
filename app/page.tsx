@@ -1,15 +1,17 @@
-import React from "react";
+"use client";
 
-import Navbar from "@/components/navigation/Navbar";
+import React, { useState } from "react";
+
 import Hero from "@/components/sections/Hero";
+import LatestArticles from "@/components/sections/LatestArticles";
 
-const page = () => {
+const Page = () => {
   return (
-    <div className="min-h-screen relative">
-      <Navbar />
+    <div className={`min-h-screen relative bg-[#020529]`}>
       <Hero />
+      <LatestArticles />
     </div>
   );
 };
 
-export default page;
+export default Page;

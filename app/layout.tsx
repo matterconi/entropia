@@ -4,7 +4,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import React from "react";
 
-import { ThemeProvider } from "@/context/theme/ThemeProvider";
+import ContentWrapper from "@/components/ContentWrapper"; // Client-side content wrapper
+import Navbar from "@/components/navigation/Navbar";
+import Providers from "@/context/Providers"; // Centralized Providers
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,14 +33,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <Providers>
+          <Navbar />
+          {/* Conditionally render the page content */}
+          <ContentWrapper>{children}</ContentWrapper>
+        </Providers>
       </body>
     </html>
   );
