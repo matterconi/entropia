@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/three-articles/Scene.jsx", "components/three-articles/Model.jsx", "lib/helpers.js"],
   "exclude": ["node_modules"]
 }
