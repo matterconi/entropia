@@ -28,10 +28,10 @@ const Cycle = ({ id, title, progressRange, scrollYProgress, isActive, isLastCycl
 
         {/* Main Scene */}
         <div className="h-screen relative">
-          <h1 className="w-full font-title text-gradient animated-gradient text-bold text-6xl text-center absolute top-20 z-10">Ultimi Articoli</h1>
+          <h1 className="w-full font-title text-gradient animated-gradient text-bold text-6xl text-center absolute top-20 z-20">Ultimi Articoli</h1>
           <Scene scrollProgress={cycleProgress} isLastCycle={isLastCycle} currentImage={currentImage} isDarkMode={isDarkMode}/>
           <div className="absolute bottom-10 flex flex-col items-center justify-center w-full z-10 gap-8">
-            <p className=" text-foreground font-sans text-5xl w-full text-center z-10 py-2">{title}</p>
+            <p className=" text-foreground font-sans text-5xl w-full text-center z-20 py-2">{title}</p>
             <RainbowButton className="w-fit">
               Leggi Subito
             </RainbowButton>
@@ -54,7 +54,7 @@ const Home = () => {
   const isDarkMode = theme === "dark" || (theme === "system" && isSystemDark);
 
   const cycles = [
-    { id: 1, title: "La donna e il pozzo", image: '/assets/test2.avif' },
+    { id: 1, title: "La donna e il pozzo", image: '/assets/test1.avif' },
     { id: 2, title: "Epistemologia della trap", image: '/assets/photo1.jpg' },
     { id: 3, title: "Racconti allucinogeni", image: '/assets/photo2.jpg' },
   ];

@@ -2,6 +2,7 @@
 
 import React from "react";
 
+import { CharacterProvider } from "@/context/CharacterContext";
 import { MenuProvider } from "@/context/MenuContext";
 import { ThemeProvider } from "@/context/theme/ThemeProvider";
 
@@ -13,7 +14,9 @@ const Providers: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       enableSystem
       disableTransitionOnChange
     >
-      <MenuProvider>{children}</MenuProvider>
+      <MenuProvider>
+        <CharacterProvider>{children}</CharacterProvider>
+      </MenuProvider>
     </ThemeProvider>
   );
 };

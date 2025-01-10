@@ -1,79 +1,188 @@
 "use client";
-
 import Lenis from "@studio-freight/lenis";
 import { motion, useScroll, useTransform } from "framer-motion";
-import Link from "next/link";
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 
-import { categories } from "@/data/data"; // Import categories from your data file
+import { categories, MenuItem } from "@/data/data";
 
-const Categorie = () => {
-  const containerRef = useRef(null);
+import styles from "./Categorie.module.scss";
+import { RainbowButton } from "../ui/rainbow-button";
+import Intermezzo2 from "./intermezzo/Intermezzo2";
+
+interface CardProps {
+  title: string;
+  description: string;
+  href: string;
+  randomStyles: Record<string, string | number>;
+}
+
+// Shuffle logic memoized
+const useShuffledCategories = (categories: MenuItem[], index: number) =>
+  useMemo(() => {
+    const length = categories.length;
+    const step = index + 3;
+
+    const slicedPart = categories.slice(step % length);
+    const remainingPart = categories.slice(0, step % length);
+
+    return [...slicedPart, ...remainingPart, ...slicedPart, ...remainingPart];
+  }, [categories, index]);
+
+const generateRandomStyles = () => {
+  return {
+    animationDuration: `${Math.random() * 2 + 3}s`,
+    animationDelay: `${Math.random() * 2}s`,
+    animationDirection: Math.random() > 0.5 ? "normal" : "reverse",
+    backgroundSize: `${Math.random() * 100 + 150}% ${Math.random() * 100 + 150}%`,
+  };
+};
+
+export default function Home() {
+  const gallery = useRef<HTMLDivElement>(null);
+  const title = useRef<HTMLDivElement>(null);
+  const [bottomPosition, setBottomPosition] = useState<number | null>(null);
+  const [dimension, setDimension] = useState({ width: 0, height: 0 });
+  const [columns, setColumns] = useState(4);
+  const [zIndex, setZIndex] = useState(50);
+
   const { scrollYProgress } = useScroll({
-    target: containerRef,
+    target: gallery,
     offset: ["start end", "end start"],
   });
 
-  const [dimension, setDimension] = useState({ width: 0, height: 0 }); // State to store window dimensions
   const { height } = dimension;
+
+  const motionValues = [
+    useTransform(scrollYProgress, [0, 1], [0, height * 2]),
+    useTransform(scrollYProgress, [0, 1], [0, height * 3.3]),
+    useTransform(scrollYProgress, [0, 1], [0, height * 1.25]),
+    useTransform(scrollYProgress, [0, 1], [0, height * 2.75]),
+  ];
+
+  const handleScroll = () => {
+    if (title.current) {
+      const rect = title.current.getBoundingClientRect();
+      if (rect.top === 0) {
+        setBottomPosition(rect.bottom);
+      }
+    }
+  };
+
   useEffect(() => {
     const lenis = new Lenis();
 
     const raf = (time: number) => {
       lenis.raf(time);
+      handleScroll(); // Update on every frame
       requestAnimationFrame(raf);
     };
 
     const resize = () => {
-      setDimension({ width: window.innerWidth, height: window.innerHeight });
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      setDimension({ width, height });
+
+      // Dynamically set the number of columns based on screen width
+      if (width < 640) {
+        setColumns(1); // Mobile
+        document.documentElement.style.setProperty("--columns", "1");
+      } else if (width < 1024) {
+        setColumns(2); // Tablet
+        document.documentElement.style.setProperty("--columns", "2");
+      } else if (width < 1440) {
+        setColumns(3); // Small Desktop
+        document.documentElement.style.setProperty("--columns", "3");
+      } else {
+        setColumns(4); // Large Desktop
+        document.documentElement.style.setProperty("--columns", "4");
+      }
     };
 
-    window.addEventListener("resize", resize);
+    // Initialize RAF for smooth scrolling
     requestAnimationFrame(raf);
+
+    // Set initial dimensions and columns
     resize();
 
+    // Attach resize and scroll event listeners
+    window.addEventListener("resize", resize);
+
+    // Cleanup
     return () => {
       window.removeEventListener("resize", resize);
+      lenis.destroy(); // Clean up Lenis instance
     };
   }, []);
 
-  // Calculate motion values for each category outside the map
-  const motionValues = categories.map((_, index) => {
-    return useTransform(
-      scrollYProgress,
-      [0, 1],
-      [(height * (index % 4)) / 2, 0],
-    );
-  });
-
   return (
     <>
-      <div className="absolute top-0 w-full h-screen bg-red-500 z-10"></div>
-      <main className="sticky top-0 w-full h-screen bg-background">
-        <div className="h-screen w-full z-10 bg-background" ref={containerRef}>
-          <h1 className="text-white text-4xl text-center py-8">Categorie</h1>
-          <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
-            {categories.map((category, index) => (
-              <motion.div
-                key={index}
-                style={{ y: motionValues[index] }} // Apply the precomputed motion value
-                className="bg-white text-black p-4 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300 h-[70vh]"
-              >
-                <h2 className="text-2xl font-bold mb-2">{category.title}</h2>
-                <p className="text-sm mb-4">{category.description}</p>
-                <Link
-                  href={category.href}
-                  className="text-green-800 font-semibold hover:underline"
-                >
-                  Scopri di più
-                </Link>
-              </motion.div>
-            ))}
-          </motion.div>
+      <div className={`absolute top-0 bg-background h-fit w-full z-${zIndex}`}>
+        <main className="sticky top-0 ">
+          <Intermezzo2 position={bottomPosition} setZIndex={setZIndex} />
+        </main>
+      </div>
+      <motion.main className="bg-background px-8">
+        <div
+          ref={title}
+          className="text-6xl sticky top-0 z-20 bg-background flex justify-center items-center"
+        >
+          <motion.h1
+            className="text-gradient font-title font-5xl p-8 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: zIndex === 0 ? 1 : 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            Categorie
+          </motion.h1>
         </div>
-      </main>
+        <div ref={gallery} className={styles.gallery}>
+          {Array.from({ length: columns }).map((_, i) => (
+            <Column key={i} y={motionValues[i]} i={i} />
+          ))}
+        </div>
+      </motion.main>
     </>
+  );
+}
+
+const Column = ({ y, i }) => {
+  const shuffledCategories = useShuffledCategories(categories, i);
+  const randomStyles = useMemo(
+    () => shuffledCategories.map(() => generateRandomStyles()),
+    [shuffledCategories],
+  );
+
+  return (
+    <motion.div className={styles.column} style={{ y }}>
+      {shuffledCategories.map((category, i) => (
+        <Card
+          key={i}
+          title={category.title}
+          description={category.description}
+          href={category.href}
+          randomStyles={randomStyles[i]}
+        />
+      ))}
+    </motion.div>
   );
 };
 
-export default Categorie;
+// Reusable Card Component
+
+const Card = memo(({ title, description, href, randomStyles }): CardProps => {
+  return (
+    <div
+      className="border border-black dark:border-white border-gradient animated-gradient min-h-[300px] text-foreground rounded-lg shadow-lg p-6 transition-transform duration-300 flex flex-col justify-end"
+      style={randomStyles} // Apply precomputed random styles
+    >
+      <div className="mb-4">
+        <h2 className="text-2xl font-bold mb-2">{title}</h2>
+        <p className="text-sm mb-4">{description}</p>
+      </div>
+      <div className="flex w-full">
+        <RainbowButton className="py-4 w-full">Esplora</RainbowButton>
+      </div>
+    </div>
+  );
+});

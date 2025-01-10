@@ -94,7 +94,7 @@ export default function Model({ scrollProgress, isLastCycle, currentImage }) {
 
   return (
     <>
-      <mesh ref={image} scale={initialScale}>
+      <mesh ref={image} scale={initialScale} renderOrder={2}>
         <planeGeometry args={[1, 1, 15, 15]} />
         <shaderMaterial
           wireframe={false}

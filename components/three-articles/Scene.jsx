@@ -21,7 +21,7 @@ const StarField = ({isDarkMode}) => {
   });
 
   return (
-    <Points ref={pointsRef} positions={points} stride={3}>
+    <Points ref={pointsRef} positions={points} stride={3} renderOrder={1}>
       <PointMaterial
         transparent
         color={isDarkMode ? "#ffffff" : "#000000"} // Change color based on theme
