@@ -4,6 +4,8 @@ import { useScroll, useTransform } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
 
 import Categorie from "@/components/sections/Categorie";
+import Contacts from "@/components/sections/Contacts";
+import Footer from "@/components/sections/Footer";
 import Generi from "@/components/sections/Generi";
 import Hero from "@/components/sections/Hero";
 import Intermezzo from "@/components/sections/intermezzo/Intermezzo";
@@ -16,6 +18,8 @@ const Page = () => {
   const endYRef = useRef<number | null>(null); // Ref for end of the fade-out
   const [isIntersecting, setIsIntersecting] = useState(false); // Intersection state
   const { scrollY } = useScroll();
+
+  const [isGeneriInView, setIsGeneriInView] = useState(false); // State for Generi visibility
 
   useEffect(() => {
     const checkIntersection = () => {
@@ -60,20 +64,19 @@ const Page = () => {
   );
 
   return (
-    <div className={`min-h-screen bg-[#020529] relative`}>
+    <div className={`min-h-screen bg-background relative`}>
       <Hero />
-      <div ref={intermezzoRef} className="sticky top-0">
-        <Intermezzo opacity={opacity} />
-      </div>
       <div ref={latestArticlesRef}>
         <LatestArticles />
       </div>
-
       {/* Placeholder for layout flow */}
       <div className="relative min-h-screen">
-        <Categorie />
+        <Categorie isGeneriInView={isGeneriInView} />
       </div>
-      <Generi />
+      {/* Pass setIsGeneriInView to Generi */}
+      <Generi setIsInView={setIsGeneriInView} />
+      <Contacts />
+      <Footer />
     </div>
   );
 };

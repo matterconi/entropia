@@ -10,8 +10,7 @@ import React, { useEffect, useRef } from "react";
 
 import Character from "@/components/sections/intermezzo/Character";
 
-const paragraph =
-  "Da quando l'uomo esiste, la conoscenza, il dubbio, la sete di sapere sono incessantemente radicate nella sua testa. Possiamo in qualche modo affermare che ne siano l'essenza.";
+const paragraph = "L'entropia Continua";
 
 interface HomeProps {
   opacity: MotionValue<number>;
@@ -20,7 +19,7 @@ interface HomeProps {
 export default function Home({ opacity }: HomeProps) {
   const ref = useRef(null); // Reference to the container
   return (
-    <main className="bg-background w-full flex justify-center items-center sticky top-0 max-sm:py-20 py-24 px-16">
+    <main className="bg-background w-full flex justify-center items-center sticky top-0 max-sm:py-20 py-24 px-16 h-screen max-sm:hidden">
       <motion.main
         ref={ref}
         initial={{ opacity: 1 }} // Start fully hidden

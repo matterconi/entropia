@@ -34,7 +34,7 @@ export default function Character({ paragraph }: ParagraphProps): JSX.Element {
       initial={{ opacity: 0 }} // Start fully hidden
       animate={{ opacity: isInView ? 1 : 0 }} // Fade in when in view
       transition={{ duration: 0.3 }} // Faster fade-in
-      className="flex flex-wrap max-w-5xl font-sans text-foreground max-sm:text-2xl text-4xl leading-none"
+      className="flex flex-wrap max-w-5xl font-title text-foreground max-sm:text-9xl text-[7rem] leading-none items-center justify-center flex-wrap"
     >
       {words.map((word, i) => {
         const start = i / words.length;

@@ -28,10 +28,12 @@ const Cycle = ({ id, title, progressRange, scrollYProgress, isActive, isLastCycl
 
         {/* Main Scene */}
         <div className="h-screen relative">
-          <h1 className="w-full font-title text-gradient animated-gradient text-bold text-6xl text-center absolute top-20 z-20">Ultimi Articoli</h1>
+          <h1 className="w-full font-title text-gradient animated-gradient text-bold text-6xl text-center absolute z-20 h-[20vh] mt-8 md:mt-16">Ultimi Articoli</h1>
+          <div className="relative top-[20vh] h-[60vh]">
           <Scene scrollProgress={cycleProgress} isLastCycle={isLastCycle} currentImage={currentImage} isDarkMode={isDarkMode}/>
-          <div className="absolute bottom-10 flex flex-col items-center justify-center w-full z-10 gap-8">
-            <p className=" text-foreground font-sans text-5xl w-full text-center z-20 py-2">{title}</p>
+          </div>
+          <div className="absolute bottom-0 h-[20vh] flex flex-col items-center justify-center w-full z-10 gap-8 mb-8">
+            <p className=" text-foreground font-sans text-2xl font-semibold w-full text-center z-20 py-2">{title}</p>
             <RainbowButton className="w-fit">
               Leggi Subito
             </RainbowButton>
@@ -56,7 +58,7 @@ const Home = () => {
   const cycles = [
     { id: 1, title: "La donna e il pozzo", image: '/assets/test1.avif' },
     { id: 2, title: "Epistemologia della trap", image: '/assets/photo1.jpg' },
-    { id: 3, title: "Racconti allucinogeni", image: '/assets/photo2.jpg' },
+    { id: 3, title: "La perversione del gioco", image: '/assets/photo2.jpg' },
   ];
 
   const progressRanges = cycles.map((_, index) => [

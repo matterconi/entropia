@@ -71,6 +71,11 @@ export default {
         rainbow: "rainbow var(--speed, 2s) infinite linear",
         grid: "grid 15s linear infinite",
         meteor: "meteor 5s linear infinite",
+        scroll:
+          "scroll var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite",
+        "shimmer-slide":
+          "shimmer-slide var(--speed) ease-in-out infinite alternate",
+        "spin-around": "spin-around calc(var(--speed) * 2) infinite linear",
       },
       keyframes: {
         rainbow: {
@@ -100,6 +105,30 @@ export default {
           "100%": {
             transform: "rotate(215deg) translateX(-500px)",
             opacity: "0",
+          },
+        },
+        scroll: {
+          to: {
+            transform: "translate(calc(-50% - 0.5rem))",
+          },
+        },
+        "shimmer-slide": {
+          to: {
+            transform: "translate(calc(100cqw - 100%), 0)",
+          },
+        },
+        "spin-around": {
+          "0%": {
+            transform: "translateZ(0) rotate(0)",
+          },
+          "15%, 35%": {
+            transform: "translateZ(0) rotate(90deg)",
+          },
+          "65%, 85%": {
+            transform: "translateZ(0) rotate(270deg)",
+          },
+          "100%": {
+            transform: "translateZ(0) rotate(360deg)",
           },
         },
       },

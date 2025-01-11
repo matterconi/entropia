@@ -25,7 +25,7 @@ export function RainbowInput({
         "bg-background",
 
         // Apply hover styles when focused or hovered
-        "focus-within:scale-102 focus-within:shadow-[0_0_12px_hsl(var(--color-1))] focus-within:brightness-110 ",
+        "focus-within:scale-102 focus-within:shadow-[0_0_12px_hsl(var(--color-1))] ",
 
         className,
       )}

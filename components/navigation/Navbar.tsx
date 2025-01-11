@@ -24,7 +24,7 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`relative top-0 flex h-[105px] items-center justify-between ${
+      className={`relative top-0 flex h-[135px] items-center justify-between ${
         isMenuOpen
           ? ""
           : "pt-8 pb-6 mx-4 md:mx-8 lg:mx-6 space-x-8 lg:space-x-4 xl:space-x-8"
@@ -38,7 +38,6 @@ export default function Navbar() {
       <div className="hidden max-xl:w-[400px] w-[600px] lg:flex border-gradient p-[1px] rounded-md animated-gradient h-[56px]">
         <Menu />
       </div>
-
       {/* Right Section: Navigation Menu and Theme Toggle */}
       <div className="flex items-center justify-end h-[56px] lg:space-x-4 xl:space-x-8">
         <div className="max-lg:hidden flex space-x-4 items-center mx-4">

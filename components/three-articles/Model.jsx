@@ -34,8 +34,8 @@ export default function Model({ scrollProgress, isLastCycle, currentImage }) {
 
   useFrame(() => {
     // Maximum scale based on the 80vh div
-    const containerHeight = viewport.height * 0.6; // 80vh
-    const maxScaleX = containerHeight * 0.6; // Scale X to fit within 80vh
+    const containerHeight = viewport.height * 0.7; // 80vh
+    const maxScaleX = containerHeight * 0.7; // Scale X to fit within 80vh
     const maxScaleY = maxScaleX / (width / height); // Maintain aspect ratio
   
     // Map scroll progress to scale values

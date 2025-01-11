@@ -49,47 +49,71 @@ export const categories: MenuItem[] = [
 export const genres: MenuItem[] = [
   {
     title: "Romantico",
-    description: "Storie d'amore e relazioni umane.",
+    description:
+      "Storie d'amore e relazioni umane. Un tuffo nelle emozioni della vita e dei sentimenti.",
     href: "/generi/romantico",
   },
   {
     title: "Azione",
-    description: "Avventure ad alta adrenalina e conflitti dinamici.",
+    description:
+      "Avventure ad alta adrenalina e conflitti dinamici. Combattimenti, inseguimenti e colpi di scena che vi terranno incollati allo schermo.",
     href: "/generi/azione",
   },
   {
     title: "Avventura",
-    description: "Viaggi emozionanti e scoperta di nuovi mondi.",
+    description:
+      "Viaggi emozionanti alla scoperta di nuovi mondi. Esplorazioni, scoperte e sfide che metteranno alla prova il coraggio dei protagonisti. Per chi ama l'ignoto e l'avventura.",
     href: "/generi/avventura",
   },
   {
     title: "Fantasy",
-    description: "Universi magici popolati da creature straordinarie.",
+    description:
+      "Universi magici popolati da creature straordinarie. Magia, mistero, eroi e mostri in un mix di epica e meraviglia al di là dei confini dell'immaginazione.",
     href: "/generi/fantasy",
   },
   {
     title: "Fantascienza",
-    description: "Esplorazioni di futuri possibili e tecnologie innovative.",
+    description:
+      "Esplorazioni di futuri possibili e tecnologie innovative. Viaggi spaziali, robotica e mondi alieni sono il cuore di queste storie, con al centro il conflitto tra uomo e tecnologia.",
     href: "/generi/fantascienza",
   },
   {
     title: "Horror",
-    description: "Narrazioni che suscitano paura e suspense.",
+    description:
+      "Narrazioni che suscitano paura e suspense. Psicologia e angosce sono gli ingredienti principali di queste storie, che esplorano il lato oscuro dell'animo umano.",
     href: "/generi/horror",
   },
   {
     title: "Giallo",
-    description: "Indagini e misteri avvolgenti.",
+    description:
+      "Indagini e misteri avvolgenti. Delitti, detective e colpi di scena in un mix di suspense e intuito investigativo, in cui la ricerca della verità non è mai innocua.",
     href: "/generi/giallo",
   },
   {
     title: "Drammatico",
-    description: "Storie intense che esplorano emozioni profonde.",
+    description:
+      "Storie intense che esplorano emozioni profonde. Drammi umani, conflitti interiori e relazioni complesse sono il cuore di queste narrazioni, che toccano le corde dell'animo.",
     href: "/generi/drammatico",
   },
   {
     title: "Storico",
-    description: "Racconti ambientati in epoche passate.",
+    description:
+      "Racconti ambientati in epoche passate. Storie di re, regine, guerre e rivoluzioni che ci fanno viaggiare indietro nel tempo e ci insegnano qualcosa sul presente.",
     href: "/generi/storico",
+  },
+];
+
+export const socialMedia = [
+  {
+    id: 1,
+    img: "/icons/git.svg",
+  },
+  {
+    id: 2,
+    img: "/icons/twit.svg",
+  },
+  {
+    id: 3,
+    img: "/icons/link.svg",
   },
 ];
