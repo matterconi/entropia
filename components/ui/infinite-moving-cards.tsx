@@ -104,7 +104,6 @@ const cards = ({
       >
         {items.map((item, idx) => {
           const style = randomStyles[idx];
-          console.log(style);
           return (
             <li
               className="border h-[350px] w-[300px] border-black dark:border-white border-gradient animated-gradient text-foreground rounded-lg shadow-lg p-6 transition-transform duration-300 flex flex-col justify-between"

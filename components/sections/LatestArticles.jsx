@@ -28,7 +28,7 @@ const Cycle = ({ id, title, progressRange, scrollYProgress, isActive, isLastCycl
 
         {/* Main Scene */}
         <div className="h-screen relative">
-          <h1 className="w-full font-title text-gradient animated-gradient text-bold text-6xl text-center absolute z-20 h-[20vh] mt-8 md:mt-16">Ultimi Articoli</h1>
+          <h1 className="w-full font-title text-gradient animated-gradient font-semibold max-sm:text-[2.5rem] text-[5rem] text-center absolute z-20 h-[20vh] mt-8 md:mt-16">Le Novità</h1>
           <div className="relative top-[20vh] h-[60vh]">
           <Scene scrollProgress={cycleProgress} isLastCycle={isLastCycle} currentImage={currentImage} isDarkMode={isDarkMode}/>
           </div>

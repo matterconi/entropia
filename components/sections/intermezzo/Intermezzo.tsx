@@ -3,34 +3,57 @@ import {
   motion,
   MotionValue,
   useInView,
+  useMotionValueEvent,
   useScroll,
   useTransform,
 } from "framer-motion";
+import Image from "next/image";
 import React, { useEffect, useRef } from "react";
 
 import Character from "@/components/sections/intermezzo/Character";
 
-const paragraph = "L'entropia Continua";
+const paragraph = "Altri Articoli di Litopia";
 
-interface HomeProps {
-  opacity: MotionValue<number>;
-}
+const width = window.innerWidth;
 
-export default function Home({ opacity }: HomeProps) {
+export default function Home({ setOpacityIsZero }) {
   const ref = useRef(null); // Reference to the container
+  const container = useRef(null);
+  const opacityRef = useRef(1);
+  const { scrollYProgress: opacityProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+  const opacity = useTransform(opacityProgress, [0, 1], [1, 0]);
+
+  useMotionValueEvent(opacityProgress, "change", (latest) => {
+    opacityRef.current = latest;
+    console.log(latest);
+    if (opacityRef.current === 1) {
+      setOpacityIsZero(true);
+    } else {
+      setOpacityIsZero(false);
+    }
+  });
   return (
-    <main className="bg-background w-full flex justify-center items-center sticky top-0 max-sm:py-20 py-24 px-16 h-screen max-sm:hidden">
+    <motion.main
+      className="bg-background w-full flex flex-col justify-center items-center sticky top-0 max-sm:py-20 py-24 px-16 h-screen"
+      style={{ opacity }} // Explicit cast
+    >
+      {/* Divider with geometric shape */}
+
       <motion.main
         ref={ref}
-        initial={{ opacity: 1 }} // Start fully hidden
-        style={{ opacity }} // Fade in when in view
-        transition={{ duration: 0.3 }} // Faster fade-in
+        className="w-full flex justify-center items-center"
       >
         {/* Motion div with scroll-based opacity */}
-        <motion.div className="w-full flex justify-center items-center">
+        <motion.div
+          className="w-full flex justify-center items-center"
+          ref={container}
+        >
           <Character paragraph={paragraph} />
         </motion.div>
       </motion.main>
-    </main>
+    </motion.main>
   );
 }

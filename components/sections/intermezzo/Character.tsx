@@ -23,18 +23,23 @@ export default function Character({ paragraph }: ParagraphProps): JSX.Element {
   const isInFullView = useInView(container, { amount: 1 }); // Trigger when the element is fully in view
   const { scrollYProgress } = useScroll({
     target: container,
-    offset: ["start 0.9", "start 0.25"],
+    offset: ["start 0.9", "start 0.35"],
   });
+
+  const { scrollYProgress: opacityProgress } = useScroll({
+    target: container,
+    offset: ["start 0.15", "end start"],
+  });
+
+  const divOpacity = useTransform(opacityProgress, [0, 1], [1, 0]);
 
   const words = paragraph.split(" ");
 
   return (
     <motion.p
       ref={container}
-      initial={{ opacity: 0 }} // Start fully hidden
-      animate={{ opacity: isInView ? 1 : 0 }} // Fade in when in view
-      transition={{ duration: 0.3 }} // Faster fade-in
-      className="flex flex-wrap max-w-5xl font-title text-foreground max-sm:text-9xl text-[7rem] leading-none items-center justify-center flex-wrap"
+      style={{ opacity: divOpacity }}
+      className="flex flex-wrap max-w-5xl font-title text-foreground max-sm:text-[2.5rem] text-[7rem] leading-none items-center justify-center"
     >
       {words.map((word, i) => {
         const start = i / words.length;

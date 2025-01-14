@@ -38,10 +38,16 @@ export const categories: MenuItem[] = [
     href: "/categorie/recensioni",
   },
   {
-    title: "Blog",
+    title: "Viaggi",
     description:
-      "Pensieri, riflessioni e esperienze personali. Un fotogramma, un'istantanea della vita di chi scrive, un salto nelle sue avventure, nelle sue emozioni e nelle sue idee. Raccontare se stessi per raccontare il mondo, raccontare il mondo per raccontare se stessi.",
-    href: "/categorie/blog",
+      "Esperienze, emozioni e riflessioni personali. Ogni viaggio è un frammento di vita, un racconto che intreccia il mondo interiore con quello esterno. Attraverso avventure e scoperte, narrare se stessi diventa un modo per esplorare e comprendere il mondo.",
+    href: "/categorie/viaggi",
+  },
+  {
+    title: "Pensieri",
+    description:
+      "Spazi di riflessione e confronto, dove opinioni e idee prendono forma. Un invito a condividere il proprio sguardo sul mondo, a esplorare le complessità della realtà e a dialogare con nuove prospettive.",
+    href: "/categorie/pensieri",
   },
 ];
 

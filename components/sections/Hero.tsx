@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useTheme } from "next-themes";
 import React, { useEffect, useRef } from "react";
 
@@ -20,7 +21,7 @@ export default function Hero() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Use the hacker effect with the target text
-  const { displayText, triggerHackerEffect } = useHackerTextEffect("ENTROPIA");
+  const { displayText, triggerHackerEffect } = useHackerTextEffect("LITOPÌA");
 
   // Use the fade-in effect and chain the hacker effect
   const { opacity, triggerFadeIn } = useFadeInEffect(() => {
@@ -53,10 +54,10 @@ export default function Hero() {
       {/* Content */}
       <RetroGrid className="z-0" />
       <Meteors />
-      <div className="z-10 w-full text-center">
+      <div className="z-10 w-full text-center relative">
         {/* Title */}
         <h1
-          className="font-title font-typo-h1 text-gradient animated-gradient"
+          className="font-title font-typo-h1 text-gradient animated-gradient flex justify-center items-center max-sm:flex-col-reverse max-sm:items-center max-sm:space-y-4"
           style={{
             opacity, // Apply fade-in effect
             transition: "opacity 0.5s ease-in-out",
@@ -64,16 +65,24 @@ export default function Hero() {
           onMouseOver={handleHover} // Trigger hacker effect and reset interval on hover
         >
           {displayText || "\u00A0" /* Non-breaking space to maintain width */}
+          <Image
+            src="/assets/mascot.png"
+            width={200}
+            height={200}
+            className=" z-50 filter invert dark:filter-none dark:invert-0"
+            objectFit="cover"
+            alt="mascot"
+          />
         </h1>
 
         {/* Subheading */}
         <div className="mx-6">
           <p className="font-typo-paragraph mt-6 font-color-paragraph font-sans">
             Esplora il confine tra{" "}
-            <span className="font-typo-paragraph-bold">caos </span> e{" "}
-            <span className="font-typo-paragraph-bold">ordine</span>, dove ogni
+            <span className="font-typo-paragraph-bold">Letteratura </span> e{" "}
+            <span className="font-typo-paragraph-bold">Utopia</span>, dove ogni
             parola è un viaggio e ogni storia è un universo da scoprire. Il{" "}
-            <span className="font-typo-paragraph-bold">caos </span> è solo
+            <span className="font-typo-paragraph-bold">Caos</span>? È solo
             l&apos;inizio.
           </p>
 

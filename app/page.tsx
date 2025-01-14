@@ -3,6 +3,7 @@
 import { useScroll, useTransform } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
 
+import CardsParallax from "@/components/sections/CardsParallax";
 import Categorie from "@/components/sections/Categorie";
 import Contacts from "@/components/sections/Contacts";
 import Footer from "@/components/sections/Footer";
@@ -69,10 +70,11 @@ const Page = () => {
       <div ref={latestArticlesRef}>
         <LatestArticles />
       </div>
-      {/* Placeholder for layout flow */}
       <div className="relative min-h-screen">
         <Categorie isGeneriInView={isGeneriInView} />
       </div>
+      {/* Placeholder for layout flow */}
+      <CardsParallax />
       {/* Pass setIsGeneriInView to Generi */}
       <Generi setIsInView={setIsGeneriInView} />
       <Contacts />

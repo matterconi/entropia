@@ -41,6 +41,7 @@ export default function Home({ isGeneriInView }: { isGeneriInView: boolean }) {
   const container = useRef<HTMLDivElement>(null);
   const gallery = useRef<HTMLDivElement>(null);
   const title = useRef<HTMLDivElement>(null);
+  const [isOpacityZero, setOpacityIsZero] = useState(false);
   const [bottomPosition, setBottomPosition] = useState<number | null>(null);
   const [dimension, setDimension] = useState({ width: 0, height: 0 });
   const [columns, setColumns] = useState(4);
@@ -146,9 +147,9 @@ export default function Home({ isGeneriInView }: { isGeneriInView: boolean }) {
 
   return (
     <>
-      <div className={`absolute top-0 bg-background h-fit w-full z-${zIndex}`}>
+      <div className={`absolute top-0 h-fit w-full z-${zIndex}`}>
         <main className="sticky top-0">
-          <Intermezzo position={bottomPosition} setZIndex={setZIndex} />
+          <Intermezzo setOpacityIsZero={setOpacityIsZero} />
         </main>
       </div>
       <motion.main
@@ -159,6 +160,13 @@ export default function Home({ isGeneriInView }: { isGeneriInView: boolean }) {
         <motion.div
           ref={title}
           className={`text-6xl sticky top-0 z-20 bg-background flex justify-center items-center h-full transition-opacity duration-500`}
+          animate={{
+            opacity: isOpacityZero ? 1 : 0, // Use the isOpacityZero state
+          }}
+          transition={{
+            duration: 0.5,
+            ease: "easeInOut",
+          }}
         >
           <h1 className="text-gradient font-title font-5xl p-8 text-center">
             Categorie
