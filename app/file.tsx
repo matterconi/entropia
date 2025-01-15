@@ -44,9 +44,7 @@ const Cycle = ({
 }) => {
   const imageRef = useRef(null);
   const bottomRef = useRef(null);
-  const sideRef = useRef(null);
-  const sideDistanceRef = useRef(null);
-  const topMidScreenRef = useRef(null);
+  const headerRef = useRef(null);
   const topRef = useRef(null);
   const cycleProgress = useTransform(scrollYProgress, progressRange, [0, 1]);
   const { dimensions } = useContext(DimensionsContext);
@@ -56,49 +54,25 @@ const Cycle = ({
     height: 0,
   };
   const { width, height } = modelDimensions;
+
   const y = 0;
   const x = 0;
 
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-
-  // Listener for window resize to detect breakpoints
   useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener("resize", handleResize);
+    let headerTop = 0;
+    let headerBottom = 0;
+    if (headerRef.current) {
+      headerBottom = headerRef.current.getBoundingClientRect().bottom;
+      headerTop = headerRef.current.getBoundingClientRect().top;
+    }
 
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  // Determine styles based on the breakpoint
-  const isLargeScreen = windowWidth >= 1280; // Example breakpoint for `max-lg`
-  const dynamicStyles = isLargeScreen
-    ? {
-        position: "absolute",
-        top: `${topRef.current}px`,
-        width: `${width}px`,
-        height: `${height}px`,
-        left: `${sideRef.current}px`,
-      }
-    : {
-        position: "absolute",
-        top: `${topMidScreenRef.current / 2}px`, // Adjust for smaller screens
-        width: `${width}px`, // Scale down width
-        height: `${height }px`, // Scale down height
-      };
-
-  useEffect(() => {
     if (imageRef.current) {
       const bottom = imageRef.current.getBoundingClientRect().bottom;
       const top = imageRef.current.getBoundingClientRect().top;
-      const left = imageRef.current.getBoundingClientRect().left;
-      const right = imageRef.current.getBoundingClientRect().right;
-      const sideDistance = (right - left - width) / 2;
-      sideDistanceRef.current = sideDistance;
-      sideRef.current = (right - (sideDistance * 2));
+
       const distance = (bottom - top - height) / 2;
-      const distanceFromTop = distance;
+      const distanceFromTop = top + distance - headerBottom + height;
       topRef.current = distanceFromTop;
-      topMidScreenRef.current = distance * 2 + height * 2;
     }
   }, [imageRef, height]);
 
@@ -109,77 +83,63 @@ const Cycle = ({
           ? "relative"
           : "absolute top-0 left-0 w-full opacity-0 pointer-events-none"
       }`}
-    > 
-      {/* Individual Cycle with sticky positionin */}
+    >
       <div className="sticky top-0 h-screen overflow-hidden">
-         {/* Relative Cycle with absolute positionin */}
-        <div className="h-screen ">
-          {/* Header */}
+        <div className="h-screen relative">
           <div
-            className="w-full absolute z-20 h-[20vh] flex flex-col "
+            className="w-full absolute z-20 h-[20vh] flex flex-col items-center justify-center"
+            ref={headerRef}
           >
             <h1 className="w-full font-title text-gradient animated-gradient font-semibold max-sm:text-[2.5rem] text-[5rem] text-center">
               Le Novità
             </h1>
           </div>
-          {/*Content */}
-          <div
-            className="absolute top-[20vh] h-[70vh] w-full"
-            style={{
-              transform: `translateX(${isLargeScreen ? sideDistanceRef.current : 0}px)`,
-            }}
-          >
-            <div className="absolute h-full w-full">
-              <Background
+          <div className="absolute top-[20vh] h-[80vh] w-full">
+            <Background
+              scrollProgress={cycleProgress}
+              isLastCycle={isLastCycle}
+              currentImage={currentImage}
+              isDarkMode={isDarkMode}
+            />
+          </div>
+          <div className="absolute top-[20vh] h-[80vh] flex flex-col items-center justify-center w-full z-10">
+            <div className="w-full h-full" ref={imageRef}>
+              <Scene
                 scrollProgress={cycleProgress}
                 isLastCycle={isLastCycle}
                 currentImage={currentImage}
                 isDarkMode={isDarkMode}
+                id={id}
               />
             </div>
-            <div className="absolute h-full w-full z-10 flex max-xl:flex-col px-12">
-              <div className="w-full xl:w-[50%] h-full" ref={imageRef} >
-                <Scene
-                  scrollProgress={cycleProgress}
-                  isLastCycle={isLastCycle}
-                  currentImage={currentImage}
-                  isDarkMode={isDarkMode}
-                  id={id}
-                />
-              </div>
-              <div className="h-full z-50 w-full xl:w-[50%] flex flex-col justify-center items-center">
-                <div
-                  className="max-xl:rounded-b-lg xl:rounded-r-lg flex flex-col border-gradient animated-gradient px-8"
-                  style={dynamicStyles}
-                >
-                  <p className="relative text-black font-sans text-2xl font-semibold w-full text-center z-20 mb-2 mt-8">
-                    {title}
-                  </p>
-                  <p
-                    className="text-black mx-2 overflow-hidden text-ellipsis whitespace-normal hidden md:flex"
-                    style={{
-                      WebkitBoxOrient: "vertical",
-                      WebkitLineClamp: 5, // Adjust the number of lines as per your container
-                      lineHeight: "1.5em", // Ensure proper line height for spacing
-                      maxHeight: "7.5em", // Line height * number of lines (e.g., 1.5em * 5 lines)
-                    }}
-                  >
-                    In un mondo alienato, in cui il piacere è estremizzato e il gioco virtuale,
-                    non basta più la natura a portare alla felicità, ma è necessaria la
-                    pervesione. La perversione del gioco è la fuoriuscita delle pulsioni
-                    sessuali non appagate e frustrate dell'individuo che in sadismo controllato
-                    credono di poter essere soddisfatte.
-                  </p>
-
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {tags.map((tag, i) => (
-                      <Tag key={i} tag={tag} />
-                    ))}
-                  </div>
-                  <div className="flex justify-center w-full">
-                  <RainbowButton className="mt-4 w-fit">Leggi</RainbowButton>
-                  </div>
+            <div className="h-[80vh] z-50">
+              <div
+                className="rounded-b-lg flex flex-col items-center justify-center transform -translate-x-1/2"
+                style={{
+                  position: "absolute",
+                  top: `${topRef.current}px`,
+                  width: `${width}px`,
+                  height: `${height}px`,
+                  backgroundColor: "rgb(254 242 242)", // Tailwind's `bg-red-50` equivalent
+                }}
+              >
+                <p className="relative text-black font-sans text-2xl font-semibold w-full text-center z-20 mb-2 mt-8">
+                  {title}
+                </p>
+                <p className="text-black mx-2">
+                  In un mondo alienato, in cui il piacere è estremizzato e il
+                  gioco virtuale, non basta più la natura a portare alla
+                  felicità, ma è necessaria la pervesione. La perversione del
+                  gioco è la fuoriuscita delle pulsioni sessuali non appagate e
+                  frustrate dell'individuo che in sadismo controllato credono di
+                  poter essere soddisfatte.
+                </p>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {tags.map((tag, i) => (
+                    <Tag key={i} tag={tag} />
+                  ))}
                 </div>
+                <RainbowButton className="mt-4 w-fit">Leggi</RainbowButton>
               </div>
             </div>
           </div>

@@ -19,16 +19,22 @@ export const fragment = `
 `
 	export const vertex = `
 	varying vec2 vUv;
-	uniform float uTime;
-	uniform float uAmplitude;
-	uniform float uWaveLength;
-	void main() {
-		vUv = uv;
-		vec3 newPosition = position;
-	
-		float wave = uAmplitude * sin(position.x * uWaveLength + uTime);
-		newPosition.z = position.z + wave; 
-	
-		gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
-	  }
+uniform float uTime;
+uniform float uAmplitude;
+uniform float uWaveLength;
+
+void main() {
+  vUv = uv;
+  vec3 newPosition = position;
+
+  // Compute the blend factor dynamically
+  float blendFactor = vUv.y; // None (0.0) at bottom (vUv.y = 0), Full (1.0) at top (vUv.y = 1)
+
+  // Apply the wave animation with the blend factor
+  float wave = uAmplitude * sin(position.x * uWaveLength + uTime);
+  newPosition.z = position.z + wave * blendFactor;
+
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+}
+
 	`

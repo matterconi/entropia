@@ -20,7 +20,7 @@ export default function Footer() {
         <div className="flex flex-col items-center justify-end w-full px-4 h-full">
           <h1 className="text-3xl lg:max-w-[45vw] text-center font-title">
             <span className=" text-gradient animated-gradient font-semibold">
-              Litopìa{" "}
+              Lexopìa{" "}
             </span>{" "}
             <br />
             Ti aspetta
@@ -38,7 +38,7 @@ export default function Footer() {
         <div className="flex mt-16 md:flex-row flex-col justify-center items-center md:gap-8 px-4 mb-8">
           <p className=":text-base text-sm md:font-normal font-light max-md:mb-8 text-center">
             Copyright © 2025{" "}
-            <span className="font-tile text-gradient">LITOPÌA</span>
+            <span className="font-tile text-gradient">LEXOPÌA</span>
           </p>
           <div className="flex items-center md:gap-3 gap-6">
             {socialMedia.map((profile) => (

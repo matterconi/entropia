@@ -21,11 +21,11 @@ export default function Hero() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Use the hacker effect with the target text
-  const { displayText, triggerHackerEffect } = useHackerTextEffect("LITOPÌA");
+  const { displayText } = useHackerTextEffect("LEXOPÌA");
 
   // Use the fade-in effect and chain the hacker effect
   const { opacity, triggerFadeIn } = useFadeInEffect(() => {
-    triggerHackerEffect(); // Trigger hacker effect after fade-in
+    // Trigger hacker effect after fade-in
   });
 
   // Use the particle systems for the canvas animation
@@ -54,15 +54,16 @@ export default function Hero() {
       {/* Content */}
       <RetroGrid className="z-0" />
       <Meteors />
-      <div className="z-10 w-full text-center relative">
+      <div className="z-10 w-full relative">
         {/* Title */}
         <h1
           className="font-title font-typo-h1 text-gradient animated-gradient flex justify-center items-center max-sm:flex-col-reverse max-sm:items-center max-sm:space-y-4"
           style={{
             opacity, // Apply fade-in effect
             transition: "opacity 0.5s ease-in-out",
+            fontVariantNumeric: "tabular-nums", // Enforce monospace-like numbers
+            letterSpacing: "0.1em", // Simulate monospace effect for letters
           }}
-          onMouseOver={handleHover} // Trigger hacker effect and reset interval on hover
         >
           {displayText || "\u00A0" /* Non-breaking space to maintain width */}
           <Image
@@ -79,7 +80,7 @@ export default function Hero() {
         <div className="mx-6">
           <p className="font-typo-paragraph mt-6 font-color-paragraph font-sans">
             Esplora il confine tra{" "}
-            <span className="font-typo-paragraph-bold">Letteratura </span> e{" "}
+            <span className="font-typo-paragraph-bold">Linguaggio </span> e{" "}
             <span className="font-typo-paragraph-bold">Utopia</span>, dove ogni
             parola è un viaggio e ogni storia è un universo da scoprire. Il{" "}
             <span className="font-typo-paragraph-bold">Caos</span>? È solo

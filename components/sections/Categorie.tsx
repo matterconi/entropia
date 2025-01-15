@@ -1,6 +1,7 @@
 "use client";
 import Lenis from "@studio-freight/lenis";
 import { motion, useScroll, useTransform } from "framer-motion";
+import Image from "next/image";
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 
 import { categories, MenuItem } from "@/data/data";
@@ -25,7 +26,7 @@ const useShuffledCategories = (categories: MenuItem[], index: number) =>
     const slicedPart = categories.slice(step % length);
     const remainingPart = categories.slice(0, step % length);
 
-    return [...slicedPart, ...remainingPart, ...slicedPart, ...remainingPart];
+    return [...slicedPart, ...remainingPart];
   }, [categories, index]);
 
 const generateRandomStyles = () => {
@@ -157,21 +158,6 @@ export default function Home({ isGeneriInView }: { isGeneriInView: boolean }) {
         ref={container}
         style={{ opacity }}
       >
-        <motion.div
-          ref={title}
-          className={`text-6xl sticky top-0 z-20 bg-background flex justify-center items-center h-full transition-opacity duration-500`}
-          animate={{
-            opacity: isOpacityZero ? 1 : 0, // Use the isOpacityZero state
-          }}
-          transition={{
-            duration: 0.5,
-            ease: "easeInOut",
-          }}
-        >
-          <h1 className="text-gradient font-title font-5xl p-8 text-center">
-            Categorie
-          </h1>
-        </motion.div>
         <div ref={gallery} className={styles.gallery}>
           {Array.from({ length: columns }).map((_, i) => (
             <Column key={i} y={motionValues[i]} i={i} />
@@ -204,18 +190,41 @@ const Column = ({ y, i }) => {
   );
 };
 
+const tags = ["Poesia", "Romantico"];
+
+const Tag = ({ tag }: { tag: string }) => {
+  return (
+    <div className="bg-green-700 text-foreground text-xs px-2 py-1 rounded-full mr-2 mt-2 mb-4">
+      {tag}
+    </div>
+  );
+};
+
 const Card = memo(({ title, description, href, randomStyles }: CardProps) => {
   return (
-    <div
-      className="border border-black dark:border-white border-gradient animated-gradient min-h-[300px] text-foreground rounded-lg shadow-lg p-6 transition-transform duration-300 flex flex-col justify-end"
-      style={randomStyles}
-    >
-      <div className="mb-4">
-        <h2 className="text-2xl font-bold mb-2">{title}</h2>
-        <p className="text-sm mb-4">{description}</p>
+    <div className="border border-black dark:border-white bg-background min-h-[500px] text-foreground rounded-lg shadow-lg p-6 transition-transform duration-300 flex flex-col justify-between">
+      <div className="flex flex-col flex-1">
+        <h2 className="text-2xl font-bold mb-2">
+          Ho dimenticato il colore dei tuoi occhi
+        </h2>
+        <div className="h-full w-full flex-1">
+          <div className="relative h-full w-full flex-1">
+            <Image
+              src="/assets/occhi.webp"
+              layout="fill"
+              objectFit="cover"
+              alt="swag"
+            />
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2 mt-2">
+          {tags.map((tag, i) => (
+            <Tag key={i} tag={tag} />
+          ))}
+        </div>
       </div>
-      <div className="flex w-full">
-        <RainbowButton className="py-4 w-full">Esplora</RainbowButton>
+      <div className="flex mt-4 w-full">
+        <RainbowButton className="py-4 w-full">Leggi ora</RainbowButton>
       </div>
     </div>
   );

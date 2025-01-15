@@ -25,7 +25,7 @@ const Contacts = () => {
       <div className="px-4 sm:px-16 w-full flex flex-col items-center justify-center z-10">
         <ShimmerButton className=" z-10 w-full h-[450px] rounded-none">
           <h1 className="text-7xl max-sm:text-6xl z-20 text-foreground font-title mb-4 flex flex-col justify-center items-center w-full">
-            Join <br /> <span className="text-gradient">Litopìa</span>
+            Join <br /> <span className="text-gradient">Lexopìa</span>
           </h1>
           <p className="4 max-sm:px-4 px-16 text-foreground z-20 text-sm mb-8 w-full break-words w-full text-center">
             Iscriviti alla Newsletter per rimanere sempre aggiornat3 sulle

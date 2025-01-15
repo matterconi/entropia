@@ -32,7 +32,7 @@ export default function Navbar() {
     >
       {/* Left Section: Brand Name */}
       <div className="text-2xl font-bold text-gradient font-title sm:px-2">
-        LITOPÌA
+        LEXOPÌA
       </div>
 
       <div className="hidden max-xl:w-[400px] w-[600px] lg:flex border-gradient p-[1px] rounded-md animated-gradient h-[56px]">
