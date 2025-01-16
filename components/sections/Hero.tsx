@@ -36,10 +36,6 @@ export default function Hero() {
     triggerFadeIn();
   }, []);
 
-  const handleHover = () => {
-    triggerHackerEffect(); // Retrigger the hacker effect on hover
-  };
-
   return (
     <section
       className="min-h-custom relative flex max-w-screen flex-col items-center justify-center overflow-x-hidden bg-background"
