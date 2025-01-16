@@ -149,7 +149,7 @@ const Cycle = ({
               </div>
               <div className="h-full z-50 w-full xl:w-[50%] flex flex-col justify-center items-center">
                 <div
-                  className="max-xl:rounded-b-lg xl:rounded-r-lg flex flex-col border-gradient animated-gradient px-8"
+                  className="max-xl:rounded-b-lg xl:rounded-r-lg flex flex-col bg-white px-8"
                   style={dynamicStyles}
                 >
                   <p className="relative text-black font-sans text-2xl font-semibold w-full text-center z-20 mb-2 mt-8">
