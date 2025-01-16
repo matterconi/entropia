@@ -16,7 +16,11 @@ const paragraph = "Altri Articoli di Lexopìa";
 
 const width = window.innerWidth;
 
-export default function Home({ setOpacityIsZero }) {
+interface HomeProps {
+  setOpacityIsZero: (isZero: boolean) => void;
+}
+
+export default function Home({ setOpacityIsZero }: HomeProps) {
   const ref = useRef(null); // Reference to the container
   const container = useRef(null);
   const opacityRef = useRef(1);
