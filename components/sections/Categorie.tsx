@@ -168,7 +168,12 @@ export default function Home({ isGeneriInView }: { isGeneriInView: boolean }) {
   );
 }
 
-const Column = ({ y, i }) => {
+interface ColumnProps {
+  y: any;
+  i: number;
+}
+
+const Column = ({ y, i }: ColumnProps) => {
   const shuffledCategories = useShuffledCategories(categories, i);
   const randomStyles = useMemo(
     () => shuffledCategories.map(() => generateRandomStyles()),
@@ -229,3 +234,5 @@ const Card = memo(({ title, description, href, randomStyles }: CardProps) => {
     </div>
   );
 });
+
+Card.displayName = "Card";

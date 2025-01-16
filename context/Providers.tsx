@@ -2,7 +2,6 @@
 
 import React from "react";
 
-import { CharacterProvider } from "@/context/CharacterContext";
 import { MenuProvider } from "@/context/MenuContext";
 import { ThemeProvider } from "@/context/theme/ThemeProvider";
 
