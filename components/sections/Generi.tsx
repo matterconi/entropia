@@ -4,7 +4,11 @@ import React, { useRef } from "react";
 import InfiniteMovingCards from "@/components/ui/infinite-moving-cards";
 import { genres } from "@/data/data";
 
-const Generi = ({ setIsInView }) => {
+interface GeneriProps {
+  setIsInView: (isInView: boolean) => void;
+}
+
+const Generi: React.FC<GeneriProps> = ({ setIsInView }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: false });
 
