@@ -11,10 +11,11 @@ import { RainbowInput } from "@/components/ui/rainbow-input";
 import { cn } from "@/lib/utils";
 
 interface LocalSearchProps {
-  route: string;
+  route?: string;
   imgSrc?: string;
   placeholder: string;
   otherClasses?: string;
+  isSearch?: boolean;
 }
 
 const LocalSearch = ({
