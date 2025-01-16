@@ -1,6 +1,7 @@
 "use client";
+
 import Lenis from "@studio-freight/lenis";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, MotionValue, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 
@@ -169,7 +170,7 @@ export default function Home({ isGeneriInView }: { isGeneriInView: boolean }) {
 }
 
 interface ColumnProps {
-  y: any;
+  y: MotionValue<number>;
   i: number;
 }
 
