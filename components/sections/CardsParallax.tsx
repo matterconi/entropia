@@ -39,6 +39,19 @@ const projects = categories.map((category, i) => {
   };
 });
 
+interface CardProps {
+  i: number;
+  title: string;
+  description: string;
+  src: string;
+  url: string;
+  color: string;
+  progress: any;
+  range: number[];
+  targetScale: number;
+  opacityScale: number;
+}
+
 const Card = ({
   i,
   title,
@@ -50,7 +63,7 @@ const Card = ({
   range,
   targetScale,
   opacityScale,
-}) => {
+}: CardProps) => {
   const container = useRef(null);
   const { scrollYProgress } = useScroll({
     target: container,
@@ -119,7 +132,7 @@ export default function Home() {
   useEffect(() => {
     const lenis = new Lenis();
 
-    function raf(time) {
+    function raf(time: number) {
       lenis.raf(time);
 
       requestAnimationFrame(raf);
