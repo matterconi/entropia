@@ -50,7 +50,7 @@ export default function Home({
   }, []);
 
   useEffect(() => {
-    if (bottomPosition !== null) {
+    if (bottomPosition !== null && position !== null) {
       const newVisibility = position > bottomPosition;
 
       // Only update `isVisible` and `setZIndex` if they change
