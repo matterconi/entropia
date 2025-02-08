@@ -44,6 +44,7 @@ const Cycle = ({
 }) => {
   const imageRef = useRef(null);
   const bottomRef = useRef(null);
+  const sizeRef = useRef({ width: 0, height: 0 });
   const sideRef = useRef(null);
   const sideDistanceRef = useRef(null);
   const topMidScreenRef = useRef(null);
@@ -75,19 +76,21 @@ const Cycle = ({
     ? {
         position: "absolute",
         top: `${topRef.current}px`,
-        width: `${width}px`,
+        width: `${sizeRef.current.width}px`,
         height: `${height}px`,
-        left: `${sideRef.current}px`,
+        left: `calc(50% - ${sideDistanceRef.current}px)`, // Center the element
       }
     : {
         position: "absolute",
         top: `${topMidScreenRef.current / 2}px`, // Adjust for smaller screens
         width: `${width}px`, // Scale down width
-        height: `${height }px`, // Scale down height
+        height: `${sizeRef.current.height }px`, // Scale down height
       };
 
   useEffect(() => {
-    if (imageRef.current) {
+    if (imageRef.current && width && height) {
+      sizeRef.current.width = sizeRef.current.width === 0 ? width : sizeRef.current.width;
+      sizeRef.current.height = sizeRef.current.height === 0 ? height : sizeRef.current.height;
       const bottom = imageRef.current.getBoundingClientRect().bottom;
       const top = imageRef.current.getBoundingClientRect().top;
       const left = imageRef.current.getBoundingClientRect().left;
@@ -100,7 +103,7 @@ const Cycle = ({
       topRef.current = distanceFromTop;
       topMidScreenRef.current = distance * 2 + height * 2;
     }
-  }, [imageRef, height]);
+  }, [imageRef, height, width]);
 
   return (
     <div
@@ -116,17 +119,18 @@ const Cycle = ({
         <div className="h-screen ">
           {/* Header */}
           <div
-            className="w-full absolute z-20 h-[20vh] flex flex-col "
+            className="w-full absolute z-20 h-[25vh] flex flex-col "
           >
-            <h1 className="w-full font-title text-gradient animated-gradient font-semibold max-sm:text-[2.5rem] text-[5rem] text-center">
-              Le Novità
+            <h1 className="px-12 w-full font-title text-gradient animated-gradient font-semibold max-sm:text-[2rem] max-md:text-[2.5rem] md:text-5xl lg:text-6xl xl:text-7xl flex justify-center items-center h-full text-center">
+              Novità dal Lexoverse
             </h1>
           </div>
           {/*Content */}
           <div
-            className="absolute top-[20vh] h-[70vh] w-full"
+            className="absolute top-[25vh] h-[65vh] w-full"
             style={{
-              transform: `translateX(${isLargeScreen ? sideDistanceRef.current : 0}px)`,
+              transform: `translateX(${isLargeScreen ? sideDistanceRef.current : 0}px)
+              `,
             }}
           >
             <div className="absolute h-full w-full">
@@ -137,47 +141,51 @@ const Cycle = ({
                 isDarkMode={isDarkMode}
               />
             </div>
-            <div className="absolute h-full w-full z-10 flex max-xl:flex-col px-12">
+            <div className="absolute h-full w-full z-10 flex max-xl:flex-col">
               <div className="w-full xl:w-[50%] h-full" ref={imageRef} >
                 <Scene
                   scrollProgress={cycleProgress}
                   isLastCycle={isLastCycle}
                   currentImage={currentImage}
                   isDarkMode={isDarkMode}
+                  isLargeScreen={isLargeScreen}
                   id={id}
                 />
               </div>
               <div className="h-full z-50 w-full xl:w-[50%] flex flex-col justify-center items-center">
                 <div
-                  className="max-xl:rounded-b-lg xl:rounded-r-lg flex flex-col bg-white px-8"
+                  className="max-xl:rounded-b-lg xl:rounded-r-lg flex flex-col border-gradient p-[1px] max-xl:pt-0 xl:pl-0"
                   style={dynamicStyles}
                 >
-                  <p className="relative text-black font-sans text-2xl font-semibold w-full text-center z-20 mb-2 mt-8">
-                    {title}
-                  </p>
-                  <p
-                    className="text-black mx-2 overflow-hidden text-ellipsis whitespace-normal hidden md:flex"
+                  <div className="flex max-xl:justify-center justify-start items-start xl:items-center w-full h-full dark:bg-white bg-gray-50 max-xl:rounded-b-lg xl:rounded-r-lg">
+                    <div className="flex flex-col max-xl:items-center justify-start items-start xl:justify-center px-8 py-6"
                     style={{
-                      WebkitBoxOrient: "vertical",
-                      WebkitLineClamp: 5, // Adjust the number of lines as per your container
-                      lineHeight: "1.5em", // Ensure proper line height for spacing
-                      maxHeight: "7.5em", // Line height * number of lines (e.g., 1.5em * 5 lines)
+                      width: `${sizeRef.current.width}px`,
+                      height: `${sizeRef.current.height}px`,
                     }}
-                  >
-                    In un mondo alienato, in cui il piacere è estremizzato e il gioco virtuale,
-                    non basta più la natura a portare alla felicità, ma è necessaria la
-                    pervesione. La perversione del gioco è la fuoriuscita delle pulsioni
-                    sessuali non appagate e frustrate dell'individuo che in sadismo controllato
-                    credono di poter essere soddisfatte.
-                  </p>
+                     >
+                      <p className="relative text-black font-sans text-2xl font-semibold w-full z-20 mb-6 mt-8 max-xl:text-center">
+                        {title}
+                      </p>
+                      <p
+                        className="flex flex-wrap text-wrap text-black truncate text-ellipsis w-full max-md:line-clamp-2 max-xl:line-clamp-2 xl:line-clamp-5"
+                      >
+                        In un mondo alienato, in cui il piacere è estremizzato e il gioco virtuale,
+                        non basta più la natura a portare alla felicità, ma è necessaria la
+                        pervesione. La perversione del gioco è la fuoriuscita delle pulsioni
+                        sessuali non appagate e frustrate dell'individuo che in sadismo controllato
+                        credono di poter essere soddisfatte. 
+                      </p>
 
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {tags.map((tag, i) => (
-                      <Tag key={i} tag={tag} />
-                    ))}
-                  </div>
-                  <div className="flex justify-center w-full">
-                  <RainbowButton className="mt-4 w-fit">Leggi</RainbowButton>
+                      <div className="flex flex-wrap gap-2 mt-6 justify-start items-start max-md:justify-center w-full">
+                        {tags.map((tag, i) => (
+                          <Tag key={i} tag={tag} />
+                        ))}
+                      </div>
+                      <div className="flex justify-center w-full">
+                      <RainbowButton className="mt-2 w-fit">Leggi</RainbowButton>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -199,8 +207,8 @@ const Home = () => {
 
   const cycles = [
     { id: 1, title: "La donna e il pozzo", image: "/assets/occhi.webp" },
-    { id: 2, title: "Epistemologia della trap", image: "/assets/photo1.jpg" },
-    { id: 3, title: "La perversione del gioco", image: "/assets/occhi.webp" },
+    { id: 2, title: "La donna e il pozzo", image: "/assets/donna.webp" },
+    { id: 3, title: "La donna e il pozzo", image: "/assets/occhi.webp" },
   ];
 
   const progressRanges = cycles.map((_, index) => [

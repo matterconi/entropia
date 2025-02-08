@@ -73,6 +73,8 @@ export default {
         meteor: "meteor 5s linear infinite",
         scroll:
           "scroll var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite",
+        scrollY:
+          "scrollY var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite",
         "shimmer-slide":
           "shimmer-slide var(--speed) ease-in-out infinite alternate",
         "spin-around": "spin-around calc(var(--speed) * 2) infinite linear",
@@ -112,6 +114,11 @@ export default {
             transform: "translate(calc(-50% - 0.5rem))",
           },
         },
+        scrollY: {
+          to: {
+            transform: "translateY(calc(-50% - 0.5rem))",
+          },
+        },
         "shimmer-slide": {
           to: {
             transform: "translate(calc(100cqw - 100%), 0)",
@@ -132,9 +139,26 @@ export default {
           },
         },
       },
+      typography: {
+        DEFAULT: {
+          css: {
+            "code::before": {
+              content: '""', // ✅ Rimuove i backtick predefiniti
+            },
+            "code::after": {
+              content: '""', // ✅ Rimuove i backtick predefiniti
+            },
+            code: {
+              background: "#f3f4f6", // ✅ Aggiunge sfondo chiaro ai blocchi di codice
+              padding: ".1rem .3rem",
+              borderRadius: ".2rem",
+            },
+          },
+        },
+      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
   // Add support for custom attributes
   variants: {
     extend: {

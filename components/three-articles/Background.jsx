@@ -5,7 +5,7 @@ import React, { useRef, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import Model from "./Model";
-import { getSharedPoints } from "@/lib/helpers";
+import { getSharedPoints } from "@/lib/3D/helpers";
 
 // StarField Component
 

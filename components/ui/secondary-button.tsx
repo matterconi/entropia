@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { FaChevronDown } from "react-icons/fa";
+import React from "react";
 
 export interface SecondaryButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {

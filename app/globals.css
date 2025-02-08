@@ -37,6 +37,7 @@
     --color-3: 210 100% 63%;
     --color-4: 195 100% 63%;
     --color-5: 90 100% 63%;
+    --button-active-bg: #e2e8f0;
   }
 
   .dark {
@@ -70,11 +71,21 @@
     --color-3: 210 100% 63%;
     --color-4: 195 100% 63%;
     --color-5: 90 100% 63%;
+    --button-active-bg: #4a5568;
   }
 }
 
 body {
   @apply font-sans;
+}
+
+html, body {
+  height:100%;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  transition: background-color 0s 600000s, color 0s 600000s !important;
 }
 
 /* Animations */

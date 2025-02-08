@@ -109,6 +109,88 @@ export const genres: MenuItem[] = [
   },
 ];
 
+// Define topics (argomenti)
+export const topic: MenuItem[] = [
+  {
+    title: "Filosofia",
+    description:
+      "Riflessioni su idee, valori e significati della vita. Un viaggio nel pensiero umano attraverso le epoche.",
+    href: "/topic/filosofia",
+  },
+  {
+    title: "Esistenzialismo",
+    description:
+      "Ricerca del significato delle vita attraverso l'esperienza umana. Un'analisi delle scelte, delle responsabilità e delle contraddizioni dell'esistenza.",
+    href: "/topic/esistenzialismo",
+  },
+  {
+    title: "Cinema",
+    description:
+      "Analisi e recensioni di opere cinematografiche, con un focus sulle storie, i personaggi e i messaggi delle pellicole.",
+    href: "/topic/cinema",
+  },
+  {
+    title: "Musica",
+    description:
+      "Esplorazioni di testi e melodie che accompagnano la vita. Una riflessione sul potere evocativo delle note.",
+    href: "/topic/musica",
+  },
+  {
+    title: "Arte",
+    description:
+      "Un viaggio tra dipinti, sculture e forme d'espressione visiva. L'arte come specchio dell'animo umano e della società.",
+    href: "/topic/arte",
+  },
+  {
+    title: "Politica",
+    description:
+      "Saggi e analisi sul potere, le istituzioni e le dinamiche sociali. Una lente sulle forze che modellano il mondo.",
+    href: "/topic/politica",
+  },
+  {
+    title: "Psicologia",
+    description:
+      "Uno sguardo sulle emozioni, i comportamenti e le dinamiche della mente umana. Tra introspezione e scienza.",
+    href: "/topic/psicologia",
+  },
+  {
+    title: "Società",
+    description:
+      "Approfondimenti su cultura, evoluzioni sociali e temi d'attualità. La letteratura come mezzo per comprendere il mondo.",
+    href: "/topic/societa",
+  },
+  {
+    title: "Storia",
+    description:
+      "Analisi di eventi storici, figure iconiche e narrazioni che hanno segnato l'umanità. Il passato come chiave per interpretare il presente.",
+    href: "/topic/storia",
+  },
+  {
+    title: "Scienza e Tecnologia",
+    description:
+      "Esplorazioni di scoperte scientifiche, innovazioni e il loro impatto sulla società. La fusione tra letteratura e progresso.",
+    href: "/topic/scienza-e-tecnologia",
+  },
+  {
+    title: "Spiritualità",
+    description:
+      "Riflessioni sul senso della vita, la trascendenza e il rapporto tra uomo e universo. Una prospettiva tra il mistico e il personale.",
+    href: "/topic/spiritualita",
+  },
+  {
+    title: "Letteratura",
+    description:
+      "Saggi e analisi su libri, autori e movimenti letterari. Una celebrazione delle parole e del potere delle storie.",
+    href: "/topic/letteratura",
+  },
+  {
+    title: "Cultura Pop",
+    description:
+      "Un'immersione nelle tendenze, nei fenomeni e nei simboli della cultura di massa. Dalla narrativa ai media, uno specchio del nostro tempo.",
+    href: "/topic/cultura-pop",
+  },
+];
+
 export const socialMedia = [
   {
     id: 1,

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -18,7 +19,7 @@ const generateRandomStyles = () => {
 const cards = ({
   items,
   direction = "left",
-  speed = "fast",
+  speed = "normal",
   pauseOnHover = true,
   className,
 }: {
@@ -90,7 +91,7 @@ const cards = ({
     <div
       ref={containerRef}
       className={cn(
-        "w-screen scroller relative z-20  max-w-7xl overflow-hidden  [mask-image:linear-gradient(to_right,transparent,white_20%,white_80%,transparent)]",
+        "w-screen scroller relative z-20  max-md:max-w-[96vw] max-w-[90vw] overflow-hidden  [mask-image:linear-gradient(to_right,transparent,white_20%,white_80%,transparent)]",
         className,
       )}
     >
@@ -121,9 +122,11 @@ const cards = ({
               </blockquote>
 
               {/* Button */}
-              <div className="flex-shrink-0 mt-4">
-                <RainbowButton>Scopri di più</RainbowButton>
-              </div>
+              <Link href={item.href}>
+                <div className="flex-shrink-0 mt-4">
+                  <RainbowButton>Scopri di più</RainbowButton>
+                </div>
+              </Link>
             </li>
           );
         })}

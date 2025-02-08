@@ -38,3 +38,24 @@ void main() {
 }
 
 	`
+
+	export const largeVertex = `
+	varying vec2 vUv;
+	uniform float uTime;
+	uniform float uAmplitude;
+	uniform float uWaveLength;
+
+	void main() {
+		vUv = uv;
+		vec3 newPosition = position;
+
+		// Compute the blend factor dynamically
+		float blendFactor = 1.0 - vUv.x; // Full (1.0) at left (vUv.x = 0), None (0.0) at right (vUv.x = 1)
+
+		// Apply the wave animation with the blend factor
+		float wave = uAmplitude * sin(position.y * uWaveLength + uTime);
+		newPosition.z = position.z + wave * blendFactor;
+
+		gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+	}
+`

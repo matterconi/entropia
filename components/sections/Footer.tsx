@@ -21,17 +21,17 @@ export default function Footer() {
         <div className="flex flex-col items-center justify-end w-full px-4 h-full">
           <h1 className="text-3xl lg:max-w-[45vw] text-center font-title">
             <span className=" text-gradient animated-gradient font-semibold">
-              Lexopìa{" "}
+              Versia{" "}
             </span>{" "}
             <br />
             Ti aspetta
           </h1>
           <p className="text-white-200 md:mt-10 my-5 text-center mx-8 md">
             Stiamo cercando scrittori, artisti e creatori di contenuti per il
-            sito. Se sei interessato, contattaci!
+            sito. Se sei interessat3, contattaci!
           </p>
           <p className="text-white-200 text-center mx-8 md font-semibold">
-            litopìa@swag.com
+            lexoverse@swag.com
           </p>
         </div>
 
@@ -39,7 +39,7 @@ export default function Footer() {
         <div className="flex mt-16 md:flex-row flex-col justify-center items-center md:gap-8 px-4 mb-8">
           <p className=":text-base text-sm md:font-normal font-light max-md:mb-8 text-center">
             Copyright © 2025{" "}
-            <span className="font-tile text-gradient">LEXOPÌA</span>
+            <span className="font-tile text-gradient">LEXOVERSE</span>
           </p>
           <div className="flex items-center md:gap-3 gap-6">
             {socialMedia.map((profile) => (
@@ -52,6 +52,7 @@ export default function Footer() {
                   alt="Social Media"
                   width={20}
                   height={20}
+                  className="invert dark:filter-none dark:invert-0"
                 />
               </div>
             ))}

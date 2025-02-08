@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-import System from "../lib/classes/System";
+import System from "../lib/3D/classes/System";
 
 interface CanvasRef {
   current: HTMLCanvasElement | null;

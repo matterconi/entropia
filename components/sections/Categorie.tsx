@@ -9,6 +9,7 @@ import { categories, MenuItem } from "@/data/data";
 
 import styles from "./Categorie.module.scss";
 import { RainbowButton } from "../ui/rainbow-button";
+import InfiniteMovingCards from "../ui/verticalCards";
 import Intermezzo from "./intermezzo/Intermezzo";
 
 interface CardProps {
@@ -96,8 +97,6 @@ export default function Home({ isGeneriInView }: { isGeneriInView: boolean }) {
     offset: ["end end", "end 0.15"],
   });
 
-  console.log(scrollYProgressOpacity.get());
-
   const opacity = useTransform(scrollYProgressOpacity, [0, 0.9], [1, 0]);
 
   useEffect(() => {
@@ -149,22 +148,30 @@ export default function Home({ isGeneriInView }: { isGeneriInView: boolean }) {
 
   return (
     <>
-      <div className={`absolute top-0 h-fit w-full z-${zIndex}`}>
-        <main className="sticky top-0">
-          <Intermezzo setOpacityIsZero={setOpacityIsZero} />
-        </main>
+      <div className={`absolute top-0 h-fit w-full z-${zIndex} max-lg:hidden`}>
+        <Intermezzo setOpacityIsZero={setOpacityIsZero} />
       </div>
-      <motion.main
-        className="bg-background z-30 px-8 sticky top-0"
-        ref={container}
-        style={{ opacity }}
-      >
-        <div ref={gallery} className={styles.gallery}>
-          {Array.from({ length: columns }).map((_, i) => (
-            <Column key={i} y={motionValues[i]} i={i} />
-          ))}
+      <div className="max-lg:hidden">
+        <motion.main
+          className="bg-background z-30 px-8 sticky top-0"
+          ref={container}
+          style={{ opacity }}
+        >
+          <div ref={gallery} className={styles.gallery}>
+            {Array.from({ length: columns }).map((_, i) => (
+              <Column key={i} y={motionValues[i]} i={i} />
+            ))}
+          </div>
+        </motion.main>
+      </div>
+      <div className="lg:hidden">
+        <div className="flex justify-center space-x-8 sticky top-0 h-full">
+          <InfiniteMovingCards items={categories} />
+          <div className="max-sm:hidden">
+            <InfiniteMovingCards items={categories} direction="down" />
+          </div>
         </div>
-      </motion.main>
+      </div>
     </>
   );
 }

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 import { cn } from "@/lib/utils";
@@ -31,6 +32,13 @@ export function RainbowInput({
       )}
       {...props}
     >
+      <Image
+        src="/icons/search.svg"
+        width={24}
+        height={24}
+        alt="Search"
+        className="cursor-pointer"
+      />
       {children}
     </button>
   );

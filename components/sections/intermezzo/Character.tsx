@@ -39,7 +39,7 @@ export default function Character({ paragraph }: ParagraphProps): JSX.Element {
     <motion.p
       ref={container}
       style={{ opacity: divOpacity }}
-      className="flex flex-wrap max-w-5xl font-title text-foreground max-sm:text-[2.5rem] text-[7rem] leading-none items-center justify-center"
+      className="flex flex-wrap max-w-5xl font-title text-foreground max-sm:text-[2.5rem] max-md:text-5xl md:text-8xl lg:text-9xl leading-none items-center justify-center font-semibold"
     >
       {words.map((word, i) => {
         const start = i / words.length;

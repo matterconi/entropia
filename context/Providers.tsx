@@ -1,24 +1,33 @@
 "use client";
 
+import { SessionProvider } from "next-auth/react";
 import React from "react";
 
 import { MenuProvider } from "@/context/MenuContext";
+import { SignModalProvider } from "@/context/SignModalContext";
 import { ThemeProvider } from "@/context/theme/ThemeProvider";
 
-import { DimensionsProvider } from "./DimensionsContext";
+import { FilterProvider } from "./FilterContext";
+import { UserProvider } from "./UserContext";
 
 const Providers: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
-      <MenuProvider>
-        <DimensionsProvider>{children}</DimensionsProvider>
-      </MenuProvider>
-    </ThemeProvider>
+    <SessionProvider>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <MenuProvider>
+          <UserProvider>
+            <FilterProvider>
+              <SignModalProvider>{children}</SignModalProvider>
+            </FilterProvider>
+          </UserProvider>
+        </MenuProvider>
+      </ThemeProvider>
+    </SessionProvider>
   );
 };
 

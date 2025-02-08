@@ -3,21 +3,31 @@
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import React, { useEffect, useState } from "react";
-import { FaSignOutAlt, FaUserPlus } from "react-icons/fa";
+import {
+  FaSignInAlt,
+  FaSignOutAlt,
+  FaUserCircle,
+  FaUserPlus,
+} from "react-icons/fa";
 
 import ThemeSwitch from "@/components/navigation/ThemeSwitch";
 import { useMenu } from "@/context/MenuContext";
+import { useSignModal } from "@/context/SignModalContext"; // 👈 Importiamo il contesto modale
+import { useUser } from "@/context/UserContext"; // 👈 Importiamo il contesto utente
 import { useSystemTheme } from "@/hooks/useSystemTheme";
 
 import { RainbowButton } from "../ui/rainbow-button";
 import { SecondaryButton } from "../ui/secondary-button";
+import { ShinyButton } from "../ui/shiny-button";
 
 export default function MobileMenu() {
-  const { isMenuOpen, toggleMenuVisibility } = useMenu(); // Use menu context
+  const { isMenuOpen, toggleMenuVisibility } = useMenu(); // Usa il contesto per il menu
+  const { user } = useUser(); // 👈 Recuperiamo l'utente dal context
+  const { openModal } = useSignModal(); // 👈 Modale per Sign-In / Sign-Up
   const [isActive, setIsActive] = useState("");
-  const [isAuth, setIsAuth] = useState(true);
   const pathname = usePathname();
   const { theme } = useTheme();
   const isSystemDark = useSystemTheme();
@@ -30,8 +40,8 @@ export default function MobileMenu() {
   const formatRoute = (name: string): string => {
     return name
       .toLowerCase()
-      .replace(/\s+/g, "-") // Replace spaces with dashes
-      .replace(/[^a-z0-9-]/g, ""); // Remove special characters
+      .replace(/\s+/g, "-") // Sostituisce gli spazi con trattini
+      .replace(/[^a-z0-9-]/g, ""); // Rimuove caratteri speciali
   };
 
   const links = ["Home", "Chi Siamo", "Categorie", "Generi", "Contatti"];
@@ -39,10 +49,7 @@ export default function MobileMenu() {
   return (
     <div className="max-w-screen">
       {/* Menu Icon */}
-      <div
-        className="border-gradient rounded-md p-[1px] animated-gradient lg:hidden"
-        aria-label="Toggle mobile menu"
-      >
+      <div className="border-gradient rounded-md p-[1px] animated-gradient lg:hidden">
         <div
           className="flex h-[56px] w-[56px] cursor-pointer items-center justify-center rounded-md text-gray-800 shadow-md transition bg-background"
           onClick={toggleMenuVisibility}
@@ -59,9 +66,10 @@ export default function MobileMenu() {
       {isMenuOpen && (
         <div className="absolute top-0 left-0 w-screen h-screen inset-0 pb-16 overflow-hidden z-[100] bg-background">
           <div className="flex flex-col h-full w-full items-center justify-between">
+            {/* Header del menu mobile */}
             <div className="w-full flex h-[105px] items-center justify-between pt-8 pb-6 px-4 md:px-8 space-x-8">
               <div className="text-2xl font-bold text-gradient font-title sm:px-2">
-                3NTR0P14
+                VERSIA
               </div>
               <div className="flex">
                 <ThemeSwitch />
@@ -75,6 +83,8 @@ export default function MobileMenu() {
                 </div>
               </div>
             </div>
+
+            {/* Link di navigazione */}
             <div className="flex flex-col h-full items-center justify-center">
               <ul className="text-xl font-bold font-sans space-y-2 w-full">
                 {links.map((link) => (
@@ -107,41 +117,67 @@ export default function MobileMenu() {
                 ))}
               </ul>
             </div>
-            {!isAuth ? (
-              <div className="flex flex-col items-center md:flex-row max-md:space-y-6 max-md:w-full md:space-x-12 px-6 md:pb-12">
-                <div className="border-gradient rounded-xl animated-gradient p-[1px] h-fit max-md:w-full max-md:max-w-[300px] md:w-[250px]">
-                  <RainbowButton className="md:min-w-[200px]" icon="signIn">
-                    Log in
-                  </RainbowButton>
-                </div>
-                <div className="border-gradient rounded-xl animated-gradient p-[1px] max-md:w-full max-md:max-w-[300px] md:w-[250px]">
-                  <div className="bg-background w-full h-full rounded-xl flex items-center justify-center">
-                    <SecondaryButton
-                      onClick={() => alert("Clicked!")}
-                      className="font-sans text-lg"
-                      isDarkMode={isDarkMode}
-                    >
-                      Sign up
-                      <FaUserPlus className="h-5 w-5 text-foreground ml-1" />
-                    </SecondaryButton>
+
+            {/* **Se l'utente è autenticato** */}
+            {user ? (
+              <div className="px-6 md:pb-12 w-full flex flex-col items-center space-y-6">
+                {/* Link al profilo */}
+                <Link href={`/users/${user.id}`} onClick={toggleMenuVisibility}>
+                  <div className="h-[56px] w-[250px] p-[1px] border-gradient rounded-lg animated-gradient">
+                    <ShinyButton className="h-full w-full bg-background rounded-lg flex items-center justify-center">
+                      <div className="flex items-center justify-center h-full w-full gap-3">
+                        <p className="font-semibold text-gradient text-base animated-gradient">
+                          Profile
+                        </p>
+                        <FaUserCircle className="h-5 w-5" />
+                      </div>
+                    </ShinyButton>
                   </div>
+                </Link>
+
+                <div
+                  className="h-[56px] w-[250px] p-[1px] border-gradient rounded-lg animated-gradient"
+                  onClick={() => {
+                    signOut();
+                    toggleMenuVisibility();
+                  }}
+                >
+                  <RainbowButton
+                    className="w-full h-full bg-background rounded-lg flex items-center justify-center gap-3"
+                    icon="signOut"
+                  >
+                    <p className="font-semibold text-base">Sign-out</p>
+                  </RainbowButton>
                 </div>
               </div>
             ) : (
-              <div className="px-6 md:pb-12 w-full flex items-center justify-center">
-                <div className="border-gradient rounded-xl animated-gradient p-[1px] h-fit max-lg:w-full max-lg:max-w-[300px]">
-                  <div className="bg-background w-full h-full rounded-xl flex items-center justify-center">
-                    <SecondaryButton
-                      icon="SignUp"
-                      onClick={() => alert("Clicked!")}
-                      className="font-sans text-lg"
-                      isDarkMode={isDarkMode}
-                    >
-                      Sign out
-                      <FaSignOutAlt className="h-5 w-5 text-foreground ml-1" />
-                    </SecondaryButton>
+              /* **Se l'utente NON è autenticato** */
+              <div className="flex flex-col items-center md:flex-row max-md:space-y-6 max-md:w-full md:space-x-12 px-6 md:pb-12">
+                {/* Sign-In */}
+                <Link href="/sign-in">
+                  <div className="h-[56px] w-[250px] p-[1px] border-gradient rounded-lg animated-gradient">
+                    <ShinyButton className="h-full w-full bg-background rounded-lg flex items-center justify-center">
+                      <div className="flex items-center justify-center h-full w-full gap-3">
+                        <p className="font-semibold text-gradient text-base animated-gradient">
+                          Sign-in
+                        </p>
+                        <FaSignInAlt className="h-5 w-5" />
+                      </div>
+                    </ShinyButton>
                   </div>
-                </div>
+                </Link>
+
+                {/* Sign-Up */}
+                <Link href="/sign-up">
+                  <div className="h-[56px] w-[250px] p-[1px] border-gradient rounded-lg animated-gradient">
+                    <RainbowButton
+                      className="w-full h-full bg-background rounded-lg flex items-center justify-center gap-3"
+                      icon="signUp"
+                    >
+                      <p className="font-semibold text-base">Sign-up</p>
+                    </RainbowButton>
+                  </div>
+                </Link>
               </div>
             )}
           </div>

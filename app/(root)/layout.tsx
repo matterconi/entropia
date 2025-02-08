@@ -1,11 +1,16 @@
-import "./globals.css";
+import "../globals.css";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import React from "react";
 
+import AuthModals from "@/components/auth/AuthModals";
 import ContentWrapper from "@/components/ContentWrapper"; // Client-side content wrapper
 import Navbar from "@/components/navigation/Navbar";
+import Footer from "@/components/sections/Footer";
 import Providers from "@/context/Providers"; // Centralized Providers
 
 const geistSans = Geist({
@@ -36,7 +41,11 @@ export default function RootLayout({
         <Providers>
           <Navbar />
           {/* Conditionally render the page content */}
+          <div className="absolute top-0 h-screen overflow-y-hidden">
+            <AuthModals />
+          </div>
           <ContentWrapper>{children}</ContentWrapper>
+          <Footer />
         </Providers>
       </body>
     </html>

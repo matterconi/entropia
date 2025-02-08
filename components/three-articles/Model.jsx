@@ -4,10 +4,10 @@ import * as THREE from "three";
 import { useTexture, useAspect, Text } from "@react-three/drei";
 import { transform } from "framer-motion";
 
-import { fragment, vertex } from "./Shader";
+import { fragment, vertex, largeVertex } from "./Shader";
 import { DimensionsContext } from "@/context/DimensionsContext";
 
-export default function Model({ scrollProgress, isLastCycle, currentImage, id }) {
+export default function Model({ scrollProgress, isLastCycle, currentImage, id, isLargeScreen }) {
   const { setDimensions } = useContext(DimensionsContext);
   const image = useRef(null);
   const [amplitude, setAmplitude] = useState(0.37);
@@ -28,7 +28,7 @@ export default function Model({ scrollProgress, isLastCycle, currentImage, id })
     uOpacity: { value: 1 },
   });
 
-  const initialScale = useAspect(width, height, 0.77); // Set the desired starting scale
+  const initialScale = useAspect(width, height, 0.85); // Set the desired starting scale
 
   useFrame(() => {
     const progress = scrollProgress.get();
@@ -123,7 +123,7 @@ export default function Model({ scrollProgress, isLastCycle, currentImage, id })
         <shaderMaterial
           wireframe={false}
           fragmentShader={fragment}
-          vertexShader={vertex}
+          vertexShader={isLargeScreen ? largeVertex : vertex}
           uniforms={uniforms.current}
           transparent={true}
         />

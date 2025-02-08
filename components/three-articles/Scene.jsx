@@ -5,10 +5,10 @@ import React, { useRef, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import Model from "./Model";
-import { getSharedPoints } from "@/lib/helpers";
+import { getSharedPoints } from "@/lib/3D/helpers";
 
 // Main Component
-const Index = ({ scrollProgress, isLastCycle, currentImage, isDarkMode, id }) => {
+const Index = ({ scrollProgress, isLastCycle, currentImage, isDarkMode, id, isLargeScreen }) => {
 
   return (
     <Canvas camera={{ position: [0, 0, 5] }} gl={{ alpha: true }} // Enable alpha transparency
@@ -18,6 +18,7 @@ const Index = ({ scrollProgress, isLastCycle, currentImage, isDarkMode, id }) =>
         scrollProgress={scrollProgress}
         isLastCycle={isLastCycle}
         currentImage={currentImage}
+        isLargeScreen={isLargeScreen}
         id={id}
       />
       <directionalLight intensity={2} position={[0, 2, 3]} />

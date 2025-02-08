@@ -1,0 +1,56 @@
+/* Stile base per il Popover */
+.PopoverContent {
+  width: var(--radix-popover-trigger-width); /* Adatta la larghezza al trigger */
+  max-height: var(--radix-popover-content-available-height); /* Adatta l'altezza disponibile */
+  transform-origin: var(--radix-popover-content-transform-origin); /* Origine della trasformazione */
+  border-radius: 0.5rem; /* Bordo arrotondato */
+  animation: scaleIn 0.3s ease-out;
+  overflow-y: auto;
+}
+
+/* Per disattivare lo scroll del body */
+.no-scroll {
+  overflow: hidden;
+}
+
+/* Animazione di apertura */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animazione collision-aware per slide up e down */
+.PopoverContent[data-side="top"] {
+  animation-name: slideUp;
+}
+.PopoverContent[data-side="bottom"] {
+  animation-name: slideDown;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

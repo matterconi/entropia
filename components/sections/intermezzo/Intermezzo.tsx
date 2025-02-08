@@ -12,7 +12,7 @@ import React, { useEffect, useRef } from "react";
 
 import Character from "@/components/sections/intermezzo/Character";
 
-const paragraph = "Altri Articoli di Lexopìa";
+const paragraph = "Il Lexoverse continua";
 
 const width = window.innerWidth;
 
@@ -40,7 +40,7 @@ export default function Home({ setOpacityIsZero }: HomeProps) {
     }
   });
   return (
-    <motion.main className="bg-background w-full flex flex-col justify-center items-center sticky top-0 max-sm:py-20 py-24 px-16 h-screen">
+    <motion.main className="bg-background w-full flex flex-col justify-center items-center sticky top-0 max-sm:py-20 py-24 max-sm:px-8 px-16 h-screen">
       {/* Divider with geometric shape */}
 
       <motion.main
