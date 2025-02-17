@@ -6,7 +6,15 @@ import React, { useState } from "react";
 import { FaHeart } from "react-icons/fa";
 
 import ArticleUploadForm from "@/components/forms/ArticleUploadForm";
+import { User } from "@/types"
 import { useUser } from "@/context/UserContext";
+
+interface PrevUser {
+  id: string;
+  email: string;
+  profileImg?: string;
+  isAuthor: boolean;
+}
 
 export default function UserProfilePage() {
   const { user, loading, setUser } = useUser(); // ✅ Ottieni dati utente dal context
@@ -35,11 +43,12 @@ export default function UserProfilePage() {
       const updatedUser = await res.json();
 
       // ✅ Mantieni gli altri dati dell'utente
-      setUser((prevUser) => ({
-        ...prevUser, // Mantieni i dati esistenti
-        username: updatedUser.user.username, // Aggiorna solo l'username
-      }));
-
+      setUser((prevUser) =>
+        prevUser
+          ? { ...prevUser, username: updatedUser.user.username }
+          : null
+      );
+      
       alert("Username updated successfully!");
     } catch (error) {
       console.error("Error updating username:", error);

@@ -1,16 +1,20 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import Article from "@/database/Article";
 import Topic from "@/database/Topic";
 import dbConnect from "@/lib/mongoose";
 
-export async function GET(req, context) {
-  console.log("🔍 Richiesta ricevuta per il genere:", context.params.topic);
+interface Params {
+  params: { topic: string };
+}
+
+export async function GET(_: NextRequest, { params }: Params) {
+  console.log("🔍 Richiesta ricevuta per il genere:", params.topic);
 
   await dbConnect();
 
   try {
-    let { topic } = context.params;
+    let { topic } = params;
 
     // ✅ Converti il genere in Title Case per la ricerca nel DB
     topic = topic.charAt(0).toUpperCase() + topic.slice(1).toLowerCase();
@@ -23,7 +27,7 @@ export async function GET(req, context) {
       console.error("❌ Genere non trovato!");
       return NextResponse.json(
         { message: "Genere non trovato" },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
@@ -40,13 +44,21 @@ export async function GET(req, context) {
 
     return NextResponse.json(
       { message: "API funzionante", articles },
-      { status: 200 },
+      { status: 200 }
     );
   } catch (error) {
-    console.error("❌ Errore API GET:", error.message);
+    let errorMessage = "Errore sconosciuto";
+
+    if (error instanceof Error) {
+      console.error("❌ Errore API GET:", error.message);
+      errorMessage = error.message; // ✅ TypeScript ora riconosce l'errore
+    } else {
+      console.error("❌ Errore API GET:", error);
+    }
+
     return NextResponse.json(
-      { message: "Errore nel recupero degli articoli", error: error.message },
-      { status: 500 },
+      { message: "Errore nel recupero degli articoli", error: errorMessage },
+      { status: 500 }
     );
   }
 }

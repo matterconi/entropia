@@ -3,30 +3,24 @@
 import { CheckCircle } from "lucide-react";
 import React from "react";
 
-import { Badge, badgeVariants } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 
-interface FilterChipsProps {
+interface SingleFilterChipProps {
   label: string;
   options: { value: string; label: string }[];
-  selectedOptions: string | string[];
-  onChange: (selected: string[]) => void;
+  selectedOption: string; // ✅ Accetta solo una stringa singola
+  onChange: (selected: string) => void; // ✅ Ritorna solo una stringa
 }
 
-const FilterChips: React.FC<FilterChipsProps> = ({
+const SingleFilterChips: React.FC<SingleFilterChipProps> = ({
   label,
   options,
-  selectedOptions,
+  selectedOption,
   onChange,
 }) => {
   const handleSelect = (value: string) => {
-    const optionsArray = Array.isArray(selectedOptions) ? selectedOptions : []; // ✅ Ora è sempre `string[]`
-  
-    const newSelection = optionsArray.includes(value)
-      ? optionsArray.filter((item) => item !== value) // ✅ Ora `.filter()` funziona sempre
-      : [...optionsArray, value]; // ✅ Aggiunge il valore normalmente
-  
-    onChange(newSelection); // Notifica il componente padre
-  };  
+    onChange(value); // ✅ Passa direttamente il valore selezionato
+  };
 
   return (
     <div className="relative w-full mt-4 md:mt-0">
@@ -39,7 +33,7 @@ const FilterChips: React.FC<FilterChipsProps> = ({
       <div className="w-full h-full border-gradient p-[1px] rounded-lg animated-gradient">
         <div className="flex flex-wrap gap-2 px-4 pt-6 pb-4 rounded-lg bg-background shadow-sm">
           {options.map((option) => {
-            const isSelected = selectedOptions.includes(option.value);
+            const isSelected = selectedOption === option.value;
 
             return (
               <Badge
@@ -90,4 +84,4 @@ const FilterChips: React.FC<FilterChipsProps> = ({
   );
 };
 
-export default FilterChips;
+export default SingleFilterChips;

@@ -16,12 +16,18 @@ export async function DELETE() {
       { status: 200 },
     );
   } catch (error) {
+    let errorMessage = "Errore sconosciuto";
+  
+    if (error instanceof Error) {
+      errorMessage = error.message; // ✅ TypeScript ora riconosce l'errore
+    }
+  
     return NextResponse.json(
       {
         message: "Errore durante la cancellazione",
-        error: error.message,
+        error: errorMessage,
       },
-      { status: 500 },
+      { status: 500 }
     );
-  }
+  }  
 }

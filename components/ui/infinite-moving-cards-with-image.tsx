@@ -3,35 +3,21 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import RelatedPostCard from "@/components/shared/RelatedPostCard";
+import { Post } from "@/types";
 import { cn } from "@/lib/utils";
 
-interface IPost {
-  _id: string;
-  title: string;
-  coverImage: string;
-  categories: { name: string }[];
-  genres: { name: string }[];
-  topics: { name: string }[];
-}
-
 const Cards = ({
-  items,
   direction = "left",
   speed = "normal",
   pauseOnHover = true,
   className,
   posts,
 }: {
-  items: {
-    description: string;
-    title: string;
-    href: string;
-  }[];
   direction?: "left" | "right";
   speed?: "fast" | "normal" | "slow";
   pauseOnHover?: boolean;
   className?: string;
-  posts: IPost[];
+  posts: Post[];
 }) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const scrollerRef = React.useRef<HTMLUListElement>(null);

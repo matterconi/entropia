@@ -8,18 +8,18 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
-import { Autoplay, Navigation, Pagination } from "swiper/modules";
+import { Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { ShinyButton } from "@/components/ui/shiny-button";
-import { categories } from "@/data/data";
+import { MenuItem, categories } from "@/data/data";
 
 const CategoriesPage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [categoriesState, setCategoriesState] = useState([null, categories[0]]);
 
   const [offset, setOffset] = useState("0%");
-  const setCategory = (newCategory) => {
+  const setCategory = (newCategory: MenuItem) => {
     setCategoriesState(([_, current]) => [current, newCategory]); // Aggiorna prev con current e current con il nuovo valore
   };
 
@@ -142,7 +142,7 @@ const CategoriesPage = () => {
 
           {/* Description */}
           <p className="m-8 px-6 max-w-5xl mx-auto z-30 relative">
-            {categoriesState[1].description}
+            {categoriesState[1]?.description}
           </p>
 
           {/* Button */}
@@ -150,7 +150,7 @@ const CategoriesPage = () => {
             <div className="w-fit h-fit border-gradient animated-gradient p-[1px] rounded-lg">
               <div className="w-fit h-fit bg-background rounded-lg">
                 <Link
-                  href={`/categorie/${categoriesState[1].title.toLowerCase()}}`}
+                  href={`/categorie/${categoriesState[1]?.title.toLowerCase()}}`}
                 >
                   <ShinyButton className="font-sans font-semibold">
                     <p className="text-gradient text-lg">Leggimi</p>
@@ -213,7 +213,7 @@ const CategoriesPage = () => {
       </div>
       <h1 className="mt-8 mb-6 w-full font-title max-sm:text-[2.5rem] max-md:text-[3rem] md:text-6xl lg:text-7xl xl:text-7xl text-center flex justify-center items-center font-bold gap-4 max-lg:flex-col-reverse lg:mt-8">
         <span className="text-gradient animated-gradient py-2">
-          {`Articoli in  ${categoriesState[1].title}`}{" "}
+          {`Articoli in  ${categoriesState[1]?.title}`}{" "}
         </span>
       </h1>
     </div>

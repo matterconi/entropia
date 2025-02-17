@@ -17,7 +17,7 @@ import { AuthorInput } from "../ui/AuthorInput";
 interface SelectMenuProps {
   label: string;
   options: { value: string; label: string }[];
-  selectedOptions: string[];
+  selectedOptions: string | string[];
   onChange: (selected: string[]) => void;
 }
 
@@ -32,10 +32,11 @@ const SelectMenu: React.FC<SelectMenuProps> = ({
   const uniqueId = useId();
 
   const handleToggle = (value: string) => {
-    if (selectedOptions.includes(value)) {
-      onChange(selectedOptions.filter((option) => option !== value));
+    const optionsArray = Array.isArray(selectedOptions) ? selectedOptions : [];
+    if (optionsArray.includes(value)) {
+      onChange(optionsArray.filter((option) => option !== value));
     } else {
-      onChange([...selectedOptions, value]);
+      onChange([...optionsArray, value]);
     }
   };
 

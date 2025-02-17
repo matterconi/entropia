@@ -3,36 +3,9 @@ import Link from "next/link";
 import React from "react";
 
 import Tag from "@/components/shared/Tag";
-import { categories } from "@/data/data";
 
-import { RainbowButton } from "../ui/rainbow-button";
-import { SecondaryButton } from "../ui/secondary-button";
 import { ShinyButton } from "../ui/shiny-button";
-
-interface categoriesOrGenresOrTopics {
-  name: string;
-  id: string;
-}
-
-interface author {
-  id: string;
-  username: string;
-}
-
-interface Post {
-  coverImage: string | StaticImport;
-  _id: any;
-  title: string;
-  chapter: number;
-  chapterTitle: string;
-  author: author;
-  authorBio: string;
-  image: string;
-  content: string;
-  categories: categoriesOrGenresOrTopics[];
-  genres: categoriesOrGenresOrTopics[];
-  topics: categoriesOrGenresOrTopics[];
-}
+import { Post } from "@/types";
 
 interface FeaturedPostProps {
   post: Post;
@@ -48,6 +21,8 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post, isNew }) => {
     ...post.genres?.map((genre) => ({ label: genre.name, type: "generi" })),
     ...post.topics?.map((topic) => ({ label: topic.name, type: "topic" })),
   ];
+
+  const { author = {_id: "#", username: ""} } = post
 
   return (
     <div className="max-md:px-0">
@@ -81,13 +56,13 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post, isNew }) => {
                 {/* Avatar */}
                 <div className="w-8 h-8 rounded-full overflow-hidden relative">
                   <img
-                    src={`https://api.dicebear.com/5.x/adventurer/svg?seed=${post.author.username}`}
-                    alt={`${post.author.username}'s avatar`}
+                    src={`https://api.dicebear.com/5.x/adventurer/svg?seed=${author.username}`}
+                    alt={`${author.username}'s avatar`}
                     className="object-cover w-full h-full"
                   />
                 </div>
                 {/* Author Name */}
-                <p className="text-xs">{post.author.username}</p>
+                <p className="text-xs">{author.username}</p>
               </div>
             </div>
             <div className="flex justify-center w-full mt-6">

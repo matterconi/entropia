@@ -98,7 +98,7 @@ export async function GET(
       .populate("genres", "name")
       .populate("topics", "name")
       .sort({ createdAt: -1 })
-      .lean();
+      .lean<IArticle[]>();
 
     return NextResponse.json(
       { message: "Articles retrieved successfully", articles },

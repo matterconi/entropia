@@ -7,12 +7,19 @@ import React, {
   useEffect,
   useRef,
   useState,
+  ReactNode,
 } from "react";
 
-// Creazione del contesto
-const FilterContext = createContext();
+interface FilterContextType {
+  filters: Filters;
+  setFilters: React.Dispatch<React.SetStateAction<Filters>>;
+  updatePartialFilter: (id: string, value: string | string[]) => void;
+  clearFilters: () => void;
+}
 
+// **Modifica 1**: Aggiunto l'indice dinamico `[key: string]` per supportare tutti i filtri
 interface Filters {
+  [key: string]: string | string[];
   authors: string[];
   categories: string[];
   genres: string[];
@@ -22,7 +29,12 @@ interface Filters {
 // Definiamo quali parametri sono filtri
 const filterKeys = ["authors", "categories", "genres", "topic", "sort"];
 
-export const FilterProvider = ({ children }) => {
+const FilterContext = createContext<FilterContextType | undefined>(undefined);
+
+// **Modifica 2**: Tipizzazione corretta del provider
+export const FilterProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -36,7 +48,7 @@ export const FilterProvider = ({ children }) => {
     sort: "",
   });
 
-  // Effetto per sincronizzare i filtri con l'URL all'inizio
+  // **Modifica 3**: Sincronizzazione dei filtri con l'URL
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
 
@@ -49,22 +61,16 @@ export const FilterProvider = ({ children }) => {
   }, [searchParams]);
 
   useEffect(() => {
-    // Controllo se il pathname è cambiato
     if (prevPathnameRef.current !== pathname) {
-      // Aggiorna il ref a pathname attuale e non fare altro
       prevPathnameRef.current = pathname;
       return;
     }
 
-    // Logica per aggiornare l'URL solo se i filtri cambiano e siamo sullo stesso pathname
     const currentParams = new URLSearchParams(searchParams);
     const newParams = new URLSearchParams();
 
-    console.log("🔍 Params attuali:", currentParams.toString());
-
-    // Manteniamo solo i filtri effettivamente presenti
     filterKeys.forEach((key) => {
-      const value = filters[key as keyof Filters];
+      const value = filters[key];
       if (Array.isArray(value) && value.length > 0) {
         newParams.set(key, value.join(","));
       } else if (typeof value === "string" && value) {
@@ -72,46 +78,33 @@ export const FilterProvider = ({ children }) => {
       }
     });
 
-    // Manteniamo anche gli altri parametri già presenti se non sono filtri
     for (const [key, value] of currentParams.entries()) {
       if (!filterKeys.includes(key)) {
         newParams.set(key, value);
       }
     }
 
-    // Confrontiamo solo i filtri per evitare refresh inutili
     const hasFiltersChanged = filterKeys.some(
-      (key) => currentParams.get(key) !== newParams.get(key),
+      (key) => currentParams.get(key) !== newParams.get(key)
     );
 
-    console.log("🆕 Nuovi params:", newParams.toString());
-
-    // Se i filtri sono cambiati, aggiorniamo l'URL
     if (hasFiltersChanged) {
       router.replace(`${pathname}?${newParams.toString()}`, { scroll: false });
     }
-  }, [filters, pathname, router, searchParams]); // dipendenze del useEffect
+  }, [filters, pathname, router, searchParams]);
 
-  // Funzione per aggiornare tutti i filtri in un'unica chiamata
-  const updateFilter = (updatedFilters: Partial<Filters>) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      ...updatedFilters,
-    }));
+  // **Modifica 4**: Funzione per aggiornare un filtro specifico con stringa generica
+  const updatePartialFilter = (key: string, value: string | string[]) => {
+    setFilters((prevFilters) => {
+      const newValue = value ?? (Array.isArray(prevFilters[key]) ? [] : "");
+      return {
+        ...prevFilters,
+        [key]: newValue,
+      };
+    });
   };
 
-  // Funzione per aggiornare un filtro specifico
-  const updatePartialFilter = (
-    key: keyof Filters,
-    value: string[] | string,
-  ) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [key]: value,
-    }));
-  };
-
-  // Funzione per azzerare solo i filtri, mantenendo altri parametri (es. `id`)
+  // **Modifica 5**: Funzione per resettare i filtri senza rimuovere altri parametri
   const clearFilters = () => {
     setFilters({
       authors: [],
@@ -120,20 +113,17 @@ export const FilterProvider = ({ children }) => {
       sort: "",
     });
 
-    // ✅ Manteniamo gli altri parametri e rimuoviamo solo i filtri
     const currentParams = new URLSearchParams(searchParams);
     filterKeys.forEach((key) => currentParams.delete(key));
 
-    router.replace(`${pathname}?${currentParams.toString()}`, {
-      scroll: false,
-    });
+    router.replace(`${pathname}?${currentParams.toString()}`, { scroll: false });
   };
 
   return (
     <FilterContext.Provider
       value={{
         filters,
-        updateFilter,
+        setFilters, // ✅ Aggiunto qui
         updatePartialFilter,
         clearFilters,
       }}
@@ -143,5 +133,11 @@ export const FilterProvider = ({ children }) => {
   );
 };
 
-// Hook per utilizzare il contesto
-export const useFilterContext = () => useContext(FilterContext);
+// Hook per usare il contesto
+export const useFilterContext = (): FilterContextType => {
+  const context = useContext(FilterContext);
+  if (!context) {
+    throw new Error("useFilterContext must be used within a FilterProvider");
+  }
+  return context;
+};

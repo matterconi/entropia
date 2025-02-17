@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
-
+import { NextResponse, NextRequest } from "next/server";
+import mongoose from "mongoose";
 import Article from "@/database/Article";
 import Genre from "@/database/Genre";
 import dbConnect from "@/lib/mongoose";
 
-export async function GET(req, context) {
+export async function GET(req: NextRequest, context: { params: { genere: string } }) {
   console.log("🔍 Richiesta ricevuta per il genere:", context.params.genere);
 
   await dbConnect();
@@ -42,10 +42,11 @@ export async function GET(req, context) {
       { message: "API funzionante", articles },
       { status: 200 },
     );
-  } catch (error) {
-    console.error("❌ Errore API GET:", error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Errore sconosciuto";
+    console.error("❌ Errore API GET:", errorMessage);
     return NextResponse.json(
-      { message: "Errore nel recupero degli articoli", error: error.message },
+      { message: "Errore nel recupero degli articoli", error: errorMessage },
       { status: 500 },
     );
   }

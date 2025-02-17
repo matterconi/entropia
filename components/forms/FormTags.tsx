@@ -1,11 +1,28 @@
 "use client";
 
 import React from "react";
-import { Controller } from "react-hook-form";
+import { UseFormSetValue, UseFormWatch } from "react-hook-form"; // ✅ Import dei tipi necessari
 
 import FilterChips from "@/components/shared/FilterChips";
 import SelectMenu from "@/components/shared/SelectMenu";
 import { categories, genres, topic } from "@/data/data";
+import SingleSelectMenu from "../shared/SingleSelectMenu";
+import SingleFilterChips from "../shared/SingleFilterChips";
+
+interface ArticleFormData {
+  title: string;
+  markdownPath: string;
+  coverImage: string;
+  category: string; // ✅ Ora è una stringa singola
+  genres: string[];
+  topics: string[];
+}
+
+// ✅ Definizione del tipo per il form
+interface TagSelectorProps {
+  setValue: UseFormSetValue<ArticleFormData>; // ✅ Ora accetta tutto l'oggetto ArticleFormData
+  watch: UseFormWatch<ArticleFormData>; // ✅ Stessa cosa per watch
+}
 
 // 🔹 Configurazione delle opzioni disponibili
 const tagOptions = {
@@ -23,8 +40,8 @@ const tagOptions = {
   })),
 };
 
-export default function TagSelector({ setValue, watch }) {
-  const selectedCategories = watch("categories");
+export default function TagSelector({ setValue, watch }: TagSelectorProps) {
+  const selectedCategory = watch("category");
   const selectedGenres = watch("genres");
   const selectedTopics = watch("topics");
 
@@ -36,23 +53,23 @@ export default function TagSelector({ setValue, watch }) {
 
       {/* Categorie */}
       <div className="block sm:hidden">
-        <SelectMenu
+        <SingleSelectMenu
           label="Categorie"
           options={tagOptions.categories}
-          selectedOptions={selectedCategories || []}
-          onChange={(values) => setValue("categories", values)}
+          selectedOption={selectedCategory || ""}
+          onChange={(value) => setValue("category", value)}
         />
       </div>
       <div className="hidden sm:block">
-        <FilterChips
+        <SingleFilterChips
           label="Categorie"
           options={tagOptions.categories}
-          selectedOptions={selectedCategories || []}
-          onChange={(values) => setValue("categories", values)}
+          selectedOption={selectedCategory || ""}
+          onChange={(value) => setValue("category", value)}
         />
       </div>
 
-      {/* Generi */}
+      {/* Generi */} 
       <div className="block sm:hidden">
         <SelectMenu
           label="Generi"
@@ -71,13 +88,12 @@ export default function TagSelector({ setValue, watch }) {
       </div>
 
       {/* Temi (Topics) */}
-      {/* Generi */}
       <div className="block sm:hidden">
         <SelectMenu
-          label="Generi"
-          options={tagOptions.genres}
-          selectedOptions={selectedGenres || []}
-          onChange={(values) => setValue("genres", values)}
+          label="Topics"
+          options={tagOptions.topics}
+          selectedOptions={selectedTopics || []}
+          onChange={(values) => setValue("topics", values)}
         />
       </div>
       <div className="hidden sm:block">

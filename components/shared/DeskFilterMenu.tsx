@@ -11,14 +11,19 @@ import SortPost from "@/components/shared/SortPost";
 import { useFilterContext } from "@/context/FilterContext";
 import { filtersConfig } from "@/data/filterConfig";
 
-import { RainbowButton } from "../ui/rainbow-button";
 import FilterChips from "./FilterChips";
 import SelectMenu from "./SelectMenu";
 
-const renderFilterComponent = (filter) => {
-  const { filters, updatePartialFilter } = useFilterContext();
-  const handleChange = (value) => updatePartialFilter(filter.id, value);
+interface Filter {
+  id: string;
+  label: string;
+  componentType?: "chips" | "select" | "checkbox" | "multiselect" | "radio"; // Aggiunti i tipi mancanti
+  options: { value: string; label: string }[];
+}
 
+const renderFilterComponent = (filter: Filter) => {
+  const { filters, updatePartialFilter } = useFilterContext();
+  const handleChange = (value: string | string[]) => updatePartialFilter(filter.id, value);
   if (filter.id === "sort") {
     return (
       <FilterSection label={filter.label}>
@@ -71,7 +76,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({ label, children }) => {
   );
 };
 
-const DeskFilterMenu = ({ onClose, isOpen }) => {
+const DeskFilterMenu = () => {
   const params = useParams(); // Legge i parametri dalla route
   const { categoria, genere, topic } = params; // Controlliamo quale parametro è presente
 

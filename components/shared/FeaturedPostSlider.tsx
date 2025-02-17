@@ -11,17 +11,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import FeaturedPost from "@/components/shared/FeaturedPost";
 
-interface Post {
-  title: string;
-  chapter: number;
-  chapterTitle: string;
-  author: string;
-  authorBio: string;
-  image: string;
-  content: string;
-  categoria: string;
-  tags: { label: string; type: string }[];
-}
+import { Post } from "@/types"
 
 interface FeaturedPostProps {
   posts: Post[];

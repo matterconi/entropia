@@ -17,10 +17,18 @@ export async function GET() {
       { status: 200 },
     );
   } catch (error) {
-    console.error("❌ Errore nel recupero dei topic:", error.message);
+    let errorMessage = "Errore sconosciuto";
+  
+    if (error instanceof Error) {
+      console.error("❌ Errore nel recupero dei topic:", error.message);
+      errorMessage = error.message; // ✅ TypeScript ora riconosce l'errore
+    } else {
+      console.error("❌ Errore nel recupero dei topic:", error);
+    }
+  
     return NextResponse.json(
-      { message: "Errore nel recupero dei topic", error: error.message },
-      { status: 500 },
+      { message: "Errore nel recupero dei topic", error: errorMessage },
+      { status: 500 }
     );
-  }
+  }  
 }

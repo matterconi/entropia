@@ -40,7 +40,7 @@ const Filters = () => {
       </div>
       {isOpen && (
         <div className="max-lg:hidden">
-          <DeskFilterMenu isOpen={isOpen} onClose={handleOpen} />
+          <DeskFilterMenu />
         </div>
       )}
     </div>

@@ -20,7 +20,7 @@ const commentSchema = z.object({
 
 type CommentSchema = z.infer<typeof commentSchema>;
 
-const sanitizeHTML = (html) => {
+const sanitizeHTML = (html: string): string => {
   return DOMPurify.sanitize(html, {
     ALLOWED_TAGS: [
       "strong",

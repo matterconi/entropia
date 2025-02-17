@@ -7,7 +7,7 @@ import { IoCloseSharp } from "react-icons/io5";
 
 import AuthForm from "@/components/auth/AuthForm";
 import { ShinyButton } from "@/components/ui/shiny-button";
-import { SignInSchema } from "@/validations/authSchema";
+import { SignInSchema, SignInSchemaType } from "@/validations/authSchema";
 
 interface SignInModalProps {
   isOpen: boolean;
@@ -15,8 +15,6 @@ interface SignInModalProps {
 }
 
 export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
-  // Se il modal non è aperto, non renderizzare nulla
-
   // Blocca lo scroll quando il modal è aperto
   useEffect(() => {
     if (isOpen) {
@@ -38,14 +36,13 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
   // Gestione del Google Sign-In
   const handleGoogleSignIn = async () => {
     const result = await signIn("google", { callbackUrl: "/" });
-    // Se non ci sono errori (login riuscito) chiudiamo il modal.
     if (!result?.error) {
       onClose();
     }
   };
 
   // Gestione del Sign-In tramite credenziali
-  const handleSignIn = async (data: any) => {
+  const handleSignIn = async (data: SignInSchemaType) => {
     const result = await signIn("credentials", {
       redirect: false,
       email: data.email,
@@ -61,27 +58,23 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
   };
 
   return (
-    // Overlay: cliccando qui si chiude il modal
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 h-full w-full overflow-y-hidden"
       onClick={(e) => e.stopPropagation()}
     >
       <div className="h-screen w-screen fixed bg-black bg-opacity-50 flex items-center justify-center overflow-y-hidden">
-        {/* Container del modal: previene la propagazione del click verso l'overlay */}
         <div className="relative bg-white p-6 rounded-lg shadow-lg max-sm:min-w-[300px] max-lg:min-w-[400px] lg:min-w-[450px] mx-auto space-y-4 z-50">
-          {/* Icona di chiusura */}
           <button onClick={onClose} className="absolute top-4 right-4">
             <IoCloseSharp className="h-6 w-6" />
           </button>
 
-          {/* Form di autenticazione */}
-          <AuthForm
+          {/* ✅ Form di autenticazione correttamente posizionato */}
+          <AuthForm<SignInSchemaType>
             schema={SignInSchema}
             defaultValues={{ email: "", password: "" }}
             formType="SIGN_IN"
             onSubmitAction={handleSignIn}
           >
-            {/* Pulsante per Google Sign-In */}
             <div className="border-gradient p-[1px] animated-gradient rounded-lg mb-8 mt-10">
               <ShinyButton
                 onClick={handleGoogleSignIn}
@@ -96,12 +89,9 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
               </ShinyButton>
             </div>
 
-            {/* Divider */}
             <div className="flex items-center gap-2">
               <hr className="flex-1 border-gray-300 dark:border-gray-600" />
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                or
-              </span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">or</span>
               <hr className="flex-1 border-gray-300 dark:border-gray-600" />
             </div>
           </AuthForm>

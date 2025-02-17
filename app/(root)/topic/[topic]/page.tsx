@@ -8,6 +8,7 @@ import RelatedPostCard from "@/components/shared/RelatedPostCard";
 import SectionHeader from "@/components/shared/SectionHeader";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { topic as top } from "@/data/data";
+import { Post } from "@/types";
 
 const topicsArr: { [key: string]: number } = {
   filosofia: 1,
@@ -95,7 +96,7 @@ const page = async ({
 
       <div className="max-md:px-6 px-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full mt-4">
         {posts.length > 0 ? (
-          posts.map((post, i) => <RelatedPostCard key={i} post={post} />)
+          posts.map((post: Post, i: number) => <RelatedPostCard key={i} post={post} />)
         ) : (
           <p className="text-center text-lg mt-8">
             Nessun articolo trovato per questo topic.

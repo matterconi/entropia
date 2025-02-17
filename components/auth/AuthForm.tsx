@@ -1,26 +1,23 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import Placeholder from "@tiptap/extension-placeholder";
+import { ZodObject, ZodType } from "zod";
 import Link from "next/link";
 import React from "react";
-import { useForm } from "react-hook-form";
-import { ZodObject } from "zod";
-
-import { Button } from "@/components/ui/button";
+import { useForm, FieldValues, Path, DefaultValues } from "react-hook-form";
 
 import { Input } from "./SignInput";
 import { RainbowButton } from "../ui/rainbow-button";
 
-interface AuthFormProps<T> {
-  schema: ZodObject<T>;
-  defaultValues: Partial<T>;
+interface AuthFormProps<T extends FieldValues> {
+  schema: ZodObject<{ [key in keyof T]: ZodType<any> }>; // ✅ Tipo corretto per ZodObject
+  defaultValues: DefaultValues<T>; // ✅ Ora è tipizzato correttamente
   formType: "SIGN_IN" | "SIGN_UP";
   children: React.ReactNode;
   onSubmitAction: (data: T) => Promise<void>;
 }
 
-export default function AuthForm<T>({
+export default function AuthForm<T extends FieldValues>({
   schema,
   defaultValues,
   formType,
@@ -33,27 +30,24 @@ export default function AuthForm<T>({
     formState: { errors, isSubmitting },
   } = useForm<T>({
     resolver: zodResolver(schema),
-    defaultValues: defaultValues as T,
+    defaultValues, // ✅ Ora accetta correttamente i valori di default
   });
 
   const buttonText = formType === "SIGN_IN" ? "Sign In" : "Sign Up";
 
   return (
     <div className="w-full h-full border-gradient p-[1px] animated-gradient rounded-lg">
-      <div className=" mx-auto bg-background shadow-lg rounded-lg p-8 w-full h-full">
+      <div className="mx-auto bg-background shadow-lg rounded-lg p-8 w-full h-full">
         <h2 className="text-3xl font-bold text-center text-foreground mb-6 font-title text-gradient animated-gradient">
-          {formType === "SIGN_IN" ? "Entra in Versia" : "Entra in Versia"}
+          {formType === "SIGN_IN" ? "Entra in Versia" : "Registrati su Versia"}
         </h2>
-        <p className="text-foregorund text-sm mb-6 max-w-[400px] mx-auto">
+        <p className="text-foreground text-sm mb-6 max-w-[400px] mx-auto">
           Versia è un social network per chi ama la scrittura e la lettura.
           Condividi i tuoi pensieri, le tue storie e le tue poesie con una
           community di appassionati come te.
         </p>
         {children}
-        <form
-          onSubmit={handleSubmit(onSubmitAction)}
-          className="space-y-8 mt-8"
-        >
+        <form onSubmit={handleSubmit(onSubmitAction)} className="space-y-8 mt-8">
           {Object.keys(defaultValues || {}).map((fieldName) => (
             <div key={fieldName} className="flex flex-col gap-2 relative">
               <label className="absolute -top-3 left-4 bg-background px-2 text-sm font-semibold text-foreground">
@@ -61,15 +55,21 @@ export default function AuthForm<T>({
               </label>
               <div className="w-full h-full border-gradient p-[1px] animated-gradient rounded-lg">
                 <Input
-                  {...register(fieldName as keyof T)}
+                  {...register(fieldName as Path<T>)}
                   type={fieldName === "password" ? "password" : "text"}
-                  placeholder={`${fieldName === "password" ? "V3rs14!3xmpl" : fieldName === "email" ? "versia@example.com" : "Versia"}`}
+                  placeholder={
+                    fieldName === "password"
+                      ? "V3rs14!3xmpl"
+                      : fieldName === "email"
+                      ? "versia@example.com"
+                      : "Versia"
+                  }
                   className="bg-background w-full h-full p-2 rounded-lg transition"
                 />
               </div>
-              {errors[fieldName as keyof T] && (
+              {errors[fieldName as Path<T>] && (
                 <p className="text-red-500 text-sm">
-                  {errors[fieldName as keyof T]?.message as string}
+                  {errors[fieldName as Path<T>]?.message as string}
                 </p>
               )}
             </div>

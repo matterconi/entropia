@@ -3,19 +3,14 @@
 import { useSession } from "next-auth/react";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  profileImg?: string;
-  isAuthor: boolean;
-}
+import { User } from "@/types";
 
 interface UserContextType {
   user: User | null;
   loading: boolean;
-  setUser: (user: User | null) => void; // ✅ Aggiunto per aggiornare lo stato
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
+
 
 const UserContext = createContext<UserContextType>({
   user: null,

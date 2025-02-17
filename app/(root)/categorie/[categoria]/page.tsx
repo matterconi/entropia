@@ -7,6 +7,7 @@ import RelatedPostCard from "@/components/shared/RelatedPostCard";
 import SectionHeader from "@/components/shared/SectionHeader";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { categories as categorie } from "@/data/data";
+import { CategoryKeys, Post } from "@/types";
 
 const categories: { [key: string]: number } = {
   racconti: 1,
@@ -79,7 +80,7 @@ const page = async ({
 
       {/* Slider con il pulsante per il menu */}
       <h1 className="text-4xl text-gradient font-title p-4 mt-8 font-semibold">
-        {`${articles[categoria]} ${categoria}`}
+        {`${articles[categoria as CategoryKeys]} ${categoria}`}
       </h1>
       <div className="w-full flex items-center justify-center px-12 mb-8 mt-6">
         <LocalSearch placeholder="Cerca un articolo..." />
@@ -89,7 +90,7 @@ const page = async ({
       </div>
       <div className="max-md:px-6 px-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full mt-4">
         {posts.length > 0 ? (
-          posts.map((post, i) => <RelatedPostCard key={i} post={post} />)
+          posts.map((post: Post, i: number) => <RelatedPostCard key={i} post={post} />)
         ) : (
           <p className="text-gray-500">Nessun articolo disponibile</p>
         )}

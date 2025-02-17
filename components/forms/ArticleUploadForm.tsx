@@ -17,7 +17,7 @@ const articleSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters long"),
   markdownPath: z.string().min(1, "Markdown file is required"), // Percorso su Supabase
   coverImage: z.string().url("Invalid image URL"),
-  categories: z.array(z.string()).nonempty("Select at least one category"),
+  category: z.string(), // ✅ Default category
   genres: z.array(z.string()),
   topics: z.array(z.string()),
 });
@@ -141,7 +141,7 @@ export default function ArticleUploadForm({ userId }: { userId: string }) {
       title: "",
       markdownPath: "",
       coverImage: "",
-      categories: [],
+      category: "", // �� Assicura che non sia undefined
       genres: [], // 👈 Assicura che non sia undefined
       topics: [], // 👈 Assicura che non sia undefined
     },
@@ -249,7 +249,7 @@ export default function ArticleUploadForm({ userId }: { userId: string }) {
       title: data.title,
       coverImage: data.coverImage,
       markdownPath: data.markdownPath,
-      categories: data.categories,
+      categories: data.category,
       genres: data.genres,
       topics: data.topics,
       author: userId,

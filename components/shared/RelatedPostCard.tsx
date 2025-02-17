@@ -8,27 +8,7 @@ import Tag from "@/components/shared/Tag";
 
 import { ShinyButton } from "../ui/shiny-button";
 
-interface CategoriesOrGenresOrTopics {
-  name: string;
-  id: string;
-}
-
-interface Author {
-  id: string;
-  username: string;
-}
-
-interface Post {
-  coverImage: string | StaticImport;
-  _id: string;
-  title: string;
-  chapter?: number;
-  chapterTitle?: string;
-  author: Author;
-  categories: CategoriesOrGenresOrTopics[];
-  genres: CategoriesOrGenresOrTopics[];
-  topics: CategoriesOrGenresOrTopics[];
-}
+import { Post } from "@/types"
 
 interface RelatedPostProps {
   post: Post;
@@ -36,7 +16,10 @@ interface RelatedPostProps {
 }
 
 const RelatedPostCard: React.FC<RelatedPostProps> = ({ post, isHot }) => {
-  const { title, author, coverImage, categories, genres, topics } = post;
+  const { title, author = {
+    _id: "#",
+    username: "",
+  }, coverImage, categories, genres, topics } = post;
 
   const tags = [
     ...categories?.map((category) => ({

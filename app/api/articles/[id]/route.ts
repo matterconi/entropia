@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import Article from "@/database/Article";
 import Category from "@/database/Category";
@@ -20,6 +20,10 @@ interface IArticle {
   createdAt: Date;
 }
 
+interface Params {
+  params: { id: string };
+}
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE!;
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -31,12 +35,13 @@ export async function GET(req: Request, context: { params: { id: string } }) {
 
   try {
     // ✅ Recupera l'articolo e tipizzalo come `IArticle`
-    const article: IArticle | null = await Article.findById(context.params.id)
-      .populate("author", "username")
-      .populate("categories", "name")
-      .populate("genres", "name")
-      .populate("topics", "name")
-      .lean();
+    const article = await Article.findById(context.params.id)
+      .populate<{ author: { username: string } }>("author", "username")
+      .populate<{ categories: { name: string }[] }>("categories", "name")
+      .populate<{ genres: { name: string }[] }>("genres", "name")
+      .populate<{ topics: { name: string }[] }>("topics", "name")
+      .lean<IArticle | null>(); // ✅ Specifica il tipo esatto del risultato
+
 
     if (!article) {
       console.error("❌ Articolo non trovato!");
@@ -97,7 +102,7 @@ export async function GET(req: Request, context: { params: { id: string } }) {
   }
 }
 
-export async function DELETE(request, { params }) {
+export async function DELETE(_: NextRequest, { params }: Params) {
   try {
     await dbConnect(); // Connessione al database
 
@@ -111,7 +116,7 @@ export async function DELETE(request, { params }) {
     if (!result) {
       return NextResponse.json(
         { message: "Articolo non trovato" },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
@@ -120,15 +125,21 @@ export async function DELETE(request, { params }) {
         message: "Articolo eliminato con successo",
         deletedArticle: result,
       },
-      { status: 200 },
+      { status: 200 }
     );
   } catch (error) {
+    let errorMessage = "Errore sconosciuto";
+
+    if (error instanceof Error) {
+      errorMessage = error.message; // ✅ TypeScript ora riconosce l'errore
+    }
+
     return NextResponse.json(
       {
         message: "Errore durante la cancellazione",
-        error: error.message,
+        error: errorMessage,
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
