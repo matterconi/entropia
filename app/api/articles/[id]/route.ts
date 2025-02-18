@@ -30,10 +30,9 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }, // Context sincrono
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const { params } = context;
-  const { id } = params;
+  const { id } = await params;
 
   await dbConnect();
 
