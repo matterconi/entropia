@@ -1,5 +1,10 @@
 import mongoose, { Mongoose } from "mongoose";
 
+import Category from "@/database/Category";
+import Genre from "@/database/Genre";
+import Topic from "@/database/Topic";
+import User from "@/database/User";
+
 const MONGODB_URI = process.env.MONGODB_URI as string;
 
 if (!MONGODB_URI) {

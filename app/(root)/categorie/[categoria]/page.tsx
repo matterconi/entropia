@@ -90,7 +90,9 @@ const page = async ({
       </div>
       <div className="max-md:px-6 px-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full mt-4">
         {posts.length > 0 ? (
-          posts.map((post: Post, i: number) => <RelatedPostCard key={i} post={post} />)
+          posts.map((post: Post, i: number) => (
+            <RelatedPostCard key={i} post={post} />
+          ))
         ) : (
           <p className="text-gray-500">Nessun articolo disponibile</p>
         )}

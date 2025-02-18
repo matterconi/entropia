@@ -12,7 +12,7 @@ import { Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { ShinyButton } from "@/components/ui/shiny-button";
-import { MenuItem, categories } from "@/data/data";
+import { categories, MenuItem } from "@/data/data";
 
 const CategoriesPage = () => {
   const containerRef = useRef<HTMLDivElement>(null);

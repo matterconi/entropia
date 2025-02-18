@@ -6,8 +6,8 @@ import React, { useState } from "react";
 import { FaHeart } from "react-icons/fa";
 
 import ArticleUploadForm from "@/components/forms/ArticleUploadForm";
-import { User } from "@/types"
 import { useUser } from "@/context/UserContext";
+import { User } from "@/types";
 
 interface PrevUser {
   id: string;
@@ -44,11 +44,9 @@ export default function UserProfilePage() {
 
       // ✅ Mantieni gli altri dati dell'utente
       setUser((prevUser) =>
-        prevUser
-          ? { ...prevUser, username: updatedUser.user.username }
-          : null
+        prevUser ? { ...prevUser, username: updatedUser.user.username } : null,
       );
-      
+
       alert("Username updated successfully!");
     } catch (error) {
       console.error("Error updating username:", error);

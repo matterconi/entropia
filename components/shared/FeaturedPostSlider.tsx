@@ -10,8 +10,7 @@ import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import FeaturedPost from "@/components/shared/FeaturedPost";
-
-import { Post } from "@/types"
+import { Post } from "@/types";
 
 interface FeaturedPostProps {
   posts: Post[];

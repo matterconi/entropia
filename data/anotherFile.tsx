@@ -7,12 +7,11 @@ import React, { useEffect, useRef } from "react";
 import Meteors from "@/components/ui/meteors";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import RetroGrid from "@/components/ui/retro-grid";
+import { SecondaryButton } from "@/components/ui/secondary-button";
 import useFadeInEffect from "@/hooks/useFadeInEffect";
 import useHackerTextEffect from "@/hooks/useHackerTextEffect";
 import useParticleSystems from "@/hooks/useParticleSystems";
 import { useSystemTheme } from "@/hooks/useSystemTheme";
-
-import { SecondaryButton } from "../ui/secondary-button";
 
 export default function Hero() {
   const { theme } = useTheme();

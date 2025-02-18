@@ -1,8 +1,6 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React from "react";
 import Markdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
@@ -11,7 +9,6 @@ import CommentSection from "@/components/shared/CommentSection";
 import MiniCTA from "@/components/shared/MiniCTA";
 import MiniFooter from "@/components/shared/MiniFooter";
 import PaginationMenu from "@/components/shared/PaginationMenu";
-import RelatedPostCard from "@/components/shared/RelatedPostCard";
 import Tag from "@/components/shared/Tag";
 
 import { ShinyButton } from "../ui/shiny-button";
@@ -49,7 +46,6 @@ const PostRenderer: React.FC<{ post: IPost }> = ({ post }) => {
     categories,
     topics,
   } = post.article;
-  const [showComments, setShowComments] = useState(false);
   console.log("📄 Rendering post:", post);
   return (
     <div className="p-4 px-12 max-sm:px-8 font-sans max-w-5xl w-full flex flex-col items-center justify-center mx-auto ">

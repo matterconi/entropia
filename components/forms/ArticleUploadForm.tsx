@@ -7,10 +7,9 @@ import { FormProvider, useForm } from "react-hook-form";
 import { FaFileAlt, FaImage } from "react-icons/fa";
 import * as z from "zod";
 
-import FormTags from "./FormTags";
-import { Input } from "../ui/input";
-import { RainbowButton } from "../ui/rainbow-button";
-import { ShinyButton } from "../ui/shiny-button";
+import FormTags from "@/components/forms/FormTags";
+import { Input } from "@/components/ui/input";
+import { RainbowButton } from "@/components/ui/rainbow-button";
 
 // ✅ Zod validation schema
 const articleSchema = z.object({

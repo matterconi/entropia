@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React, { createContext, useState } from "react";
 
 // Create the context
@@ -11,5 +12,12 @@ export const DimensionsProvider = ({ children }) => {
     <DimensionsContext.Provider value={{ dimensions, setDimensions }}>
       {children}
     </DimensionsContext.Provider>
-  );
+  ); // ✅ Closing parenthesis added here
 };
+
+// ✅ Correctly define PropTypes
+DimensionsProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+export default DimensionsProvider;

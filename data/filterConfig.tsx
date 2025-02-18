@@ -20,7 +20,12 @@ const filtersConfig: Filter[] = [
   {
     id: "categories",
     label: "Categorie",
-    componentType: (categories.length <= 13 ? "chips" : "multiselect") as "chips" | "select" | "checkbox" | "multiselect" | "radio",
+    componentType: (categories.length <= 13 ? "chips" : "multiselect") as
+      | "chips"
+      | "select"
+      | "checkbox"
+      | "multiselect"
+      | "radio",
     options: categories.map((category) => ({
       value: category.title,
       label: category.title,
@@ -29,7 +34,12 @@ const filtersConfig: Filter[] = [
   {
     id: "genres",
     label: "Generi",
-    componentType: (genres.length <= 13 ? "chips" : "checkbox") as "chips" | "select" | "checkbox" | "multiselect" | "radio",
+    componentType: (genres.length <= 13 ? "chips" : "checkbox") as
+      | "chips"
+      | "select"
+      | "checkbox"
+      | "multiselect"
+      | "radio",
     options: genres.map((genre) => ({
       value: genre.title,
       label: genre.title,
@@ -47,6 +57,5 @@ const filtersConfig: Filter[] = [
     ],
   },
 ];
-
 
 export { filtersConfig };

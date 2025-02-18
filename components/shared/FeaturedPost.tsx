@@ -3,9 +3,9 @@ import Link from "next/link";
 import React from "react";
 
 import Tag from "@/components/shared/Tag";
+import { Post } from "@/types";
 
 import { ShinyButton } from "../ui/shiny-button";
-import { Post } from "@/types";
 
 interface FeaturedPostProps {
   post: Post;
@@ -22,7 +22,7 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post, isNew }) => {
     ...post.topics?.map((topic) => ({ label: topic.name, type: "topic" })),
   ];
 
-  const { author = {_id: "#", username: ""} } = post
+  const { author = { _id: "#", username: "" } } = post;
 
   return (
     <div className="max-md:px-0">
@@ -70,7 +70,7 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post, isNew }) => {
                 <div className="w-fit h-fit bg-background rounded-lg">
                   <Link
                     href={{
-                      pathname: `/categorie/${post.categories[0].name.toLowerCase()}/${post.title.toLowerCase()}`,
+                      pathname: `/articoli/${post.title.toLowerCase()}`,
                       query: { id: post._id }, // 🔥 Mantiene i parametri della query
                     }}
                   >

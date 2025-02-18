@@ -7,6 +7,7 @@ import RelatedPostCard from "@/components/shared/RelatedPostCard";
 import SectionHeader from "@/components/shared/SectionHeader";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { genres as generi } from "@/data/data";
+import { Post } from "@/types";
 
 const genres: { [key: string]: number } = {
   romantico: 1,
@@ -84,7 +85,7 @@ const page = async ({
         <Filters />
       </div>
       <div className="max-md:px-6 px-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full mt-4">
-        {articles.map((post, i) => (
+        {articles.map((post: Post, i: number) => (
           <RelatedPostCard key={i} post={post} />
         ))}
       </div>

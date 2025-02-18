@@ -7,7 +7,17 @@ import { IoClose } from "react-icons/io5";
 import DeskFilterMenu from "./DeskFilterMenu";
 import MobileFilterMenu from "./MobileFilterMenu";
 
-const MenuButton = ({ isOpen, setIsOpen, handleOpen }) => {
+interface MenuButtonProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  handleOpen: () => void;
+}
+
+const MenuButton: React.FC<MenuButtonProps> = ({
+  isOpen,
+  setIsOpen,
+  handleOpen,
+}) => {
   const [isMobile, setIsMobile] = useState(
     typeof window !== "undefined"
       ? window.matchMedia("(max-width: 1024px)").matches

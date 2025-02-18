@@ -3,16 +3,17 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, {
   createContext,
+  ReactNode,
   useContext,
   useEffect,
   useRef,
   useState,
-  ReactNode,
 } from "react";
 
 interface FilterContextType {
   filters: Filters;
   setFilters: React.Dispatch<React.SetStateAction<Filters>>;
+  updateFilters: (newFilters: Filters) => void;
   updatePartialFilter: (id: string, value: string | string[]) => void;
   clearFilters: () => void;
 }
@@ -47,6 +48,10 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({
     genres: [],
     sort: "",
   });
+
+  const updateFilters = (newFilters: Filters) => {
+    setFilters(newFilters);
+  };
 
   // **Modifica 3**: Sincronizzazione dei filtri con l'URL
   useEffect(() => {
@@ -85,7 +90,7 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({
     }
 
     const hasFiltersChanged = filterKeys.some(
-      (key) => currentParams.get(key) !== newParams.get(key)
+      (key) => currentParams.get(key) !== newParams.get(key),
     );
 
     if (hasFiltersChanged) {
@@ -116,7 +121,9 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({
     const currentParams = new URLSearchParams(searchParams);
     filterKeys.forEach((key) => currentParams.delete(key));
 
-    router.replace(`${pathname}?${currentParams.toString()}`, { scroll: false });
+    router.replace(`${pathname}?${currentParams.toString()}`, {
+      scroll: false,
+    });
   };
 
   return (
@@ -124,6 +131,7 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({
       value={{
         filters,
         setFilters, // ✅ Aggiunto qui
+        updateFilters,
         updatePartialFilter,
         clearFilters,
       }}

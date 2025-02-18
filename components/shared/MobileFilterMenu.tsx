@@ -6,13 +6,12 @@ import { Controller, useForm } from "react-hook-form";
 import { IoClose } from "react-icons/io5";
 import { z } from "zod";
 
+import FilterChips from "@/components/shared/FilterChips"; // Importiamo i chip
+import SelectMenu from "@/components/shared/SelectMenu";
 import SortPost from "@/components/shared/SortPost";
+import { RainbowButton } from "@/components/ui/rainbow-button";
 import { useFilterContext } from "@/context/FilterContext";
 import { filtersConfig } from "@/data/filterConfig";
-
-import FilterChips from "./FilterChips"; // Importiamo i chip
-import SelectMenu from "./SelectMenu";
-import { RainbowButton } from "../ui/rainbow-button";
 
 const filtersSchema = z.object({
   authors: z.array(z.string()).optional(),
@@ -21,15 +20,46 @@ const filtersSchema = z.object({
   sort: z.string().optional(),
 });
 
-const renderFilterComponent = (filter, field) => {
+interface FilterOption {
+  label: string;
+  value: string;
+}
+
+interface Filters {
+  [key: string]: string | string[];
+  authors: string[];
+  categories: string[];
+  genres: string[];
+  sort: string;
+}
+
+interface Filter {
+  id: string;
+  label: string;
+  componentType?:
+    | "sort"
+    | "select"
+    | "chips"
+    | "checkbox"
+    | "multiselect"
+    | "radio"; // ✅ Expanded to match all cases
+  options: { label: string; value: string }[];
+}
+
+interface Field {
+  value: string | string[];
+  onChange: (value: string | string[]) => void;
+}
+
+const renderFilterComponent = (filter: Filter, field: Field) => {
   if (filter.id === "sort") {
     return (
       <FilterSection label={filter.label}>
         <SortPost
           options={filter.options}
           onChange={field.onChange}
-          label={field.value || "Data"}
-          selectedOption={field.value}
+          label={typeof field.value === "string" ? field.value : "Data"}
+          selectedOption={typeof field.value === "string" ? field.value : null}
         />
       </FilterSection>
     );
@@ -74,7 +104,15 @@ const FilterSection: React.FC<FilterSectionProps> = ({ label, children }) => {
   );
 };
 
-const MobileFilterMenu = ({ onClose, isOpen }) => {
+interface MobileFilterMenuProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const MobileFilterMenu: React.FC<MobileFilterMenuProps> = ({
+  isOpen,
+  onClose,
+}) => {
   useEffect(() => {
     const isMobile = window.matchMedia("(max-width: 1200px)").matches; // lg:hidden corrisponde a max-width: 1024px
 
@@ -89,15 +127,15 @@ const MobileFilterMenu = ({ onClose, isOpen }) => {
     };
   }, [isOpen]);
 
-  const { filters, updateFilter } = useFilterContext();
+  const { filters, updateFilters } = useFilterContext();
 
   const form = useForm({
     resolver: zodResolver(filtersSchema),
     defaultValues: filters,
   });
 
-  const onSubmit = (data) => {
-    updateFilter(data);
+  const onSubmit = (data: Filters) => {
+    updateFilters(data);
     onClose();
   };
 

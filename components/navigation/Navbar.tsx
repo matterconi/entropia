@@ -13,16 +13,15 @@ import {
   FaUserPlus,
 } from "react-icons/fa";
 
+import Menu from "@/components/navigation/Menu";
+import MobileMenu from "@/components/navigation/MobileMenu";
+import ThemeSwitch from "@/components/navigation/ThemeSwitch";
+import { RainbowButton } from "@/components/ui/rainbow-button";
+import { ShinyButton } from "@/components/ui/shiny-button";
 import { useMenu } from "@/context/MenuContext";
 import { useSignModal } from "@/context/SignModalContext";
 import { useUser } from "@/context/UserContext";
 import { useSystemTheme } from "@/hooks/useSystemTheme";
-
-import { ShinyButton } from "../ui/shiny-button";
-import Menu from "./Menu";
-import MobileMenu from "./MobileMenu";
-import ThemeSwitch from "./ThemeSwitch";
-import { RainbowButton } from "../ui/rainbow-button";
 
 export default function Navbar() {
   const { theme } = useTheme();

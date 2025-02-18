@@ -94,7 +94,7 @@ const LocalSearch = ({
           <div className="absolute w-full mt-2 bg-background rounded-md shadow-lg border border-gray-200 overflow-hidden transition-all duration-300 transform translate-y-2 z-50 min-h-[350px]">
             <div className="p-4">
               <p className="text-gray-500">
-                🔍 Sto cercando "{searchQuery}"...
+                🔍 Sto cercando &quot;{searchQuery}&quot;...
               </p>
             </div>
           </div>

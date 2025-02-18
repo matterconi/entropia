@@ -6,21 +6,28 @@ import "swiper/css/navigation";
 
 import { CheckCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import type { Swiper } from "swiper"; // Import the instance type
 import { Autoplay, Navigation } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
+import { Swiper as SwiperReact, SwiperSlide } from "swiper/react";
 
 import { useFilterContext } from "@/context/FilterContext";
 import { genres } from "@/data/data";
 
-const FilterSlider = ({ slice = "genres" }) => {
-  const { filters, updatePartialFilter } = useFilterContext();
-  const [selectedSlice, setSelectedSlice] = useState<string[]>(filters[slice]);
-  const [isScrollable, setIsScrollable] = useState(false);
-  const [swiperInstance, setSwiperInstance] = useState(null);
+interface FilterSliderProps {
+  slice?: string;
+}
 
-  // Sincronizza lo stato locale con i filtri globali
+const FilterSlider = ({ slice = "genres" }: FilterSliderProps) => {
+  const { filters, updatePartialFilter } = useFilterContext();
+  const [selectedSlice, setSelectedSlice] = useState<string[]>(
+    Array.isArray(filters[slice]) ? filters[slice] : [],
+  );
+  const [isScrollable, setIsScrollable] = useState(false);
+  const [swiperInstance, setSwiperInstance] = useState<Swiper | null>(null);
+
+  // Sync local state with global filters
   useEffect(() => {
-    setSelectedSlice(filters[slice] || []);
+    setSelectedSlice(Array.isArray(filters[slice]) ? filters[slice] : []);
   }, [filters, slice]);
 
   const handleClick = (genre: string) => {
@@ -32,16 +39,16 @@ const FilterSlider = ({ slice = "genres" }) => {
     updatePartialFilter(slice, newSelection);
   };
 
-  // Funzione per aggiornare lo stato di isScrollable con un piccolo delay
-  const updateScrollableState = () => {
+  // Update isScrollable with a slight delay
+  const updateScrollableState = React.useCallback(() => {
     setTimeout(() => {
       if (swiperInstance) {
         setIsScrollable(!swiperInstance.isLocked);
       }
-    }, 50); // Ritarda l'aggiornamento di 50ms per evitare problemi con il fullscreen
-  };
+    }, 50);
+  }, [swiperInstance]);
 
-  // Aggiunge listener per Resize e Fullscreen
+  // Add listeners for resize and fullscreen changes
   useEffect(() => {
     window.addEventListener("resize", updateScrollableState);
     document.addEventListener("fullscreenchange", updateScrollableState);
@@ -50,11 +57,10 @@ const FilterSlider = ({ slice = "genres" }) => {
       window.removeEventListener("resize", updateScrollableState);
       document.removeEventListener("fullscreenchange", updateScrollableState);
     };
-  }, [swiperInstance]);
+  }, [swiperInstance, updateScrollableState]);
 
   return (
     <div className="relative overflow-x-hidden pr-6">
-      {/* Effetto trasparenza sui lati (solo se lo slider è scrollabile) */}
       {isScrollable && (
         <>
           <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-background via-background/70 to-transparent pointer-events-none z-10"></div>
@@ -62,8 +68,7 @@ const FilterSlider = ({ slice = "genres" }) => {
         </>
       )}
 
-      {/* Slider Swiper */}
-      <Swiper
+      <SwiperReact
         modules={[Navigation, Autoplay]}
         autoplay={{
           delay: 1500,
@@ -78,7 +83,7 @@ const FilterSlider = ({ slice = "genres" }) => {
           setSwiperInstance(swiper);
           setTimeout(() => {
             setIsScrollable(!swiper.isLocked);
-          }, 50); // Assicura che l'aggiornamento avvenga dopo il rendering
+          }, 50);
         }}
       >
         {genres.map((category) => {
@@ -98,7 +103,6 @@ const FilterSlider = ({ slice = "genres" }) => {
                     }`}
                   >
                     <p className="text-xs font-semibold flex items-center justify-center w-full h-full">
-                      {/* Area sinistra: icona con spazio bilanciato */}
                       <span
                         className={`transition-all duration-300 flex justify-center ${
                           isSelected ? "w-4" : "w-2"
@@ -113,8 +117,6 @@ const FilterSlider = ({ slice = "genres" }) => {
                           }`}
                         />
                       </span>
-
-                      {/* Contenuto centrale: padding dinamico */}
                       <span
                         className={`text-center transition-all duration-300 ${
                           isSelected
@@ -124,8 +126,6 @@ const FilterSlider = ({ slice = "genres" }) => {
                       >
                         {category.title}
                       </span>
-
-                      {/* Area destra: spazio di bilanciamento */}
                       <span className={`${isSelected ? "w-0" : "w-2"}`}></span>
                     </p>
                   </button>
@@ -134,7 +134,7 @@ const FilterSlider = ({ slice = "genres" }) => {
             </SwiperSlide>
           );
         })}
-      </Swiper>
+      </SwiperReact>
     </div>
   );
 };

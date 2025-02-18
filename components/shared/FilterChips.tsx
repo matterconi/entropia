@@ -20,13 +20,13 @@ const FilterChips: React.FC<FilterChipsProps> = ({
 }) => {
   const handleSelect = (value: string) => {
     const optionsArray = Array.isArray(selectedOptions) ? selectedOptions : []; // ✅ Ora è sempre `string[]`
-  
+
     const newSelection = optionsArray.includes(value)
       ? optionsArray.filter((item) => item !== value) // ✅ Ora `.filter()` funziona sempre
       : [...optionsArray, value]; // ✅ Aggiunge il valore normalmente
-  
+
     onChange(newSelection); // Notifica il componente padre
-  };  
+  };
 
   return (
     <div className="relative w-full mt-4 md:mt-0">

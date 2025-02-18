@@ -6,8 +6,9 @@ import { UseFormSetValue, UseFormWatch } from "react-hook-form"; // ✅ Import d
 import FilterChips from "@/components/shared/FilterChips";
 import SelectMenu from "@/components/shared/SelectMenu";
 import { categories, genres, topic } from "@/data/data";
-import SingleSelectMenu from "../shared/SingleSelectMenu";
+
 import SingleFilterChips from "../shared/SingleFilterChips";
+import SingleSelectMenu from "../shared/SingleSelectMenu";
 
 interface ArticleFormData {
   title: string;
@@ -48,7 +49,7 @@ export default function TagSelector({ setValue, watch }: TagSelectorProps) {
   return (
     <div className="space-y-6 pt-8 lg:w-1/2 lg:mx-12">
       <h2 className="lg:hidden text-2xl font-bold text-center mb-12 font-title text-gradient animated-gradient">
-        Aggiungi le tag all'articolo
+        Aggiungi le tag all&apos;articolo
       </h2>
 
       {/* Categorie */}
@@ -69,7 +70,7 @@ export default function TagSelector({ setValue, watch }: TagSelectorProps) {
         />
       </div>
 
-      {/* Generi */} 
+      {/* Generi */}
       <div className="block sm:hidden">
         <SelectMenu
           label="Generi"

@@ -33,15 +33,19 @@ export async function GET(req: Request, context: { params: { id: string } }) {
 
   await dbConnect();
 
+  User;
+  Category;
+  Genre;
+  Topic;
+
   try {
     // ✅ Recupera l'articolo e tipizzalo come `IArticle`
-    const article = await Article.findById(context.params.id)
+    const article = (await Article.findById(context.params.id)
       .populate<{ author: { username: string } }>("author", "username")
       .populate<{ categories: { name: string }[] }>("categories", "name")
       .populate<{ genres: { name: string }[] }>("genres", "name")
       .populate<{ topics: { name: string }[] }>("topics", "name")
-      .lean<IArticle | null>(); // ✅ Specifica il tipo esatto del risultato
-
+      .lean()) as IArticle | null;
 
     if (!article) {
       console.error("❌ Articolo non trovato!");
@@ -116,7 +120,7 @@ export async function DELETE(_: NextRequest, { params }: Params) {
     if (!result) {
       return NextResponse.json(
         { message: "Articolo non trovato" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -125,7 +129,7 @@ export async function DELETE(_: NextRequest, { params }: Params) {
         message: "Articolo eliminato con successo",
         deletedArticle: result,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     let errorMessage = "Errore sconosciuto";
@@ -139,7 +143,7 @@ export async function DELETE(_: NextRequest, { params }: Params) {
         message: "Errore durante la cancellazione",
         error: errorMessage,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -18,17 +18,17 @@ export async function GET() {
     );
   } catch (error) {
     let errorMessage = "Errore sconosciuto";
-  
+
     if (error instanceof Error) {
       console.error("❌ Errore nel recupero dei generi:", error.message);
       errorMessage = error.message; // ✅ TypeScript ora riconosce l'errore
     } else {
       console.error("❌ Errore nel recupero dei generi:", error);
     }
-  
+
     return NextResponse.json(
       { message: "Errore nel recupero dei generi", error: errorMessage },
-      { status: 500 }
+      { status: 500 },
     );
-  }  
+  }
 }

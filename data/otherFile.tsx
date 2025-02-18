@@ -75,8 +75,8 @@ const Page = () => {
       </div>
       {/* Placeholder for layout flow */}
       <CardsParallax />
-      {/* Pass setIsGeneriInView to Generi */}
-      <Generi setIsInView={setIsGeneriInView} />
+      {/* <Generi setIsInView={setIsGeneriInView} /> */}
+      <Generi />
       <Contacts />
       <Footer />
     </div>

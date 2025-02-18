@@ -5,10 +5,9 @@ import Link from "next/link";
 import React from "react";
 
 import Tag from "@/components/shared/Tag";
+import { Post } from "@/types";
 
 import { ShinyButton } from "../ui/shiny-button";
-
-import { Post } from "@/types"
 
 interface RelatedPostProps {
   post: Post;
@@ -16,10 +15,17 @@ interface RelatedPostProps {
 }
 
 const RelatedPostCard: React.FC<RelatedPostProps> = ({ post, isHot }) => {
-  const { title, author = {
-    _id: "#",
-    username: "",
-  }, coverImage, categories, genres, topics } = post;
+  const {
+    title,
+    author = {
+      _id: "#",
+      username: "",
+    },
+    coverImage,
+    categories,
+    genres,
+    topics,
+  } = post;
 
   const tags = [
     ...categories?.map((category) => ({
@@ -61,9 +67,7 @@ const RelatedPostCard: React.FC<RelatedPostProps> = ({ post, isHot }) => {
             </div>
           </div>
           <div className="flex justify-center w-full mt-6">
-            <Link
-              href={`/categorie/${categories[0]?.name.toLowerCase()}/${title.toLowerCase()}?id=${post._id}`}
-            >
+            <Link href={`/articoli/${title.toLowerCase()}?id=${post._id}`}>
               <div className="w-fit h-fit border-gradient animated-gradient p-[1px] rounded-lg">
                 <div className="w-fit h-fit bg-background rounded-lg">
                   <ShinyButton className="font-sans font-semibold py-2 px-6">

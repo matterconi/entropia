@@ -5,11 +5,11 @@ import { motion, MotionValue, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 
+import { RainbowButton } from "@/components/ui/rainbow-button";
+import InfiniteMovingCards from "@/components/ui/verticalCards";
 import { categories, MenuItem } from "@/data/data";
 
 import styles from "./Categorie.module.scss";
-import { RainbowButton } from "../ui/rainbow-button";
-import InfiniteMovingCards from "../ui/verticalCards";
 import Intermezzo from "./intermezzo/Intermezzo";
 
 interface CardProps {

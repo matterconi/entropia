@@ -5,7 +5,11 @@ import "./popOverStyles.css";
 import React, { useId, useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface SingleSelectMenuProps {
   label: string;
@@ -35,7 +39,9 @@ const SingleSelectMenu: React.FC<SingleSelectMenuProps> = ({
                 type="button"
               >
                 <h3 className="font-semibold text-sm">{label}</h3>
-                <span className="text-sm">{selectedOption || "Seleziona..."}</span>
+                <span className="text-sm">
+                  {selectedOption || "Seleziona..."}
+                </span>
                 <div className="flex items-center justify-center">
                   {isOpen ? (
                     <FaChevronUp size={20} />
@@ -49,7 +55,10 @@ const SingleSelectMenu: React.FC<SingleSelectMenuProps> = ({
         </PopoverTrigger>
 
         {/* Contenuto del Popover */}
-        <PopoverContent className="my-4 PopoverContent rounded-lg shadow-lg" align="start">
+        <PopoverContent
+          className="my-4 PopoverContent rounded-lg shadow-lg"
+          align="start"
+        >
           <div className="w-full h-full border-gradient p-[1px] rounded-lg animated-gradient">
             <div className="px-6 p-4 bg-background rounded-lg">
               <div className="space-y-2">

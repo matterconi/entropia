@@ -21,9 +21,10 @@ interface Filter {
   options: { value: string; label: string }[];
 }
 
-const renderFilterComponent = (filter: Filter) => {
+const RenderFilterComponent = (filter: Filter) => {
   const { filters, updatePartialFilter } = useFilterContext();
-  const handleChange = (value: string | string[]) => updatePartialFilter(filter.id, value);
+  const handleChange = (value: string | string[]) =>
+    updatePartialFilter(filter.id, value);
   if (filter.id === "sort") {
     return (
       <FilterSection label={filter.label}>
@@ -96,7 +97,7 @@ const DeskFilterMenu = () => {
       {/* Form per i filtri */}
       <form className="pt-0 flex items-start justify-center space-x-8 w-full">
         {visibleFilters.map((filter) => (
-          <div key={filter.label}>{renderFilterComponent(filter)}</div>
+          <div key={filter.label}>{RenderFilterComponent(filter)}</div>
         ))}
       </form>
     </div>

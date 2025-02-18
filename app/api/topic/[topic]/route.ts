@@ -27,7 +27,7 @@ export async function GET(_: NextRequest, { params }: Params) {
       console.error("❌ Genere non trovato!");
       return NextResponse.json(
         { message: "Genere non trovato" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -44,7 +44,7 @@ export async function GET(_: NextRequest, { params }: Params) {
 
     return NextResponse.json(
       { message: "API funzionante", articles },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     let errorMessage = "Errore sconosciuto";
@@ -58,7 +58,7 @@ export async function GET(_: NextRequest, { params }: Params) {
 
     return NextResponse.json(
       { message: "Errore nel recupero degli articoli", error: errorMessage },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

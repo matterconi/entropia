@@ -3,8 +3,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import RelatedPostCard from "@/components/shared/RelatedPostCard";
-import { Post } from "@/types";
 import { cn } from "@/lib/utils";
+import { Post } from "@/types";
 
 const Cards = ({
   direction = "left",
