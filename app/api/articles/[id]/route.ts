@@ -28,10 +28,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export async function GET(
-  req: Request,
-  context: Promise<{ params: { id: string } }>,
-) {
+export async function GET(request: NextRequest, context: Promise<any>) {
   const { params } = await context; // Risolviamo la Promise
 
   await dbConnect();
