@@ -2,11 +2,6 @@ import React from "react";
 
 import PostRenderer from "@/components/shared/PostRenderer";
 
-type PostPageProps = {
-  params: { [key: string]: string };
-  searchParams: Record<string, string | undefined>;
-};
-
 // ✅ Funzione per ottenere i dati del post
 const fetchPostData = async (postId: string) => {
   console.log("🔍 Caricamento post:", postId);
@@ -25,7 +20,13 @@ const fetchPostData = async (postId: string) => {
 };
 
 // ✅ Server Component che usa `searchParams` in modo sincrono
-const PostPage = async ({ params, searchParams }: PostPageProps) => {
+async function PostPage({
+  params, // lo ignoriamo, ma deve essere presente e tipizzato come Promise
+  searchParams,
+}: {
+  params: Promise<{}>;
+  searchParams: Record<string, string | undefined>;
+}) {
   const postId = searchParams?.id; // Otteniamo direttamente l'ID dalla query string
   console.log("🔍 ID del post:", postId);
   if (!postId) {
@@ -45,6 +46,6 @@ const PostPage = async ({ params, searchParams }: PostPageProps) => {
     console.error("❌ Errore caricamento post:", error);
     return <div>⚠️ Errore nel caricamento del post.</div>;
   }
-};
+}
 
 export default PostPage;
