@@ -37,7 +37,7 @@ const page = async ({
   params,
 }: {
   params: Promise<{ genere: keyof typeof plurals }>;
-}) {
+}) => {
   // Aspettiamo la risoluzione di params
   const resolvedParams = await params;
   const { genere } = resolvedParams;
