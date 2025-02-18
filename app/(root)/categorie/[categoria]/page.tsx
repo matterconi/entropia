@@ -29,14 +29,17 @@ const articles = {
   pensieri: "Tutti i ",
 };
 
-const page = async ({
+async function Page({
   params,
   searchParams,
 }: {
-  params: { categoria: string };
-  searchParams: URLSearchParams;
-}) => {
-  const { categoria } = params;
+  params: Promise<{ categoria: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  // Risolviamo le Promise
+  const resolvedParams = await params;
+
+  const { categoria } = resolvedParams;
 
   if (!categoria || !(categoria in categories)) {
     return (
@@ -48,7 +51,17 @@ const page = async ({
 
   const section = categories[categoria as keyof typeof categories];
 
-  const queryString = new URLSearchParams(await searchParams).toString();
+  const resolvedSearchParams = await searchParams;
+  const filteredParams = Object.entries(resolvedSearchParams).reduce(
+    (acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+  const queryString = new URLSearchParams(filteredParams).toString();
 
   const url = `${process.env.NEXT_PUBLIC_BASE_URL}/api/categorie/${categoria}${queryString ? `?${queryString}` : ""}`;
 
@@ -104,6 +117,6 @@ const page = async ({
       </div>
     </div>
   );
-};
+}
 
-export default page;
+export default Page;
