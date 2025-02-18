@@ -28,19 +28,18 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export async function GET(request: NextRequest, context: Promise<any>) {
-  const { params } = await context; // Risolviamo la Promise
+export async function GET(
+  req: NextRequest,
+  context: { params: { id: string } }, // Context sincrono
+) {
+  const { params } = context;
+  const { id } = params;
 
   await dbConnect();
 
-  User;
-  Category;
-  Genre;
-  Topic;
-
   try {
-    // ✅ Recupera l'articolo e tipizzalo come `IArticle`
-    const article = (await Article.findById(params.id)
+    // Recupera l'articolo e tipizzalo come IArticle
+    const article = (await Article.findById(id)
       .populate<{ author: { username: string } }>("author", "username")
       .populate<{ categories: { name: string }[] }>("categories", "name")
       .populate<{ genres: { name: string }[] }>("genres", "name")
@@ -49,15 +48,18 @@ export async function GET(request: NextRequest, context: Promise<any>) {
 
     if (!article) {
       console.error("❌ Articolo non trovato!");
-      return new Response(JSON.stringify({ message: "Articolo non trovato" }), {
-        status: 404,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new NextResponse(
+        JSON.stringify({ message: "Articolo non trovato" }),
+        {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
 
     console.log("✅ Articolo trovato:", article.title);
 
-    // ✅ Scarica il file Markdown da Supabase
+    // Scarica il file Markdown da Supabase
     console.log("📥 Scaricando Markdown da:", article.markdownPath);
     const { data, error } = await supabase.storage
       .from("articles-content")
@@ -65,7 +67,7 @@ export async function GET(request: NextRequest, context: Promise<any>) {
 
     if (error) {
       console.error("❌ Errore nel recupero del Markdown:", error.message);
-      return new Response(
+      return new NextResponse(
         JSON.stringify({
           message: "Errore nel recupero del file Markdown",
           error: error.message,
@@ -80,7 +82,7 @@ export async function GET(request: NextRequest, context: Promise<any>) {
     console.log("✅ Markdown scaricato con successo");
     const markdownText = await data.text();
 
-    return new Response(
+    return new NextResponse(
       JSON.stringify({
         message: "API funzionante",
         article,
@@ -93,7 +95,7 @@ export async function GET(request: NextRequest, context: Promise<any>) {
     );
   } catch (error: any) {
     console.error("❌ Errore API GET:", error);
-    return new Response(
+    return new NextResponse(
       JSON.stringify({
         message: "Errore nel recupero dell'articolo",
         error: error.message,
