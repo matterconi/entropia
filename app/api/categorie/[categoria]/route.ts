@@ -50,7 +50,9 @@ export async function GET(
     console.log("🔍 Categoria richiesta:", categoria);
 
     // 2️⃣ Trovare l'ID della categoria corrispondente
-    const category = await Category.findOne({ name: categoria }).select("_id");
+    const category = await Category.findOne({
+      name: capitalizedCategoria,
+    }).select("_id");
     if (!category) {
       console.error("❌ Categoria non trovata!");
       return NextResponse.json(

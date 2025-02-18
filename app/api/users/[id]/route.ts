@@ -41,12 +41,12 @@ export async function GET(req: NextRequest) {
 // ✅ PUT: Aggiorna l'username di un utente in base all'ID o all'email
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     await dbConnect();
 
-    const { id } = params; // ✅ Ora l'ID viene preso dall'URL
+    const { id } = await params; // ✅ Ora l'ID viene preso dall'URL
     const { username } = await req.json();
 
     if (!username || username.length < 3) {
