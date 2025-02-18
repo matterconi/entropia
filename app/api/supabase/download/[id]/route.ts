@@ -5,11 +5,11 @@ import dbConnect from "@/lib/mongoose";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = await params;
 
     const user = await User.findById(id).populate("likedPosts");
 
