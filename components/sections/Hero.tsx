@@ -22,8 +22,10 @@ const categories: { [key: string]: number } = {
 
 const fetchPosts = async () => {
   try {
-    const response = await fetch("http://localhost:3000/api/articles", {
-      next: { revalidate: 600000 }, // ISR: rigenera i dati ogni 60 secondi
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
+    const response = await fetch(`${baseUrl}/api/articles`, {
+      next: { revalidate: 600000 }, // ISR: rigenera i dati ogni 10 minuti
     });
 
     if (!response.ok) throw new Error("Errore nel recupero dei dati");
@@ -34,6 +36,7 @@ const fetchPosts = async () => {
     return [];
   }
 };
+
 const page = async () => {
   const posts = await fetchPosts();
   console.log(posts);
