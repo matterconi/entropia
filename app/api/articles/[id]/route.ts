@@ -28,8 +28,11 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export async function GET(req: Request, context: { params: { id: string } }) {
-  console.log("🔍 Richiesta ricevuta per l'API con ID:", context.params.id);
+export async function GET(
+  req: Request,
+  context: Promise<{ params: { id: string } }>,
+) {
+  const { params } = await context; // Risolviamo la Promise
 
   await dbConnect();
 
@@ -40,7 +43,7 @@ export async function GET(req: Request, context: { params: { id: string } }) {
 
   try {
     // ✅ Recupera l'articolo e tipizzalo come `IArticle`
-    const article = (await Article.findById(context.params.id)
+    const article = (await Article.findById(params.id)
       .populate<{ author: { username: string } }>("author", "username")
       .populate<{ categories: { name: string }[] }>("categories", "name")
       .populate<{ genres: { name: string }[] }>("genres", "name")
@@ -106,11 +109,12 @@ export async function GET(req: Request, context: { params: { id: string } }) {
   }
 }
 
-export async function DELETE(_: NextRequest, { params }: Params) {
+export async function DELETE(_: NextRequest, context: Promise<Params>) {
   try {
     await dbConnect(); // Connessione al database
 
-    const { id } = params; // Ottiene l'ID dall'URL
+    const { params } = await context;
+    const { id } = params;
     if (!id) {
       return NextResponse.json({ message: "ID non fornito" }, { status: 400 });
     }
