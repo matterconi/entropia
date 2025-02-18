@@ -107,12 +107,13 @@ export async function GET(
   }
 }
 
-export async function DELETE(_: NextRequest, context: Promise<Params>) {
+export async function DELETE(
+  _: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  // Aspetta la risoluzione della Promise per ottenere i parametri
   try {
-    await dbConnect(); // Connessione al database
-
-    const { params } = await context;
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json({ message: "ID non fornito" }, { status: 400 });
     }

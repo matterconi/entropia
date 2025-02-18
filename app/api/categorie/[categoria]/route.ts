@@ -37,15 +37,15 @@ interface Filters {
 
 export async function GET(
   req: NextRequest,
-  context: Promise<{ params: { categoria: string } }>,
+  { params }: { params: Promise<{ categoria: string }> },
 ) {
   await dbConnect();
 
   try {
-    // 1️⃣ Estrarre la categoria dalla route e capitalizzarla
-    const { params } = await context;
-    let { categoria } = params;
-    categoria = capitalize(categoria);
+    // Risolviamo la Promise e estraiamo la categoria
+    const { categoria } = await params;
+    // Capitalizziamo la categoria
+    const capitalizedCategoria = capitalize(categoria);
 
     console.log("🔍 Categoria richiesta:", categoria);
 

@@ -4,17 +4,14 @@ import Article from "@/database/Article";
 import Topic from "@/database/Topic";
 import dbConnect from "@/lib/mongoose";
 
-interface Params {
-  params: { topic: string };
-}
-
-export async function GET(_: NextRequest, { params }: Params) {
-  console.log("🔍 Richiesta ricevuta per il genere:", params.topic);
-
+export async function GET(
+  _: NextRequest,
+  { params }: { params: Promise<{ topic: string }> },
+) {
   await dbConnect();
 
   try {
-    let { topic } = params;
+    let { topic } = await params;
 
     // ✅ Converti il genere in Title Case per la ricerca nel DB
     topic = topic.charAt(0).toUpperCase() + topic.slice(1).toLowerCase();

@@ -7,14 +7,13 @@ import dbConnect from "@/lib/mongoose";
 
 export async function GET(
   req: NextRequest,
-  context: { params: { genere: string } },
+  { params }: { params: Promise<{ genere: string }> },
 ) {
-  console.log("🔍 Richiesta ricevuta per il genere:", context.params.genere);
-
   await dbConnect();
 
   try {
-    let { genere } = context.params;
+    // Estrai il genere dal context
+    let { genere } = await params;
 
     // ✅ Converti il genere in Title Case per la ricerca nel DB
     genere = genere.charAt(0).toUpperCase() + genere.slice(1).toLowerCase();
