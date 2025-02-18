@@ -45,9 +45,10 @@ const prepositions = {
 const page = async ({
   params,
 }: {
-  params: { topic: keyof typeof prepositions };
+  params: Promise<{ topic: keyof typeof prepositions }>;
 }) => {
-  const { topic } = params;
+  const resolvedParams = await params;
+  const { topic } = resolvedParams;
 
   if (!topic || !(topic in topicsArr)) {
     return (
