@@ -30,11 +30,11 @@ export async function GET(
 // ✅ PUT: Aggiorna l'username
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = await params;
     const { username } = await req.json();
 
     if (!username || username.length < 3) {
