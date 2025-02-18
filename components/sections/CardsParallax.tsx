@@ -35,7 +35,7 @@ const projects = categories.map((category, i) => {
   return {
     title: category.title,
     description: category.description,
-    src: `/assets/${category.title}.webp`,
+    src: `/assets/${category.title.toLowerCase()}.webp`,
     url: category.href,
     color,
   };
