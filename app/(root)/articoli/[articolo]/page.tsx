@@ -19,15 +19,18 @@ const fetchPostData = async (postId: string) => {
   return postData;
 };
 
+type PostPageProps = {
+  params: Promise<{}>;
+  searchParams: Promise<Record<string, string | undefined>>;
+};
+
 // ✅ Server Component che usa `searchParams` in modo sincrono
 async function PostPage({
-  params, // lo ignoriamo, ma deve essere presente e tipizzato come Promise
+  params, // Non ci interessa, ma va definito
   searchParams,
-}: {
-  params: Promise<{}>;
-  searchParams: Record<string, string | undefined>;
-}) {
-  const postId = searchParams?.id; // Otteniamo direttamente l'ID dalla query string
+}: PostPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const postId = resolvedSearchParams.id;
   console.log("🔍 ID del post:", postId);
   if (!postId) {
     return <div>⚠️ Post non valido</div>;
