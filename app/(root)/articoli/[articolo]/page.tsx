@@ -3,7 +3,8 @@ import React from "react";
 import PostRenderer from "@/components/shared/PostRenderer";
 
 type PostPageProps = {
-  searchParams: Record<string, string | undefined>; // ✅ Corrected type
+  params: { [key: string]: string };
+  searchParams: Record<string, string | undefined>;
 };
 
 // ✅ Funzione per ottenere i dati del post
@@ -24,7 +25,7 @@ const fetchPostData = async (postId: string) => {
 };
 
 // ✅ Server Component che usa `searchParams` in modo sincrono
-const PostPage = async ({ searchParams }: PostPageProps) => {
+const PostPage = async ({ params, searchParams }: PostPageProps) => {
   const postId = searchParams?.id; // Otteniamo direttamente l'ID dalla query string
   console.log("🔍 ID del post:", postId);
   if (!postId) {
