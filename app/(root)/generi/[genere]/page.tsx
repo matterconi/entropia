@@ -36,9 +36,11 @@ const plurals = {
 const page = async ({
   params,
 }: {
-  params: { genere: keyof typeof plurals };
-}) => {
-  const { genere } = params;
+  params: Promise<{ genere: keyof typeof plurals }>;
+}) {
+  // Aspettiamo la risoluzione di params
+  const resolvedParams = await params;
+  const { genere } = resolvedParams;
 
   if (!genere || !(genere in genres)) {
     return (
