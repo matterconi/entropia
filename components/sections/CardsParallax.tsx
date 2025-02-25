@@ -59,8 +59,6 @@ const Card = ({
   title,
   description,
   src,
-  url,
-  color,
   progress,
   range,
   targetScale,
@@ -79,7 +77,7 @@ const Card = ({
   return (
     <div
       ref={container}
-      className="h-screen flex items-center justify-center sticky top-0 "
+      className="flex items-center justify-center sticky top-[20vh]"
     >
       <motion.div
         className="bg-background m-0 p-0 relative origin-top mx-4"
@@ -89,10 +87,10 @@ const Card = ({
         }}
       >
         <motion.div
-          className="flex flex-col relative max-sm:h-[500px] h-[650px] w-full max-w-[1200px] rounded-lg max-sm:p-8 p-12 py-16 max-sm:gap-4 origin-top border-gradient animated-gradient border-white border border-opacity-50 "
+          className="flex flex-col relative max-sm:h-[60vh] h-[67vh] w-full max-w-[1200px] rounded-lg max-md:p-8 p-12 py-16 max-md:py-6 max-sm:gap-4 origin-top border-gradient animated-gradient border-white border border-opacity-50 "
           style={{ opacity }}
         >
-          <motion.h2 className="sm:hidden font-title text-center m-0 text-3xl max-sm:mb-4">
+          <motion.h2 className="sm:hidden font-title text-center m-0 text-3xl max-sm:mb-2">
             {title}
           </motion.h2>
           <div className="flex max-sm:flex-col-reverse items-center justify-center h-screen w-full">
@@ -101,7 +99,7 @@ const Card = ({
                 {title}
               </h2>
               <div>
-                <p className="font-sans mb-8 max-sm:line-clamp-3">
+                <p className="font-sans mb-8 max-md:mb-4 max-sm:line-clamp-2">
                   {description}
                 </p>
                 <div className="border border-black w-full rounded-xl border-opacity-50">
@@ -112,7 +110,7 @@ const Card = ({
               </div>
             </div>
 
-            <div className="relative h-full w-full rounded-lg overflow-hidden flex-grow max-sm:mb-8">
+            <div className="relative h-full w-full rounded-lg overflow-hidden flex-grow max-sm:mb-8 min-h-[150px]">
               <motion.div
                 className="w-full h-full"
                 style={{ scale: imageScale }}
@@ -163,14 +161,14 @@ export default function Home() {
   return (
     <main ref={container} className="h-full">
       <motion.div
-        className="sticky top-0 font-title max-sm:text-[2rem] max-md:text-[2.5rem] md:text-5xl lg:text-6xl xl:text-7xl h-[20vh] t w-full flex items-center justify-center font-semibold"
+        className="sticky top-0 w-full flex items-center justify-center "
         style={{ opacity: opacityDiv }}
       >
         <motion.div
           className="h-full w-full flex items-center justify-center"
           style={{ opacity }}
         >
-          <motion.h1 className="text-gradient animated-gradient py-4">
+          <motion.h1 className="text-gradient font-title max-sm:text-[2.5rem] max-md:text-[3rem] md:text-6xl lg:text-7xl xl:text-8xl text-center font-semibold max-md:h-[20vh] h-[30vh] mt-16">
             Categorie
           </motion.h1>
         </motion.div>

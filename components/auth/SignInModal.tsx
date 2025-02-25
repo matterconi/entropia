@@ -41,29 +41,13 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
     }
   };
 
-  // Gestione del Sign-In tramite credenziali
-  const handleSignIn = async (data: SignInSchemaType) => {
-    const result = await signIn("credentials", {
-      redirect: false,
-      email: data.email,
-      password: data.password,
-    });
-
-    if (result?.error) {
-      console.error("Login failed:", result.error);
-    } else {
-      console.log("Login successful!");
-      onClose();
-    }
-  };
-
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 h-full w-full overflow-y-hidden"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-background bg-opacity-50 h-full w-full overflow-y-hidden"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="h-screen w-screen fixed bg-black bg-opacity-50 flex items-center justify-center overflow-y-hidden">
-        <div className="relative bg-white p-6 rounded-lg shadow-lg max-sm:min-w-[300px] max-lg:min-w-[400px] lg:min-w-[450px] mx-auto space-y-4 z-50">
+      <div className="h-screen w-screen fixed bg-background bg-opacity-50 flex items-center justify-center overflow-y-hidden">
+        <div className="relative bg-background p-6 rounded-lg shadow-lg max-sm:min-w-[300px] max-lg:min-w-[400px] lg:min-w-[450px] mx-auto space-y-4 z-50">
           <button onClick={onClose} className="absolute top-4 right-4">
             <IoCloseSharp className="h-6 w-6" />
           </button>
@@ -73,7 +57,6 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
             schema={SignInSchema}
             defaultValues={{ email: "", password: "" }}
             formType="SIGN_IN"
-            onSubmitAction={handleSignIn}
           >
             <div className="border-gradient p-[1px] animated-gradient rounded-lg mb-8 mt-10">
               <ShinyButton
@@ -91,7 +74,9 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
 
             <div className="flex items-center gap-2">
               <hr className="flex-1 border-gray-300 dark:border-gray-600" />
-              <span className="text-sm text-gray-500 dark:text-gray-400">or</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                or
+              </span>
               <hr className="flex-1 border-gray-300 dark:border-gray-600" />
             </div>
           </AuthForm>

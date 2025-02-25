@@ -1,15 +1,11 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams } from "next/navigation"; // Import per leggere i parametri della route
-import React, { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { IoClose } from "react-icons/io5";
-import { z } from "zod";
+import React from "react";
 
 import SortPost from "@/components/shared/SortPost";
 import { useFilterContext } from "@/context/FilterContext";
-import { filtersConfig } from "@/data/filterConfig";
+import { getFiltersConfig } from "@/data/filterConfig";
 
 import FilterChips from "./FilterChips";
 import SelectMenu from "./SelectMenu";
@@ -88,6 +84,8 @@ const DeskFilterMenu = () => {
   if (topic) filterToRemove = "topics";
 
   // Filtra i filtri visibili
+  const filtersConfig = getFiltersConfig();
+
   const visibleFilters = filtersConfig.filter(
     (filter) => filter.id !== filterToRemove,
   );

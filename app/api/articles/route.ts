@@ -14,7 +14,6 @@ export async function GET(req: NextRequest) {
 
     // ✅ Recupera tutti gli articoli ordinati per data di creazione e li converte in JSON-friendly objects
     const articles = await Article.find()
-      .populate("author", "username")
       .populate("categories", "name")
       .populate("genres", "name")
       .populate("topics", "name")

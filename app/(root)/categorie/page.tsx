@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { ShinyButton } from "@/components/ui/shiny-button";
+import { RainbowButton } from "@/components/ui/rainbow-button";
 import { categories, MenuItem } from "@/data/data";
 
 const CategoriesPage = () => {
@@ -54,15 +54,12 @@ const CategoriesPage = () => {
       <h1 className="mb-6 w-full font-title max-sm:text-[2.5rem] max-md:text-[3rem] md:text-6xl lg:text-7xl xl:text-7xl text-center flex justify-center items-center font-bold gap-4 max-lg:flex-col-reverse lg:mt-8">
         <span className="text-gradient animated-gradient py-2">Categorie</span>
       </h1>
-      <div
-        className="border-gradient animated-gradient p-[1px] rounded-lg mb-8 max-w-5xl mx-auto"
-        ref={containerRef}
-      >
+      <div className="mb-16" ref={containerRef}>
         <div className="w-full h-full bg-background rounded-lg overflow-hidden">
           <div className="w-full h-full relative max-w-5xl mx-auto">
             {/* Title */}
             <div className="bg-background relative h-full w-full flex flex-col items-center justify-center max-md:py-24 py-36">
-              <div className="bg-background w-fit h-fit flex justify-center items-center z-50 rounded-lg mx-4">
+              <div className="bg-background w-fit h-fit flex flex-col justify-center items-center z-50 rounded-lg mx-4">
                 <motion.h1
                   key={categoriesState[1]?.title} // Chiave dinamica per attivare l'animazione
                   initial={{ opacity: 0, y: "-20%" }} // Partenza invisibile e leggermente sopra
@@ -71,10 +68,35 @@ const CategoriesPage = () => {
                     duration: 1, // Durata dell'animazione
                     ease: "easeInOut", // Transizione fluida
                   }}
-                  className="flex w-fit h-fit z-50 font-title text-4xl text-center p-4 md:py-8 rounded-lg text-gradient animated-gradient px-8 md:px-12"
+                  className="flex w-fit h-fit z-50 font-title text-4xl text-center p-4 rounded-lg text-gradient animated-gradient pt-8"
                 >
                   {categoriesState[1]?.title}
                 </motion.h1>
+                <motion.p
+                  key={categoriesState[1]?.description} // Chiave dinamica per attivare l'animazione
+                  initial={{ opacity: 0, y: "-20%" }} // Partenza invisibile e leggermente sopra
+                  animate={{ opacity: 1, y: "0%" }} // Arrivo visibile e centrato
+                  transition={{
+                    duration: 1, // Durata dell'animazione
+                    ease: "easeInOut", // Transizione fluida
+                  }}
+                  className="p-4 z-30 relative px-12 pb-8"
+                >
+                  {categoriesState[1]?.description}
+                </motion.p>
+                <div className="flex justify-center w-full pb-6 z-50 relative px-8">
+                  <div className="w-full max-w-5xl h-fit border-gradient animated-gradient p-[1px] rounded-lg">
+                    <div className="w-full h-fit bg-background rounded-lg">
+                      <Link
+                        href={`/categorie/${categoriesState[1]?.title.toLowerCase()}}`}
+                      >
+                        <RainbowButton className="font-sans font-semibold px-4 w-full rounded-lg">
+                          <p className="text-gradient text-lg">Scoprimi</p>
+                        </RainbowButton>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -95,7 +117,7 @@ const CategoriesPage = () => {
                   src={`/assets/${categoriesState[0].title.toLowerCase()}.webp`}
                   alt={categoriesState[0].title}
                   fill
-                  className="rounded-t-lg object-cover z-10"
+                  className="rounded-lg object-cover z-10"
                   style={{
                     objectPosition: `center ${offset}`, // Posizione dinamica
                   }}
@@ -119,7 +141,7 @@ const CategoriesPage = () => {
                   src={`/assets/${categoriesState[1]?.title.toLowerCase()}.webp`}
                   alt={categoriesState[1]?.title}
                   fill
-                  className="rounded-t-lg object-cover z-20"
+                  className="rounded-lg object-cover z-20"
                   style={{
                     objectPosition: `center ${offset}`, // Posizione dinamica
                   }}
@@ -141,24 +163,8 @@ const CategoriesPage = () => {
           </div>
 
           {/* Description */}
-          <p className="m-8 px-6 max-w-5xl mx-auto z-30 relative">
-            {categoriesState[1]?.description}
-          </p>
 
           {/* Button */}
-          <div className="flex justify-center w-full pb-6 z-30 relative">
-            <div className="w-fit h-fit border-gradient animated-gradient p-[1px] rounded-lg">
-              <div className="w-fit h-fit bg-background rounded-lg">
-                <Link
-                  href={`/categorie/${categoriesState[1]?.title.toLowerCase()}}`}
-                >
-                  <ShinyButton className="font-sans font-semibold">
-                    <p className="text-gradient text-lg">Leggimi</p>
-                  </ShinyButton>
-                </Link>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
       {/* Slider delle Categorie */}

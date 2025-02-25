@@ -15,21 +15,6 @@ export default function SignInPage() {
     await signIn("google", { callbackUrl: "/" }); // Redirect to homepage after login
   };
 
-  // Function to handle Credentials Sign-In
-  const handleSignIn = async (data: any) => {
-    const result = await signIn("credentials", {
-      redirect: false,
-      email: data.email,
-      password: data.password,
-    });
-
-    if (result?.error) {
-      console.error("Login failed:", result.error);
-    } else {
-      console.log("Login successful!");
-    }
-  };
-
   return (
     <div className="max-sm:min-w-[300px] max-lg:min-w-[400px] lg:min-w-[450px] mx-auto space-y-4">
       {/* Sign-In Form */}
@@ -37,7 +22,6 @@ export default function SignInPage() {
         schema={SignInSchema}
         defaultValues={{ email: "", password: "" }}
         formType="SIGN_IN"
-        onSubmitAction={handleSignIn}
       >
         {/* Google Sign-In Button */}
         <div className="border-gradient p-[1px] animated-gradient rounded-lg mb-8 mt-10">

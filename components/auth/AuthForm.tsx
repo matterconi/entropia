@@ -2,27 +2,31 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import React from "react";
+import { signIn } from "next-auth/react"; // ✅ Importiamo signIn di NextAuth
+import React, { useState } from "react";
 import { DefaultValues, FieldValues, Path, useForm } from "react-hook-form";
+import { IoCloseSharp } from "react-icons/io5";
 import { ZodObject, ZodType } from "zod";
 
 import { Input } from "@/components/auth/SignInput";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 
 interface AuthFormProps<T extends FieldValues> {
-  schema: ZodObject<{ [key in keyof T]: ZodType<any> }>; // ✅ Tipo corretto per ZodObject
-  defaultValues: DefaultValues<T>; // ✅ Ora è tipizzato correttamente
+  schema: ZodObject<{ [key in keyof T]: ZodType<any> }>;
+  defaultValues: DefaultValues<T>;
   formType: "SIGN_IN" | "SIGN_UP";
+  onClose?: () => void;
   children: React.ReactNode;
-  onSubmitAction: (data: T) => Promise<void>;
+  setIsRegistered?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function AuthForm<T extends FieldValues>({
   schema,
   defaultValues,
   formType,
+  setIsRegistered,
+  onClose,
   children,
-  onSubmitAction,
 }: AuthFormProps<T>) {
   const {
     register,
@@ -30,21 +34,58 @@ export default function AuthForm<T extends FieldValues>({
     formState: { errors, isSubmitting },
   } = useForm<T>({
     resolver: zodResolver(schema),
-    defaultValues, // ✅ Ora accetta correttamente i valori di default
+    defaultValues,
   });
+  const [error, setError] = useState<string | null>(null);
+
+  const onSubmitAction = async (data: T) => {
+    setError(null);
+    const endpoint =
+      formType === "SIGN_UP"
+        ? "/api/auth/manual/sign-up"
+        : "/api/auth/manual/sign-in";
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    const result = await res.json();
+    if (!res.ok) {
+      setError(result.error);
+      return;
+    }
+
+    // ✅ Se è un SIGN-UP, aggiorniamo la sessione facendo automaticamente il SIGN-IN
+    if (formType === "SIGN_UP" && setIsRegistered) {
+      await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false, // ⚠️ Evitiamo il redirect automatico
+      });
+      setIsRegistered(true);
+    }
+  };
 
   const buttonText = formType === "SIGN_IN" ? "Sign In" : "Sign Up";
 
   return (
     <div className="w-full h-full border-gradient p-[1px] animated-gradient rounded-lg">
       <div className="mx-auto bg-background shadow-lg rounded-lg p-8 w-full h-full">
-        <h2 className="text-3xl font-bold text-center text-foreground mb-6 font-title text-gradient animated-gradient">
-          {formType === "SIGN_IN" ? "Entra in Versia" : "Registrati su Versia"}
-        </h2>
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-3xl font-bold text-center text-foreground font-title text-gradient animated-gradient">
+            {formType === "SIGN_IN"
+              ? "Entra in Versia"
+              : "Registrati su Versia"}
+          </h2>
+          <button onClick={onClose} className="">
+            <IoCloseSharp className="h-6 w-6" />
+          </button>
+        </div>
+
         <p className="text-foreground text-sm mb-6 max-w-[400px] mx-auto">
           Versia è un social network per chi ama la scrittura e la lettura.
-          Condividi i tuoi pensieri, le tue storie e le tue poesie con una
-          community di appassionati come te.
         </p>
         {children}
         <form

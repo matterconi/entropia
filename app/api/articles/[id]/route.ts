@@ -20,10 +20,6 @@ interface IArticle {
   createdAt: Date;
 }
 
-interface Params {
-  params: { id: string };
-}
-
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE!;
 const supabase = createClient(supabaseUrl, supabaseKey);

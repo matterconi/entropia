@@ -10,7 +10,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "hsl(var(--background))",
+        background: (({
+          opacityValue,
+        }: { opacityValue?: string | number } = {}) =>
+          opacityValue !== undefined
+            ? `hsl(var(--background) / ${opacityValue})`
+            : `hsl(var(--background))`) as any,
         foreground: "hsl(var(--foreground))",
         navbar: "hsl(var(--navbar))",
         card: {

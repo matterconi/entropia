@@ -11,7 +11,7 @@ import SelectMenu from "@/components/shared/SelectMenu";
 import SortPost from "@/components/shared/SortPost";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { useFilterContext } from "@/context/FilterContext";
-import { filtersConfig } from "@/data/filterConfig";
+import { getFiltersConfig } from "@/data/filterConfig";
 
 const filtersSchema = z.object({
   authors: z.array(z.string()).optional(),
@@ -19,11 +19,6 @@ const filtersSchema = z.object({
   genres: z.array(z.string()).optional(),
   sort: z.string().optional(),
 });
-
-interface FilterOption {
-  label: string;
-  value: string;
-}
 
 interface Filters {
   [key: string]: string | string[];
@@ -138,6 +133,8 @@ const MobileFilterMenu: React.FC<MobileFilterMenuProps> = ({
     updateFilters(data);
     onClose();
   };
+
+  const filtersConfig = getFiltersConfig();
 
   return (
     <div className="fixed inset-0 bg-gray-300 bg-opacity-70 z-50 flex items-center justify-center">

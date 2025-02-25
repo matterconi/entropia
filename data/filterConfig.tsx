@@ -7,55 +7,47 @@ interface Filter {
   options: { value: string; label: string }[];
 }
 
-const filtersConfig: Filter[] = [
-  {
-    id: "authors",
-    label: "Autori",
-    componentType: "checkbox" as const, // TypeScript ora lo vede come "checkbox"
-    options: [
-      { value: "Mario Rossi", label: "Mario Rossi" },
-      { value: "Luca Verdi", label: "Luca Verdi" },
-    ],
-  },
-  {
-    id: "categories",
-    label: "Categorie",
-    componentType: (categories.length <= 13 ? "chips" : "multiselect") as
-      | "chips"
-      | "select"
-      | "checkbox"
-      | "multiselect"
-      | "radio",
-    options: categories.map((category) => ({
-      value: category.title,
-      label: category.title,
-    })),
-  },
-  {
-    id: "genres",
-    label: "Generi",
-    componentType: (genres.length <= 13 ? "chips" : "checkbox") as
-      | "chips"
-      | "select"
-      | "checkbox"
-      | "multiselect"
-      | "radio",
-    options: genres.map((genre) => ({
-      value: genre.title,
-      label: genre.title,
-    })),
-  },
-  {
-    id: "sort",
-    label: "Ordina per",
-    componentType: "radio" as const, // TypeScript ora lo vede correttamente
-    options: [
-      { value: "alphabetical", label: "Ordine Alfabetico" },
-      { value: "date", label: "Data" },
-      { value: "views", label: "Visualizzazioni" },
-      { value: "likes", label: "Like" },
-    ],
-  },
-];
-
-export { filtersConfig };
+export function getFiltersConfig(): Filter[] {
+  const isMobile =
+    typeof window !== "undefined" ? window.innerWidth < 768 : false;
+  return [
+    {
+      id: "authors",
+      label: "Autori",
+      componentType: "checkbox",
+      options: [
+        { value: "Mario Rossi", label: "Mario Rossi" },
+        { value: "Luca Verdi", label: "Luca Verdi" },
+      ],
+    },
+    {
+      id: "categories",
+      label: "Categorie",
+      componentType: isMobile ? "multiselect" : "chips",
+      options: categories.map((category) => ({
+        value: category.title,
+        label: category.title,
+      })),
+    },
+    {
+      id: "genres",
+      label: "Generi",
+      componentType: isMobile ? "multiselect" : "chips",
+      options: genres.map((genre) => ({
+        value: genre.title,
+        label: genre.title,
+      })),
+    },
+    {
+      id: "sort",
+      label: "Ordina per",
+      componentType: "radio",
+      options: [
+        { value: "alphabetical", label: "Ordine Alfabetico" },
+        { value: "date", label: "Data" },
+        { value: "views", label: "Visualizzazioni" },
+        { value: "likes", label: "Like" },
+      ],
+    },
+  ];
+}

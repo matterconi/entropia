@@ -1,9 +1,14 @@
 import mongoose, { Mongoose } from "mongoose";
 
-import Category from "@/database/Category";
-import Genre from "@/database/Genre";
-import Topic from "@/database/Topic";
-import User from "@/database/User";
+import models from "./api/loadModels";
+
+const { Article, Category, Genre, Topic, User } = models;
+
+Article;
+Category;
+Genre;
+Topic;
+User;
 
 const MONGODB_URI = process.env.MONGODB_URI as string;
 

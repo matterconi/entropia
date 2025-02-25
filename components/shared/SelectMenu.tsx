@@ -53,7 +53,7 @@ const SelectMenu: React.FC<SelectMenuProps> = ({
       <Popover onOpenChange={(open) => setIsOpen(open)}>
         {/* Trigger del Popover */}
         <PopoverTrigger asChild>
-          <div className="w-full h-full border-gradient animated-gradient p-[1px] my-4 md:my-0 rounded-lg min-w-[300px]">
+          <div className="w-full h-full border-gradient animated-gradient p-[1px] my-4 md:my-0 rounded-lg ">
             <div className="w-full h-full bg-background rounded-lg">
               <button
                 className="w-full rounded-lg px-4 py-2 flex justify-between items-center"

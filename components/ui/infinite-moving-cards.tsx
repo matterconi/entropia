@@ -19,7 +19,7 @@ const generateRandomStyles = () => {
 const Cards = ({
   items,
   direction = "left",
-  speed = "normal",
+  speed = "slow",
   pauseOnHover = true,
   className,
 }: {
@@ -61,7 +61,10 @@ const Cards = ({
         } else if (speed === "normal") {
           containerRef.current.style.setProperty("--animation-duration", "40s");
         } else {
-          containerRef.current.style.setProperty("--animation-duration", "80s");
+          containerRef.current.style.setProperty(
+            "--animation-duration",
+            "1000s",
+          );
         }
       }
     };
