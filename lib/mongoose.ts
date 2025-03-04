@@ -2,7 +2,7 @@ import mongoose, { Mongoose } from "mongoose";
 
 import models from "./api/loadModels";
 
-const { Article, Category, Genre, Topic, User } = models;
+const { Article, Category, Genre, Topic, User, Account } = models;
 
 Article;
 Category;

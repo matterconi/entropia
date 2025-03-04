@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
@@ -7,42 +8,53 @@ import { FcGoogle } from "react-icons/fc";
 import AuthForm from "@/components/auth/AuthForm";
 import RegistrationSuccess from "@/components/auth/RegistrationSuccess";
 import { ShinyButton } from "@/components/ui/shiny-button";
+import { useSignModal } from "@/context/SignModalContext";
 import { SignUpSchema } from "@/validations/authSchema";
 
-interface SignUpModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
+export default function SignUpModal() {
   const [isRegistered, setIsRegistered] = useState(false);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { isOpen, closeModal } = useSignModal();
 
   // Blocca lo scroll quando il modal è aperto
+
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
+    const storedRegistered = localStorage.getItem("isRegistered");
+    if (storedRegistered === "true") {
+      setIsRegistered(true);
     }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+  }, []);
+
+  // Aggiorna localStorage se la query string contiene "registered=true"
+  useEffect(() => {
+    if (searchParams.get("isverified") === "true") {
+      localStorage.setItem("isRegistered", "true");
+      setIsRegistered(true);
+    }
+  }, [searchParams]);
 
   if (!isOpen) return null;
 
   // Funzione per gestire il Google Sign-Up
   const handleGoogleSignUp = async () => {
-    const result = await signIn("google", { callbackUrl: "/" });
+    // Costruiamo il callbackUrl aggiungendo isverified=true
+    // Se il pathname contiene già query, aggiungiamo con "&", altrimenti con "?"
+    const callbackUrl = pathname.includes("?")
+      ? `${pathname}&isverified=true`
+      : `${pathname}?isverified=true`;
+
+    const result = await signIn("google", { redirect: false, callbackUrl });
     if (!result?.error) {
-      onClose();
+      console.log("Google sign in riuscito, callbackUrl:", callbackUrl);
+    } else {
+      console.error("Errore nel Google sign in:", result.error);
     }
   };
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-background bg-opacity-50"
-      onClick={onClose}
+      onClick={closeModal}
     >
       <div
         className="relative max-sm:min-w-[300px] max-lg:min-w-[400px] lg:min-w-[450px]"
@@ -56,7 +68,7 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
               defaultValues={{ username: "", email: "", password: "" }}
               formType="SIGN_UP"
               setIsRegistered={setIsRegistered}
-              onClose={onClose}
+              onClose={closeModal}
             >
               {/* Google Sign-Up Button */}
               <div className="border-gradient p-[1px] animated-gradient rounded-lg mb-8 mt-10">
@@ -83,7 +95,7 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
             </AuthForm>
           </>
         ) : (
-          <RegistrationSuccess isModal onClose={onClose} />
+          <RegistrationSuccess isModal onClose={closeModal} />
         )}
       </div>
     </div>

@@ -19,6 +19,7 @@ export function RainbowButton({
   className,
   icon,
   type,
+  onClick,
   ...props
 }: RainbowButtonProps) {
   const uniqueId = useId(); // Generate a unique ID for each button instance
@@ -43,6 +44,7 @@ export function RainbowButton({
       )}
       {...props}
       type={type || "button"}
+      onClick={onClick}
     >
       {children}
       <div className="relative">

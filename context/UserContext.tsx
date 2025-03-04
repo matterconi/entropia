@@ -32,17 +32,13 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const hasSetFinalState = useRef(false);
 
   useEffect(() => {
-    // Log every state change for debugging
-    console.log(`Session status changed: ${status}`);
-
     // If we're still loading, don't do anything yet
     if (status === "loading") {
       return;
     }
 
     // If authenticated and we have user data, update the user
-    if (status === "authenticated" && session?.user) {
-      console.log("Setting authenticated user state");
+    if (session?.user) {
       setUser({
         id: session.user.id,
         username: session.user.username,
@@ -54,8 +50,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       hasSetFinalState.current = true;
     }
     // Only set as unauthenticated if we haven't already set a final authenticated state
-    else if (status === "unauthenticated" && !hasSetFinalState.current) {
-      console.log("Setting unauthenticated user state");
+    else if (status === "unauthenticated") {
       setUser(null);
       setLoading(false);
       hasSetFinalState.current = true;

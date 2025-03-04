@@ -11,13 +11,10 @@ export default function AuthModals() {
 
   return (
     <>
-      {/* Condizionalmente renderizza il modal in base allo stato del contesto */}
       {isOpen && signType === "signIn" && (
         <SignInModal isOpen={isOpen} onClose={closeModal} />
       )}
-      {isOpen && signType === "signUp" && (
-        <SignUpModal isOpen={isOpen} onClose={closeModal} />
-      )}
+      {isOpen && signType === "signUp" && <SignUpModal />}
     </>
   );
 }

@@ -41,7 +41,7 @@ export default function RootLayout({
         <Providers>
           <Navbar />
           {/* Conditionally render the page content */}
-          <div className="absolute top-0 h-screen overflow-y-hidden">
+          <div className="absolute top-0 min-h-screen overflow-y-hidden max-lg:hidden flex">
             <AuthModals />
           </div>
           <ContentWrapper>{children}</ContentWrapper>

@@ -1,77 +1,110 @@
-import { redirect } from "next/navigation";
-import React from "react";
+"use client";
 
-import User from "@/database/User";
-import dbConnect from "@/lib/mongoose";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
+import React, { useEffect, useRef, useState } from "react";
+import { FiAlertCircle } from "react-icons/fi";
+import { IoReload } from "react-icons/io5";
+import { MdMarkEmailRead } from "react-icons/md";
 
-interface VerifyEmailProps {
-  searchParams?: Record<string, string | undefined>;
-}
+import { RainbowButton } from "@/components/ui/rainbow-button";
+import { ShinyButton } from "@/components/ui/shiny-button";
 
-export default async function VerifyEmail({ searchParams }: VerifyEmailProps) {
-  const token = searchParams?.token;
+export default function VerifyEmail() {
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
+  const router = useRouter();
+  const [localStatus, setLocalStatus] = useState("loading");
+  const [message, setMessage] = useState("");
+  // useRef per assicurare che la chiamata sia eseguita una sola volta
+  const didFetch = useRef(false);
 
-  if (!token) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 text-center">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold text-red-500">
-            ❌ Token non valido
-          </h2>
-          <p>Il link di verifica non è valido o è mancante.</p>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    console.log("DEBUG: In VerifyEmail useEffect, token:", token);
+    if (didFetch.current) {
+      console.log("DEBUG: Chiamata già eseguita, non rifarla");
+      return;
+    }
+    if (!token) {
+      setLocalStatus("error");
+      setMessage("Token non valido o assente");
+      return;
+    }
+    didFetch.current = true; // Segna che la chiamata è stata eseguita
 
-  await dbConnect();
-  const user = await User.findOne({ verificationToken: token });
+    console.log("DEBUG: Chiamo l'endpoint di verifica con token:", token);
+    fetch(`/api/auth/verify-email?token=${token}`)
+      .then((res) => res.json())
+      .then(async (data) => {
+        console.log("DEBUG: Risposta dall'endpoint di verifica:", data);
+        if (data.error) {
+          setLocalStatus("error");
+          setMessage(data.error);
+        } else if (data.token) {
+          // Usa il token restituito per aggiornare la sessione via signIn
+          const result = await signIn("credentials", {
+            token: data.token,
+            redirect: false,
+          });
+          console.log("DEBUG: Risultato di signIn:", result);
+          if (result?.error) {
+            setLocalStatus("error");
+            setMessage(result.error);
+          } else {
+            setLocalStatus("success");
+            setMessage("Verifica completata!");
+            // Reindirizza alla dashboard dopo 2 secondi
+          }
+        }
+      })
+      .catch((error) => {
+        console.error("DEBUG: Errore durante la fetch:", error);
+        setLocalStatus("error");
+        setMessage(error.message);
+      });
+  }, [token, router]);
 
-  if (!user) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 text-center">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold text-red-500">
-            ❌ Token non valido o già usato
-          </h2>
-          <p>Il link potrebbe essere scaduto o già utilizzato.</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Se l'utente è già verificato
-  if (user.isVerified) {
-    return redirect("/sign-in?verified=true");
-  }
-
-  // ✅ Verifica l'utente e rimuove il token
-  user.isVerified = true;
-  user.verificationToken = undefined;
-  await user.save();
-
-  // ✅ Mostriamo una pagina di successo per 5 secondi prima del redirect
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-green-50 text-center">
-      <div className="bg-white p-8 rounded-lg shadow-md">
-        <h2 className="text-3xl font-bold text-green-600">
-          🎉 Verifica completata!
-        </h2>
-        <p className="text-lg text-gray-700 mt-2">
-          Il tuo account è stato verificato con successo.
-        </p>
-        <p className="text-sm text-gray-500 mt-2">
-          Verrai reindirizzato automaticamente...
-        </p>
-        <a
-          href="/sign-in?verified=true"
-          className="mt-4 inline-block px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
-        >
-          🔑 Accedi ora
-        </a>
+    <div className="flex flex-col items-center justify-center h-full bg-gray-100 text-center">
+      <div className="bg-white px-16 rounded-lg shadow-lg border border-gray-200 max-w-md h-full my-16 flex flex-col items-center justify-center min-w-[400px]">
+        {localStatus === "loading" && (
+          <div className="flex flex-col items-center gap-2 text-blue-500">
+            <IoReload size={24} className="animate-spin" />
+            <p className="text-lg font-medium">Verifica in corso...</p>
+          </div>
+        )}
+
+        {localStatus === "error" && (
+          <div className="text-center p-4">
+            <div className="flex flex-col items-center">
+              <FiAlertCircle className="w-20 h-20 text-red-500 mb-4" />
+              <h2 className="text-4xl font-bold text-red-500">Errore</h2>
+              <p className="text-base text-gray-700 mt-12 ">{message}</p>
+              <Link href="/">
+                <RainbowButton className="mt-6">Torna alla home</RainbowButton>
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {localStatus === "success" && (
+          <>
+            <div className="flex items-center justify-center w-20 h-20 mx-auto bg-green-100 text-green-600 rounded-full shadow-lg mb-4">
+              <MdMarkEmailRead size={50} />
+            </div>
+            <h2 className="text-3xl font-bold text-green-600">
+              🎉 Verifica completata!
+            </h2>
+            <p className="text-lg text-gray-700 mt-12">
+              Il tuo account è stato verificato e sei autenticato.
+            </p>
+            <Link href="/">
+              <RainbowButton className="mt-4">Torna alla home</RainbowButton>
+            </Link>
+          </>
+        )}
       </div>
-      {/* Redirect automatico dopo 5 secondi */}
-      <meta httpEquiv="refresh" content="5;url=/sign-in?verified=true" />
     </div>
   );
 }

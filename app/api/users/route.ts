@@ -15,17 +15,17 @@ export async function GET(req: NextRequest) {
     let users;
 
     if (email) {
-      users = await User.findOne({ email });
+      users = await User.findOne({ email }).populate("accounts"); // 🔥 Popola gli account associati
       if (!users) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
     } else if (id) {
-      users = await User.findById(id);
+      users = await User.findById(id).populate("accounts"); // 🔥 Popola gli account associati
       if (!users) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
     } else {
-      users = await User.find(); // Recupera tutti gli utenti
+      users = await User.find().populate("accounts"); // 🔥 Recupera tutti gli utenti con gli account associati
     }
 
     return NextResponse.json(users, { status: 200 });

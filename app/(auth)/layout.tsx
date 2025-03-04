@@ -23,10 +23,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           defer
         />
       </head>
-      <body className="bg-background text-foreground antialiased max-w-4xl flex flex-col mx-auto min-h-screen bg-gray-100 dark:bg-gray-900">
+      <body className="text-foreground antialiased max-w-4xl flex flex-col mx-auto bg-gray-100 dark:bg-gray-900">
         <Providers>
           <MiniNavbar />
-          <main className="container mx-auto p-4 flex flex-col h-full flex-1 justify-center">
+          <main className="container mx-auto p-4 flex flex-col flex-1 justify-center">
             {children}
           </main>
         </Providers>

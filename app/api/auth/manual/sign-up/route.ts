@@ -2,8 +2,9 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { NextResponse } from "next/server";
 
+import Account from "@/database/Account";
 import User from "@/database/User";
-import sendVerificationEmail from "@/lib/email/sendVerificationEmail"; // ✅ Funzione per inviare email
+import sendVerificationEmail from "@/lib/email/sendVerificationEmail";
 import dbConnect from "@/lib/mongoose";
 
 export async function POST(req: Request) {
@@ -21,35 +22,77 @@ export async function POST(req: Request) {
     let existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: "❌ Questo account esiste già" },
-        { status: 400 },
-      );
+      // 🔹 Controlla se esiste già un account Google associato a questo utente
+      const hasGoogleAccount = await Account.findOne({
+        user: existingUser._id,
+        provider: "google",
+      });
+
+      if (hasGoogleAccount) {
+        return NextResponse.json(
+          {
+            error:
+              "⚠️ Hai già registrato questo account con Google. Effettua l'accesso con Google.",
+          },
+          { status: 400 },
+        );
+      }
+
+      // 🔹 Controlla se l'utente ha già un account con credenziali
+      const hasCredentialsAccount = await Account.findOne({
+        user: existingUser._id,
+        provider: "credentials",
+      });
+
+      if (hasCredentialsAccount) {
+        return NextResponse.json(
+          { error: "❌ Questo account esiste già." },
+          { status: 400 },
+        );
+      }
+    } else {
+      // 🔹 Se l'utente non esiste, creiamolo
+      existingUser = new User({
+        email,
+        username,
+        profileImg: "/default-profile.png",
+        accounts: [], // Assicurati che il campo accounts esista
+      });
+
+      await existingUser.save();
     }
 
-    // ✅ Generiamo il token di verifica
+    // ✅ Generiamo il token di verifica e hashiamo la password
     const verificationToken = crypto.randomBytes(32).toString("hex");
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({
-      email,
-      username,
+    // 🔹 Creiamo l'account associato
+    const newAccount = new Account({
+      user: existingUser._id,
+      provider: "credentials",
       password: hashedPassword,
-      profileImg: "/default-profile.png",
-      isVerified: false, // ❌ Non verificato di default
-      verificationToken, // ✅ Salviamo il token
+      isVerified: false, // ❌ Richiede verifica email
+      verificationToken,
     });
 
-    await newUser.save();
+    await newAccount.save();
 
-    // ✅ Inviamo l'email di verifica
+    // ✅ 🔥 Aggiorniamo l'utente per collegare l'account creato
+    await User.findByIdAndUpdate(existingUser._id, {
+      $push: { accounts: newAccount._id },
+    });
+
+    // ✅ Invia email di verifica
     await sendVerificationEmail(email, verificationToken);
 
     return NextResponse.json(
-      { message: "✅ Controlla la tua email per verificare l'account." },
+      {
+        message: "✅ Controlla la tua email per verificare l'account.",
+      },
       { status: 201 },
     );
   } catch (error) {
+    console.error("Errore durante la registrazione:", error);
     return NextResponse.json(
       { error: "❌ Errore interno del server" },
       { status: 500 },

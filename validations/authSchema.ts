@@ -11,6 +11,11 @@ export const SignInSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+export const ForgotPasswordSchema = z.object({
+  email: z.string().email("Invalid email address"),
+});
+
 // ✅ Esporta due tipi distinti
 export type SignUpSchemaType = z.infer<typeof SignUpSchema>;
 export type SignInSchemaType = z.infer<typeof SignInSchema>;
+export type ForgotPasswordSchemaType = z.infer<typeof ForgotPasswordSchema>;

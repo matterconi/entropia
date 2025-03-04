@@ -52,7 +52,7 @@ const PostRenderer: React.FC<{ post: IPost }> = ({ post }) => {
       <div className="w-full h-full relative ">
         {/* Title */}
         <div className="bg-background relative h-full w-full flex flex-col items-center justify-center py-36">
-          <div className="bg-background w-fit h-fit flex justify-center items-center z-50 rounded-lg mx-4">
+          <div className="bg-background w-fit h-fit flex justify-center items-center z-40 rounded-lg mx-4">
             <h1 className="flex w-fit h-fit z-10 font-title text-4xl text-center p-4 md:py-8 rounded-lg text-gradient animated-gradient px-8 md:px-12">
               {title}
             </h1>

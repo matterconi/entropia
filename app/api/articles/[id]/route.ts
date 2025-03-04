@@ -35,7 +35,6 @@ export async function GET(
   try {
     // Recupera l'articolo e tipizzalo come IArticle
     const article = (await Article.findById(id)
-      .populate<{ author: { username: string } }>("author", "username")
       .populate<{ categories: { name: string }[] }>("categories", "name")
       .populate<{ genres: { name: string }[] }>("genres", "name")
       .populate<{ topics: { name: string }[] }>("topics", "name")

@@ -1,13 +1,6 @@
 "use client";
 
-import Lenis from "@studio-freight/lenis";
-import {
-  motion,
-  useAnimation,
-  useMotionValueEvent,
-  useScroll,
-  useTransform,
-} from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { use, useEffect, useRef } from "react";
@@ -131,18 +124,6 @@ const Card = ({
 };
 
 export default function Home() {
-  useEffect(() => {
-    const lenis = new Lenis();
-
-    function raf(time: number) {
-      lenis.raf(time);
-
-      requestAnimationFrame(raf);
-    }
-
-    requestAnimationFrame(raf);
-  });
-
   const container = useRef(null);
 
   const { scrollYProgress } = useScroll({

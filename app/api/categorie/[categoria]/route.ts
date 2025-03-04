@@ -96,7 +96,6 @@ export async function GET(
 
     // 5️⃣ Eseguire la query degli articoli
     const articles: IArticle[] = await Article.find(query)
-      .populate("author", "username")
       .populate("categories", "name")
       .populate("genres", "name")
       .populate("topics", "name")
