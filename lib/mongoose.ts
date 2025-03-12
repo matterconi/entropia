@@ -2,13 +2,14 @@ import mongoose, { Mongoose } from "mongoose";
 
 import models from "./api/loadModels";
 
-const { Article, Category, Genre, Topic, User, Account } = models;
+const { Article, Category, Genre, Topic, User, Account, PostLike } = models;
 
 Article;
 Category;
 Genre;
 Topic;
 User;
+PostLike;
 
 const MONGODB_URI = process.env.MONGODB_URI as string;
 

@@ -8,6 +8,7 @@ declare module "next-auth" {
       username: string;
       isAuthor: boolean;
       isVerified: boolean;
+      bio: string;
     } & DefaultSession["user"];
   }
 
@@ -18,5 +19,6 @@ declare module "next-auth" {
     profileImg?: string;
     isAuthor: boolean;
     isVerified: boolean;
+    bio: string;
   }
 }

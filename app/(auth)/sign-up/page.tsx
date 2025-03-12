@@ -1,6 +1,5 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
@@ -9,12 +8,15 @@ import AuthForm from "@/components/auth/AuthForm";
 import RegistrationSuccess from "@/components/auth/RegistrationSuccess";
 import { ShinyButton } from "@/components/ui/shiny-button";
 import { SignUpSchema, SignUpSchemaType } from "@/validations/authSchema";
+import { useUser } from "@/context/UserContext"; // Assicurati di usare il percorso corretto
+import { RainbowButton } from "@/components/ui/rainbow-button";
+import Link from "next/link";
 
 export default function SignUpPage() {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  // Controllo se l'utente è già autenticato
+  const { user, loading } = useUser();
 
-  // Stato persistente in localStorage
+  // Stato persistente in localStorage per gestire la registrazione
   const [isRegistered, setIsRegistered] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("isRegistered") === "true";
@@ -30,35 +32,46 @@ export default function SignUpPage() {
     }
   }, []);
 
-  // Aggiorna localStorage se la query string contiene "registered=true"
-  useEffect(() => {
-    if (searchParams.get("registered") === "true") {
-      localStorage.setItem("isRegistered", "true");
-      setIsRegistered(true);
-    }
-  }, [searchParams]);
-
-  // Non usiamo qui l'effetto per pulire il localStorage: questo verrà gestito in onClose
-
-  // Funzione per gestire il Google Sign-Up
   const handleGoogleSignUp = async () => {
-    // Costruiamo dinamicamente il callbackUrl basato sul pathname corrente
-    const callbackUrl = `${pathname}?registered=true`;
-    await signIn("google", { callbackUrl });
+    await signIn("google", { callbackUrl: "/" }); // Redirect alla homepage dopo il login
   };
+
+      // Se il caricamento è in corso, mostra un messaggio di caricamento
+      if (loading) {
+        return (
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
+          </div>
+        );
+      }
+  
+      // Se l'utente è già autenticato, mostra un'interfaccia alternativa
+      if (user && !isRegistered) {
+        return (
+          <div className="flex flex-col items-center justify-center h-full space-y-4">
+            <h2 className="text-2xl font-bold">Sei già autenticato</h2>
+            <p>Non puoi registrarti perché hai già un account attivo.</p>
+            <Link href="/">
+              <RainbowButton className="w-fit !mt-8">
+                Vai alla Home
+              </RainbowButton>
+            </Link>
+          </div>
+        );
+      }
 
   return (
     <div className="max-sm:min-w-[300px] max-lg:min-w-[400px] lg:min-w-[450px] mx-auto space-y-4">
       {!isRegistered ? (
         <>
-          {/* Sign-Up Form */}
+          {/* Form di registrazione */}
           <AuthForm<SignUpSchemaType>
             schema={SignUpSchema}
             defaultValues={{ username: "", email: "", password: "" }}
             formType="SIGN_UP"
             setIsRegistered={setIsRegistered}
           >
-            {/* Google Sign-Up Button */}
+            {/* Pulsante per il Sign-Up con Google */}
             <div className="border-gradient p-[1px] animated-gradient rounded-lg mb-8 mt-10">
               <ShinyButton
                 onClick={handleGoogleSignUp}

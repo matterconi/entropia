@@ -3,12 +3,12 @@
 import { useParams } from "next/navigation"; // Import per leggere i parametri della route
 import React from "react";
 
-import SortPost from "@/components/shared/SortPost";
+import SortPost from "@/components/filters/shared/SortPost";
 import { useFilterContext } from "@/context/FilterContext";
 import { getFiltersConfig } from "@/data/filterConfig";
 
-import FilterChips from "./FilterChips";
-import SelectMenu from "./SelectMenu";
+import FilterChips from "./shared/FilterChips";
+import SelectMenu from "./shared/SelectMenu";
 
 interface Filter {
   id: string;

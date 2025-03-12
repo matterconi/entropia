@@ -1,7 +1,7 @@
 import Image from "next/image";
 import React from "react";
 
-import FeaturedPostSlider from "@/components/shared/FeaturedPostSlider";
+import FeaturedPostSlider from "@/components/featured-post/FeaturedPostSlider";
 import InfiniteMovingCardsWithImage from "@/components/ui/infinite-moving-cards-with-image";
 
 const fetchPosts = async () => {
@@ -23,7 +23,6 @@ const fetchPosts = async () => {
 
 const page = async () => {
   const posts = await fetchPosts();
-  console.log(posts);
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="mx-12 relative w-screen bg-background ">

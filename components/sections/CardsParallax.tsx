@@ -70,7 +70,7 @@ const Card = ({
   return (
     <div
       ref={container}
-      className="flex items-center justify-center sticky top-[20vh]"
+      className="flex items-center justify-center sticky top-[20vh] max-2xl:top-[25vh] max-xl:top-[20vh]"
     >
       <motion.div
         className="bg-background m-0 p-0 relative origin-top mx-4"
@@ -80,7 +80,7 @@ const Card = ({
         }}
       >
         <motion.div
-          className="flex flex-col relative max-sm:h-[60vh] h-[67vh] w-full max-w-[1200px] rounded-lg max-md:p-8 p-12 py-16 max-md:py-6 max-sm:gap-4 origin-top border-gradient animated-gradient border-white border border-opacity-50 "
+          className="flex flex-col relative max-sm:h-[60vh] max-2xl:h-[63vh] h-[67vh] w-full max-w-[1200px] rounded-lg max-md:p-8 p-12 py-16 max-md:py-6 max-sm:gap-4 origin-top border-gradient animated-gradient border-white border border-opacity-50 "
           style={{ opacity }}
         >
           <motion.h2 className="sm:hidden font-title text-center m-0 text-3xl max-sm:mb-2">

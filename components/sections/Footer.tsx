@@ -2,11 +2,9 @@
 
 import Image from "next/image";
 import React from "react";
-import { FaLocationArrow } from "react-icons/fa";
 
 import { socialMedia } from "@/data/data";
 
-import { RainbowButton } from "../ui/rainbow-button";
 
 export default function Footer() {
   return (

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 
-import GenreImageCard from "@/components/shared/GenreImageCard";
+import GenreImageCard from "@/components/sections/GenreImageCard";
 import lilla from "@/data/post/lilla";
 import { cn } from "@/lib/utils";
 

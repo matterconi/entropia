@@ -8,6 +8,7 @@ export interface IUser extends Document {
   isAuthor: boolean;
   authorProfile?: mongoose.Types.ObjectId;
   accounts: mongoose.Types.ObjectId[]; // 🔗 Relazione con Account
+  bio: string; // Aggiungi il campo bio
 }
 
 const UserSchema = new Schema<IUser>(
@@ -23,6 +24,7 @@ const UserSchema = new Schema<IUser>(
       default: null,
     },
     accounts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Account" }], // 🔗 Relazione con account
+    bio: { type: String, default: "" }, // Aggiungi il campo bio
   },
   { timestamps: true },
 );

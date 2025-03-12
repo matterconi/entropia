@@ -9,10 +9,12 @@ interface RainbowInputProps
 export function RainbowInput({
   children,
   className,
+  type = "button",
   ...props
 }: RainbowInputProps) {
   return (
     <button
+      type={type}
       className={cn(
         "relative flex-1 animate-rainbow focus-visible:ring-ring group h-11 cursor-pointer items-center justify-center rounded-md px-8 py-2 transition-colors [background-clip:padding-box,border-box,border-box] [background-origin:border-box] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
 

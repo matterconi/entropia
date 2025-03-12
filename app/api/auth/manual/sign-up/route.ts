@@ -31,10 +31,10 @@ export async function POST(req: Request) {
       if (hasGoogleAccount) {
         return NextResponse.json(
           {
-            error:
-              "⚠️ Hai già registrato questo account con Google. Effettua l'accesso con Google.",
+            message: "⚠️ Esiste già un account Google associato a questa email. Se vuoi procedere con la registrazione manuale e associare i due account, visita il link apposito.",
+            hasGoogleAccount: true,
           },
-          { status: 400 },
+          { status: 200 }
         );
       }
 
@@ -53,9 +53,10 @@ export async function POST(req: Request) {
     } else {
       // 🔹 Se l'utente non esiste, creiamolo
       existingUser = new User({
-        email,
-        username,
+        email: email,
+        username: username,
         profileImg: "/default-profile.png",
+        isAuthor: false,
         accounts: [], // Assicurati che il campo accounts esista
       });
 

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 
-import RelatedPostCard from "@/components/shared/RelatedPostCard";
+import RelatedPostCard from "@/components/related-post/RelatedPostCard";
 import { cn } from "@/lib/utils";
 import { Post } from "@/types";
 

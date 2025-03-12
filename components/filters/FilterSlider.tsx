@@ -20,14 +20,14 @@ interface FilterSliderProps {
 const FilterSlider = ({ slice = "genres" }: FilterSliderProps) => {
   const { filters, updatePartialFilter } = useFilterContext();
   const [selectedSlice, setSelectedSlice] = useState<string[]>(
-    Array.isArray(filters[slice]) ? filters[slice] : [],
+    Array.isArray(filters[slice]) ? [...filters[slice]] : [],
   );
   const [isScrollable, setIsScrollable] = useState(false);
   const [swiperInstance, setSwiperInstance] = useState<Swiper | null>(null);
 
   // Sync local state with global filters
   useEffect(() => {
-    setSelectedSlice(Array.isArray(filters[slice]) ? filters[slice] : []);
+    setSelectedSlice(Array.isArray(filters[slice]) ? [...filters[slice]] : []);
   }, [filters, slice]);
 
   const handleClick = (genre: string) => {

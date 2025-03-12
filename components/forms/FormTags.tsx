@@ -3,12 +3,12 @@
 import React from "react";
 import { UseFormSetValue, UseFormWatch } from "react-hook-form"; // ✅ Import dei tipi necessari
 
-import FilterChips from "@/components/shared/FilterChips";
-import SelectMenu from "@/components/shared/SelectMenu";
+import FilterChips from "@/components/filters/shared/FilterChips";
+import SelectMenu from "@/components/filters/shared/SelectMenu";
 import { categories, genres, topic } from "@/data/data";
 
-import SingleFilterChips from "../shared/SingleFilterChips";
-import SingleSelectMenu from "../shared/SingleSelectMenu";
+import SingleFilterChips from "../filters/shared/SingleFilterChips";
+import SingleSelectMenu from "../filters/shared/SingleSelectMenu";
 
 interface ArticleFormData {
   title: string;

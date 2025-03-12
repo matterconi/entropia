@@ -1,10 +1,10 @@
 import React from "react";
 
-import FeaturedPost from "@/components/shared/FeaturedPostSlider";
-import Filters from "@/components/shared/Filters";
-import LocalSearch from "@/components/shared/LocalSearch";
-import RelatedPostCard from "@/components/shared/RelatedPostCard";
-import SectionHeader from "@/components/shared/SectionHeader";
+import FeaturedPost from "@/components/featured-post/FeaturedPostSlider";
+import Filters from "@/components/filters/Filters";
+import LocalSearch from "@/components/post-page/LocalSearch";
+import RelatedPostCard from "@/components/related-post/RelatedPostCard";
+import SectionHeader from "@/app/(root)/categorie/[categoria]/SectionHeader";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { genres as generi } from "@/data/data";
 import { Post } from "@/types";

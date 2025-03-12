@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-import Tag from "@/components/shared/Tag";
+import Tag from "@/components/tag/Tag";
 import { Post } from "@/types";
 
 import { ShinyButton } from "../ui/shiny-button";

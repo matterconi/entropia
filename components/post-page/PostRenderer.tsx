@@ -5,11 +5,11 @@ import Markdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 
-import CommentSection from "@/components/shared/CommentSection";
-import MiniCTA from "@/components/shared/MiniCTA";
-import MiniFooter from "@/components/shared/MiniFooter";
-import PaginationMenu from "@/components/shared/PaginationMenu";
-import Tag from "@/components/shared/Tag";
+import CommentSection from "@/components/post-page/CommentSection";
+import MiniCTA from "@/components/post-page/MiniCTA";
+import MiniFooter from "@/components/post-page/MiniFooter";
+import PaginationMenu from "@/components/post-page/PaginationMenu";
+import Tag from "@/components/tag/Tag";
 
 import { ShinyButton } from "../ui/shiny-button";
 
@@ -33,7 +33,7 @@ interface IPost {
   markdownContent: string;
 }
 
-const PostRenderer: React.FC<{ post: IPost }> = ({ post }) => {
+const PostRenderer: React.FC<{ post: IPost, id: string }> = ({ post, id }) => {
   const {
     title,
     chapterTitle,
@@ -45,8 +45,8 @@ const PostRenderer: React.FC<{ post: IPost }> = ({ post }) => {
     genres,
     categories,
     topics,
+    likeCount,
   } = post.article;
-  console.log("📄 Rendering post:", post);
   return (
     <div className="p-4 px-12 max-sm:px-8 font-sans max-w-5xl w-full flex flex-col items-center justify-center mx-auto ">
       <div className="w-full h-full relative ">
@@ -76,7 +76,7 @@ const PostRenderer: React.FC<{ post: IPost }> = ({ post }) => {
           </h1>
         )}
 
-        <div className="prose max-w-5xl">
+        <div className="prose max-w-5xl text-foreground">
           <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
             {post.markdownContent}
           </Markdown>
@@ -92,7 +92,7 @@ const PostRenderer: React.FC<{ post: IPost }> = ({ post }) => {
       </div>
       <div className="flex max-md:flex-col max-md:items-start max-md:space-y-6 justify-between items-center w-full mt-6 h-full">
         <div className="max-md:mt-6 flex md:flex-col items-start justify-between w-full h-full gap-4">
-          <MiniCTA />
+          <MiniCTA id={id} likeCount={likeCount}/>
           <div className="flex flex-wrap gap-1 items-end justify-end">
             {[
               ...genres.map((tag) => ({ ...tag, type: "generi" })),
@@ -125,7 +125,7 @@ const PostRenderer: React.FC<{ post: IPost }> = ({ post }) => {
 
       {/* Comment Section */}
       <div className="self-start w-full">
-        <CommentSection />
+        <CommentSection id={id}/>
       </div>
       <div className="w-full h-[1px] bg-black mt-8"></div>
       <MiniFooter title={title} author={author.username} authorBio="" />

@@ -69,7 +69,7 @@ const LocalSearch = ({
       <div ref={searchRef}>
         {/* Input Ricerca */}
         <div className="relative z-40 border-gradient animated-gradient p-[1px] rounded-md">
-          <RainbowInput className="w-full flex h-[54px] grow flex-1 items-center gap-4 rounded-md px-4 bg-white hover:!bg-white focus:!bg-white">
+          <RainbowInput className="w-full flex h-[54px] grow flex-1 items-center gap-4 rounded-md px-4 bg-background hover:!bg-background focus:!bg-background">
             {imgSrc && (
               <Image
                 src={imgSrc}

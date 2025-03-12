@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import LocalSearch from "../shared/LocalSearch";
+import LocalSearch from "../post-page/LocalSearch";
 import FlickeringGrid from "../ui/flickering-grid";
 import { RainbowButton } from "../ui/rainbow-button";
 import { SecondaryButton } from "../ui/secondary-button";

@@ -51,10 +51,8 @@ export async function GET(
       );
     }
 
-    console.log("✅ Articolo trovato:", article.title);
 
     // Scarica il file Markdown da Supabase
-    console.log("📥 Scaricando Markdown da:", article.markdownPath);
     const { data, error } = await supabase.storage
       .from("articles-content")
       .download(article.markdownPath);

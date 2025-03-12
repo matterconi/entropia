@@ -3,10 +3,9 @@
 import Image from "next/image";
 import React from "react";
 
-import Tag from "@/components/shared/Tag";
+import Tag from "@/components/tag/Tag";
 
 import { RainbowButton } from "../ui/rainbow-button";
-import { ShinyButton } from "../ui/shiny-button";
 
 interface TagProps {
   label: string;

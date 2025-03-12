@@ -9,7 +9,7 @@ import React from "react";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import FeaturedPost from "@/components/shared/FeaturedPost";
+import FeaturedPost from "@/components/featured-post/FeaturedPost";
 import { Post } from "@/types";
 
 interface FeaturedPostProps {

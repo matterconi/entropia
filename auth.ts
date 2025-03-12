@@ -23,7 +23,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         await dbConnect();
-
+        console.log('credentials:',credentials);
         // Se è presente un token, usalo per la verifica passwordless
         if (credentials?.token) {
           try {
@@ -43,6 +43,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
               profileImg: user.profileImg,
               isAuthor: user.isAuthor,
               isVerified: true,
+              bio: user.bio,
             };
           } catch (error) {
             throw new Error("❌ Token non valido o scaduto");
@@ -81,6 +82,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           profileImg: user.profileImg,
           isAuthor: user.isAuthor,
           isVerified: account.isVerified,
+          bio: user.bio,
         };
       },
     }),
@@ -100,6 +102,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             email: user.email,
             profileImg: user.image || "/default-profile.png",
             isAuthor: false,
+            accounts: [], // Assicurati che il campo accounts esista
+            bio: "", // Assicurati che il campo bio esista
           });
           await existingUser.save();
         }
@@ -112,13 +116,24 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
         // Se l'account non esiste, lo creiamo
         if (!googleAccount) {
-          await Account.create({
-            user: existingUser._id, // This should already be an ObjectId
+          // Crei l'account con Account.create() e lo assegni a newGoogleAccount
+          const newGoogleAccount = await Account.create({
+            user: existingUser._id, // Già un ObjectId
             provider: "google",
             providerId: user.id,
             isVerified: true,
           });
+
+          // Aggiorni l'utente pushando l'_id dell'account appena creato
+          await User.findByIdAndUpdate(existingUser._id, {
+            $push: { accounts: newGoogleAccount._id },
+          });
         }
+
+        // MODIFICA: Aggiungi l'id MongoDB all'oggetto user
+        user.id = existingUser._id.toString();
+        user.isAuthor = existingUser.isAuthor;
+        user.isVerified = true;
 
         return true;
       }
@@ -129,29 +144,41 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       return false;
     },
 
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
+      console.log('data:',token, user);
       if (user) {
         token.id = user.id;
-        token.username = user.username;
+        token.username = user.username || user.name;
         token.isAuthor = user.isAuthor;
-        token.profileImg = user.profileImg;
+        token.profileImg = user.profileImg || user.image;
         token.isVerified = user.isVerified;
+        token.bio = user.bio;
+
+        if (account) {
+          token.provider = account.provider;
+        }
       } else {
         // 🔹 Se il token esiste, ricarica i dati dell'account dal DB
         await dbConnect();
 
         try {
           // Check if token.id is a valid MongoDB ObjectId
-          const mongoose = (await import("mongoose")).default;
-          const isValidObjectId = mongoose.isValidObjectId(token.id);
-
-          // Only try to find the account if token.id is a valid ObjectId
-          if (isValidObjectId) {
-            const account = await Account.findOne({ user: token.id });
-            if (account) {
-              token.isVerified = account.isVerified;
+            const user = await User.findById(token.id);
+            if (user) {
+              // Aggiorna token con i dati più recenti dal database
+              token.username = user.username;
+              token.isAuthor = user.isAuthor;
+              token.profileImg = user.profileImg;
+              token.bio = user.bio;
+              // Trova l'account per verificare isVerified
+              const accountDoc = await Account.findOne({
+                user: token.id,
+                provider: token.provider,
+              });
+              if (accountDoc) {
+                token.isVerified = accountDoc.isVerified;
+              }
             }
-          }
         } catch (error) {
           console.error("Error in JWT callback:", error);
           // Continue with the token as is
@@ -167,6 +194,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         session.user.isAuthor = token.isAuthor as boolean;
         session.user.profileImg = token.profileImg as string;
         session.user.isVerified = token.isVerified as boolean; // ✅ Estratto dall'account
+        session.user.bio = token.bio as string; // ✅ Estratto dall'account
       }
       return session;
     },

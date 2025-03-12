@@ -31,6 +31,8 @@ export interface User {
   email: string;
   profileImg?: string;
   isAuthor: boolean;
+  isVerified: boolean;
+  bio: string;
 }
 
 export type CategoryKeys =

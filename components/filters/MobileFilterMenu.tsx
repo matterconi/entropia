@@ -6,9 +6,9 @@ import { Controller, useForm } from "react-hook-form";
 import { IoClose } from "react-icons/io5";
 import { z } from "zod";
 
-import FilterChips from "@/components/shared/FilterChips"; // Importiamo i chip
-import SelectMenu from "@/components/shared/SelectMenu";
-import SortPost from "@/components/shared/SortPost";
+import FilterChips from "@/components/filters/shared/FilterChips"; // Importiamo i chip
+import SelectMenu from "@/components/filters/shared/SelectMenu";
+import SortPost from "@/components/filters/shared/SortPost";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { useFilterContext } from "@/context/FilterContext";
 import { getFiltersConfig } from "@/data/filterConfig";

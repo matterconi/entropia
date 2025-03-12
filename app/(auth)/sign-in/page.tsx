@@ -11,17 +11,46 @@ import {
   ForgotPasswordSchemaType,
   SignInSchema,
 } from "@/validations/authSchema";
+import { useUser } from "@/context/UserContext"; // Assicurati di avere il percorso corretto
+import { RainbowButton } from "@/components/ui/rainbow-button";
+import Link from "next/link";
 
 export default function SignInPage() {
+  const { user, loading } = useUser();
   const [isResetting, setIsResetting] = useState(false);
-  // Function to handle Google Sign-In
+
+  // Se lo stato di caricamento è attivo, mostra un messaggio di loading
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
+      </div>
+    );
+  }
+
+  // Se l'utente è già autenticato, mostra l'interfaccia alternativa
+  if (user) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full space-y-4">
+        <h2 className="text-2xl font-bold">Sei già autenticato</h2>
+        <p>Non puoi effettuare il login perché hai già un account attivo.</p>
+        <Link href="/">
+          <RainbowButton className="w-fit !mt-8">
+            Vai alla Home
+          </RainbowButton>
+        </Link>
+      </div>
+    );
+  }
+
+  // Funzione per gestire il login con Google
   const handleGoogleSignIn = async () => {
-    await signIn("google", { callbackUrl: "/" }); // Redirect to homepage after login
+    await signIn("google", { callbackUrl: "/" });
   };
 
   return (
     <div className="max-sm:min-w-[300px] max-lg:min-w-[400px] lg:min-w-[450px] mx-auto space-y-4">
-      {/* Sign-In Form */}
+      {/* Form di login */}
       {!isResetting ? (
         <AuthForm
           schema={SignInSchema}
@@ -29,7 +58,7 @@ export default function SignInPage() {
           formType="SIGN_IN"
           setIsResetting={setIsResetting}
         >
-          {/* Google Sign-In Button */}
+          {/* Pulsante per il login con Google */}
           <div className="border-gradient p-[1px] animated-gradient rounded-lg mb-8 mt-10">
             <ShinyButton
               onClick={handleGoogleSignIn}

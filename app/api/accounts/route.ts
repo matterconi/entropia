@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     console.log("🔍 Query per il recupero degli account:", query);
 
     // 🔹 Trova gli account nel database
-    const accounts = await Account.find(query).populate("user");
+    const accounts = await Account.find(query);
 
     if (!accounts.length) {
       return NextResponse.json(

@@ -1,7 +1,18 @@
 /* editor.css */
+.main-editor .ProseMirror {
+	min-height: 150px;
+  }
+  
+  .comment-editor .ProseMirror {
+	min-height: 50px;
+  }
+
+  .bio-editor .ProseMirror {
+	min-height: 100px;
+  }
+
 .ProseMirror {
 	padding: 0 1rem;
-	min-height: 150px;
 	line-height: 1.6;
 	background-color: var(--background);
 	outline: none;

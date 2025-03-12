@@ -1,10 +1,13 @@
 import React from "react";
 
-import PostRenderer from "@/components/shared/PostRenderer";
+import PostRenderer from "@/components/post-page/PostRenderer";
+import RelatedPostCard from "@/components/related-post/RelatedPostCard";
+import { Post } from "@/types";
+
+const relatedPosts: Post[] = [];
 
 // ✅ Funzione per ottenere i dati del post
 const fetchPostData = async (postId: string) => {
-  console.log("🔍 Caricamento post:", postId);
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/articles/${postId}`,
     { cache: "no-store" }, // Evita caching dei dati per aggiornamenti in tempo reale
@@ -15,7 +18,6 @@ const fetchPostData = async (postId: string) => {
   }
 
   const postData = await res.json(); // Legge il JSON una sola volta
-  console.log("✅ Post caricato con successo:", postData);
   return postData;
 };
 
@@ -31,7 +33,6 @@ async function PostPage({
 }: PostPageProps) {
   const resolvedSearchParams = await searchParams;
   const postId = resolvedSearchParams.id;
-  console.log("🔍 ID del post:", postId);
   if (!postId) {
     return <div>⚠️ Post non valido</div>;
   }
@@ -44,7 +45,13 @@ async function PostPage({
       return <div>⚠️ Post non trovato</div>;
     }
 
-    return <PostRenderer post={post} />;
+    return <>
+    <PostRenderer post={post} id={postId}/>
+    <div className="max-md:px-6 px-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full mt-4">
+          {relatedPosts.map((post: Post, i: number) => 
+            <RelatedPostCard key={i} post={post} />)}
+      </div>
+      </>;
   } catch (error) {
     console.error("❌ Errore caricamento post:", error);
     return <div>⚠️ Errore nel caricamento del post.</div>;

@@ -12,7 +12,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { AuthorInput } from "../ui/AuthorInput";
+import { AuthorInput } from "../../ui/AuthorInput";
 
 interface SelectMenuProps {
   label: string;
