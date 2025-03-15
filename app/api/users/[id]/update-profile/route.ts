@@ -266,10 +266,11 @@ function extractPublicIdFromUrl(url: string): string | null {
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const userId = params.id;
+    const id = await params;
+    const userId = id.id;
 
     // Connect to the database
     await dbConnect();
