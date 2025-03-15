@@ -5,14 +5,14 @@ import { NextRequest, NextResponse } from "next/server";
 import User from "@/database/User";
 import dbConnect from "@/lib/mongoose";
 
-// Funzione per caricare un'immagine su Cloudinary
+// Function to upload an image to Cloudinary
 async function uploadImageToCloudinary(
   imageFile: File,
   oldImageUrl?: string,
   userId?: string,
 ) {
   try {
-    // 1. Ottieni la firma da Cloudinary, passando l'ID utente
+    // 1. Get the signature from Cloudinary, passing the user ID
     const signatureResponse = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/api/cloudinary/signature/user-profile-img`,
       {
@@ -20,7 +20,7 @@ async function uploadImageToCloudinary(
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userId }), // Passa l'ID utente
+        body: JSON.stringify({ userId }),
       },
     );
 
@@ -29,7 +29,7 @@ async function uploadImageToCloudinary(
       throw new Error("Signature or timestamp is missing from API response.");
     }
 
-    // 2. Carica l'immagine su Cloudinary
+    // 2. Upload the image to Cloudinary
     const formData = new FormData();
     formData.append("file", imageFile);
     formData.append("timestamp", signatureData.timestamp);
@@ -37,7 +37,7 @@ async function uploadImageToCloudinary(
     formData.append("api_key", signatureData.api_key);
     formData.append("cloud_name", signatureData.cloud_name);
 
-    // Aggiungi gli stessi parametri che sono stati usati per creare la firma
+    // Add the same parameters that were used to create the signature
     if (signatureData.folder) {
       formData.append("folder", signatureData.folder);
     }
@@ -58,7 +58,7 @@ async function uploadImageToCloudinary(
       },
     );
 
-    // Logga la risposta esatta
+    // Log the exact response
     const responseText = await uploadResponse.text();
     console.log("Cloudinary response (raw):", responseText);
 
@@ -89,13 +89,13 @@ async function uploadImageToCloudinary(
       throw new Error("No image URL received from Cloudinary!");
     }
 
-    // 3. Se c'è un'immagine vecchia e non è stata sovrascritta, eliminala
+    // 3. If there is an old image and it has not been overwritten, delete it
     if (
       oldImageUrl &&
       extractPublicIdFromUrl(oldImageUrl) !==
         extractPublicIdFromUrl(uploadData.secure_url)
     ) {
-      // Verifica che l'immagine precedente sia un'immagine profilo prima di eliminarla
+      // Verify that the previous image is a profile image before deleting it
       const oldPublicId = extractPublicIdFromUrl(oldImageUrl);
       if (
         oldPublicId &&
@@ -113,13 +113,11 @@ async function uploadImageToCloudinary(
     return uploadData.secure_url;
   } catch (error: any) {
     console.error("❌ Error uploading image:", error.message);
-    throw new Error(
-      `Errore durante il caricamento dell'immagine: ${error.message}`,
-    );
+    throw new Error(`Error during image upload: ${error.message}`);
   }
 }
 
-// Funzione per eliminare un'immagine da Cloudinary
+// Function to delete an image from Cloudinary
 async function deleteImageFromCloudinary(imageUrl: string) {
   try {
     console.log("🔍 Starting image deletion process for:", imageUrl);
@@ -132,7 +130,7 @@ async function deleteImageFromCloudinary(imageUrl: string) {
 
     console.log("📝 Extracted public_id:", publicId);
 
-    // Verifica di sicurezza: assicurati di eliminare solo immagini profilo
+    // Security check: make sure to delete only profile images
     if (!publicId.includes("user_profiles") && !publicId.includes("profile_")) {
       console.warn(
         "⚠️ Attempted to delete a non-profile image, operation aborted:",
@@ -141,7 +139,7 @@ async function deleteImageFromCloudinary(imageUrl: string) {
       return false;
     }
 
-    // Ottieni la firma per l'operazione di eliminazione
+    // Get the signature for the delete operation
     console.log("🔑 Requesting delete signature for public_id:", publicId);
     const deleteSignatureResponse = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/api/cloudinary/signature/user-profile-img`,
@@ -178,7 +176,7 @@ async function deleteImageFromCloudinary(imageUrl: string) {
       return false;
     }
 
-    // Prepara i dati per l'eliminazione
+    // Prepare the data for deletion
     const deletePayload = {
       public_id: publicId,
       signature: deleteSignatureData.signature,
@@ -188,7 +186,7 @@ async function deleteImageFromCloudinary(imageUrl: string) {
 
     console.log("🔧 Delete payload:", deletePayload);
 
-    // Chiama l'API di Cloudinary per eliminare l'immagine
+    // Call the Cloudinary API to delete the image
     console.log("🗑️ Sending delete request to Cloudinary");
     const deleteResponse = await fetch(
       `https://api.cloudinary.com/v1_1/${deleteSignatureData.cloud_name}/image/destroy`,
@@ -201,7 +199,7 @@ async function deleteImageFromCloudinary(imageUrl: string) {
       },
     );
 
-    // Log della risposta completa
+    // Log the complete response
     const responseText = await deleteResponse.text();
     console.log("📄 Raw delete response:", responseText);
 
@@ -230,17 +228,17 @@ async function deleteImageFromCloudinary(imageUrl: string) {
   }
 }
 
-// Funzione per estrarre l'ID pubblico da un URL di Cloudinary
+// Function to extract the public ID from a Cloudinary URL
 function extractPublicIdFromUrl(url: string): string | null {
   if (!url || typeof url !== "string") return null;
 
   try {
     console.log("Extracting public_id from:", url);
 
-    // Rimuovi i parametri di trasformazione (tutto dopo ?)
+    // Remove transformation parameters (everything after ?)
     const cleanUrl = url.split("?")[0];
 
-    // URL Cloudinary standard con versione
+    // Standard Cloudinary URL with version
     const versionRegex = /\/v\d+\/(.+?)(?:\.[^.]+)?$/;
     const versionMatch = cleanUrl.match(versionRegex);
 
@@ -249,7 +247,7 @@ function extractPublicIdFromUrl(url: string): string | null {
       return versionMatch[1];
     }
 
-    // URL Cloudinary standard senza versione
+    // Standard Cloudinary URL without version
     const uploadRegex = /\/upload\/(.+?)(?:\.[^.]+)?$/;
     const uploadMatch = cleanUrl.match(uploadRegex);
 
@@ -273,37 +271,34 @@ export async function POST(
   try {
     const userId = params.id;
 
-    // Connetti al database
+    // Connect to the database
     await dbConnect();
 
-    // Verifica che l'utente esista
+    // Verify that the user exists
     const existingUser = await User.findById(userId);
     if (!existingUser) {
-      return NextResponse.json(
-        { error: "❌ Utente non trovato" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "❌ User not found" }, { status: 404 });
     }
 
-    // Analizza il form data
+    // Parse the form data
     const formData = await req.formData();
 
-    // Gestisci le modifiche al profilo
+    // Handle profile changes
     const updateFields: { [key: string]: any } = {};
 
-    // Verifica lo username (se presente)
+    // Check username (if present)
     const username = formData.get("username") as string;
     if (username) {
-      // Verifica che lo username non sia già in uso (se viene modificato)
+      // Verify that the username is not already in use (if it is modified)
       if (username !== existingUser.username) {
         const usernameExists = await User.findOne({
           username,
-          _id: { $ne: userId }, // esclude l'utente corrente dalla ricerca
+          _id: { $ne: userId }, // exclude the current user from the search
         });
 
         if (usernameExists) {
           return NextResponse.json(
-            { error: "❌ Username già in uso" },
+            { error: "❌ Username already in use" },
             { status: 400 },
           );
         }
@@ -311,61 +306,61 @@ export async function POST(
       updateFields.username = username;
     }
 
-    // Gestisci il campo bio (se presente)
+    // Handle the bio field (if present)
     const bio = formData.get("bio") as string;
     if (bio !== undefined) {
       updateFields.bio = bio;
     }
 
-    // Gestisci l'immagine del profilo (se presente)
+    // Handle the profile image (if present)
     const profileImage = formData.get("profileImage") as File;
     const oldProfileImg = formData.get("oldProfileImg") as string;
 
     if (profileImage) {
       try {
-        // Carica l'immagine su Cloudinary
+        // Upload the image to Cloudinary
         const imageUrl = await uploadImageToCloudinary(
           profileImage,
           oldProfileImg,
-          userId, // Aggiungi l'ID utente
+          userId,
         );
         updateFields.profileImg = imageUrl;
       } catch (error: any) {
         return NextResponse.json(
           {
-            error: `❌ Errore durante il caricamento dell'immagine: ${error.message}`,
+            error: `❌ Error during image upload: ${error.message}`,
           },
           { status: 500 },
         );
       }
     }
 
-    // Verifica se ci sono campi da aggiornare
+    // Check if there are fields to update
     if (Object.keys(updateFields).length === 0) {
       return NextResponse.json(
-        { error: "❌ Nessun campo da aggiornare fornito" },
+        { error: "❌ No fields to update provided" },
         { status: 400 },
       );
     }
 
-    // Esegui l'aggiornamento
+    // Perform the update
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { $set: updateFields },
-      { new: true }, // Restituisce il documento aggiornato
+      { new: true }, // Return the updated document
     );
 
     return NextResponse.json(
       {
-        message: "✅ Profilo aggiornato con successo",
+        message: "✅ Profile updated successfully",
         user: updatedUser,
       },
       { status: 200 },
     );
   } catch (error) {
-    console.error("Errore durante l'aggiornamento del profilo:", error);
+    console.error("Error during profile update:", error);
     return NextResponse.json(
-      { error: "❌ Errore interno del server" },
+      { error: "❌ Internal server error" },
       { status: 500 },
     );
   }
