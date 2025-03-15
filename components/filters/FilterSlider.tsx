@@ -5,41 +5,185 @@ import "swiper/css/autoplay";
 import "swiper/css/navigation";
 
 import { CheckCircle } from "lucide-react";
+import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import type { Swiper } from "swiper"; // Import the instance type
+import type { Swiper } from "swiper";
 import { Autoplay, Navigation } from "swiper/modules";
 import { Swiper as SwiperReact, SwiperSlide } from "swiper/react";
 
 import { useFilterContext } from "@/context/FilterContext";
-import { genres } from "@/data/data";
+import { useFilterCounts } from "@/context/FilterCountsContext";
+import { categories, genres, topics } from "@/data/data";
 
-interface FilterSliderProps {
-  slice?: string;
-}
-
-const FilterSlider = ({ slice = "genres" }: FilterSliderProps) => {
+const FilterSlider = () => {
   const { filters, updatePartialFilter } = useFilterContext();
-  const [selectedSlice, setSelectedSlice] = useState<string[]>(
-    Array.isArray(filters[slice]) ? [...filters[slice]] : [],
-  );
+  const { filterCounts, isLoadingCounts } = useFilterCounts();
+  const params = useParams();
+
+  // Identifica quale parametro è presente nella route
+  const { categoria, genere, topic } = params;
+
+  // Determina quale filtro rimuovere in base alla route
+  let filterToRemove = "";
+  let pageType = "";
+  let pageValue = "";
+
+  if (categoria) {
+    filterToRemove = "categories";
+    pageType = "categoria";
+    pageValue = Array.isArray(categoria) ? categoria[0] : categoria;
+  }
+  if (genere) {
+    filterToRemove = "genres";
+    pageType = "genere";
+    pageValue = Array.isArray(genere) ? genere[0] : genere;
+  }
+  if (topic) {
+    filterToRemove = "topics";
+    pageType = "topic";
+    pageValue = Array.isArray(topic) ? topic[0] : topic;
+  }
+
+  // Ottieni i tipi di filtri disponibili (escludendo quello della pagina corrente)
+  const availableFilters: Array<"categories" | "genres" | "topics"> = [
+    "categories",
+    "genres",
+    "topics",
+  ].filter((filter) => filter !== filterToRemove) as Array<
+    "categories" | "genres" | "topics"
+  >;
+
+  // Stato per tenere traccia dei filtri selezionati per ciascun tipo di filtro
+  const [selectedFilters, setSelectedFilters] = useState({
+    categories: Array.isArray(filters.categories)
+      ? [...filters.categories]
+      : [],
+    genres: Array.isArray(filters.genres) ? [...filters.genres] : [],
+    topics: Array.isArray(filters.topics) ? [...filters.topics] : [],
+  });
+
   const [isScrollable, setIsScrollable] = useState(false);
   const [swiperInstance, setSwiperInstance] = useState<Swiper | null>(null);
 
-  // Sync local state with global filters
-  useEffect(() => {
-    setSelectedSlice(Array.isArray(filters[slice]) ? [...filters[slice]] : []);
-  }, [filters, slice]);
-
-  const handleClick = (genre: string) => {
-    const newSelection = selectedSlice.includes(genre)
-      ? selectedSlice.filter((item) => item !== genre)
-      : [...selectedSlice, genre];
-
-    setSelectedSlice(newSelection);
-    updatePartialFilter(slice, newSelection);
+  // Controlla se un elemento è selezionato
+  const isItemSelected = (
+    filterType: "categories" | "genres" | "topics",
+    title: string,
+  ) => {
+    return selectedFilters[filterType].includes(title);
   };
 
-  // Update isScrollable with a slight delay
+  // Sincronizza lo stato locale con i filtri globali
+  useEffect(() => {
+    setSelectedFilters({
+      categories: Array.isArray(filters.categories)
+        ? [...filters.categories]
+        : [],
+      genres: Array.isArray(filters.genres) ? [...filters.genres] : [],
+      topics: Array.isArray(filters.topics) ? [...filters.topics] : [],
+    });
+  }, [filters]);
+
+  // IMPORTANTE: Rimosso l'effect che chiama refreshCounts quando cambiano i filtri
+  // Questo previene il ciclo infinito di aggiornamenti
+
+  // Gestisce il click su un elemento del filtro - per selezione multipla
+  const handleClick = (
+    filterType: "categories" | "genres" | "topics",
+    item: string,
+  ) => {
+    // Copia l'array attuale dei filtri di questo tipo
+    const currentFilters = [...selectedFilters[filterType]];
+
+    // Se l'elemento è già selezionato, lo rimuoviamo
+    if (currentFilters.includes(item)) {
+      const updatedFilters = currentFilters.filter((filter) => filter !== item);
+
+      // Aggiorna lo stato locale
+      setSelectedFilters({
+        ...selectedFilters,
+        [filterType]: updatedFilters,
+      });
+
+      // Aggiorna il contesto globale dei filtri
+      updatePartialFilter(filterType, updatedFilters);
+    } else {
+      // Altrimenti, aggiungiamo l'elemento ai filtri esistenti
+      const updatedFilters = [...currentFilters, item];
+
+      // Aggiorna lo stato locale
+      setSelectedFilters({
+        ...selectedFilters,
+        [filterType]: updatedFilters,
+      });
+
+      // Aggiorna il contesto globale dei filtri
+      updatePartialFilter(filterType, updatedFilters);
+    }
+  };
+
+  // Combina tutti i dati dei filtri disponibili in un unico array
+  const getCombinedFilterData = () => {
+    const combinedData: {
+      filterType: "categories" | "genres" | "topics";
+      title: string;
+      description: string;
+      href: string;
+      count?: number;
+    }[] = [];
+
+    availableFilters.forEach((filterType) => {
+      let dataSource;
+      switch (filterType) {
+        case "categories":
+          dataSource = categories;
+          break;
+        case "topics":
+          dataSource = topics;
+          break;
+        case "genres":
+        default:
+          dataSource = genres;
+          break;
+      }
+
+      // Aggiungi il tipo di filtro a ciascun elemento per identificarlo più tardi
+      dataSource.forEach((item) => {
+        // Cerca il conteggio per questo elemento
+        let count;
+        if (filterCounts[filterType]) {
+          const countItem = filterCounts[filterType]?.find(
+            (c) => c.name === item.title,
+          );
+          if (countItem) {
+            count = countItem.count;
+          }
+        }
+
+        combinedData.push({
+          ...item,
+          filterType,
+          count,
+        });
+      });
+    });
+
+    // Filtra per mostrare solo gli elementi che hanno almeno un articolo o sono già selezionati
+    const filteredData = combinedData.filter(
+      (item) =>
+        (item.count !== undefined && item.count > 0) ||
+        isItemSelected(item.filterType, item.title),
+    );
+
+    // Ordina i filtri SOLO in ordine decrescente per conteggio
+    return filteredData.sort((a, b) => {
+      return (b.count || 0) - (a.count || 0);
+    });
+  };
+
+  const combinedFilterData = getCombinedFilterData();
+
+  // Aggiorna lo stato isScrollable con un leggero ritardo
   const updateScrollableState = React.useCallback(() => {
     setTimeout(() => {
       if (swiperInstance) {
@@ -48,7 +192,7 @@ const FilterSlider = ({ slice = "genres" }: FilterSliderProps) => {
     }, 50);
   }, [swiperInstance]);
 
-  // Add listeners for resize and fullscreen changes
+  // Aggiunge listener per il resize e cambiamenti fullscreen
   useEffect(() => {
     window.addEventListener("resize", updateScrollableState);
     document.addEventListener("fullscreenchange", updateScrollableState);
@@ -58,6 +202,20 @@ const FilterSlider = ({ slice = "genres" }: FilterSliderProps) => {
       document.removeEventListener("fullscreenchange", updateScrollableState);
     };
   }, [swiperInstance, updateScrollableState]);
+
+  // Se stiamo ancora caricando i conteggi e non abbiamo dati, mostra un messaggio
+  if (isLoadingCounts && combinedFilterData.length === 0) {
+    return (
+      <div className="relative overflow-x-hidden pr-6 py-3 text-sm text-muted-foreground">
+        Caricamento filtri in corso...
+      </div>
+    );
+  }
+
+  // Se non ci sono filtri disponibili, nascondi completamente il componente
+  if (combinedFilterData.length === 0 && !isLoadingCounts) {
+    return null;
+  }
 
   return (
     <div className="relative overflow-x-hidden pr-6">
@@ -86,18 +244,19 @@ const FilterSlider = ({ slice = "genres" }: FilterSliderProps) => {
           }, 50);
         }}
       >
-        {genres.map((category) => {
-          const isSelected = selectedSlice.includes(category.title);
+        {combinedFilterData.map((item) => {
+          const filterType = item.filterType;
+          const isSelected = isItemSelected(filterType, item.title);
 
           return (
             <SwiperSlide
-              key={category.title}
+              key={`${filterType}-${item.title}`}
               className="!w-auto flex items-center justify-center"
             >
               <div className="dark:w-full dark:h-full border-gradient p-[1px] rounded-lg animated-gradient">
                 <div className="w-full h-full bg-background rounded-lg p-1">
                   <button
-                    onClick={() => handleClick(category.title)}
+                    onClick={() => handleClick(filterType, item.title)}
                     className={`cursor-pointer flex items-center justify-center rounded-lg px-2 py-1 transition-all duration-300 ${
                       isSelected ? "text-green-500" : "text-foreground"
                     }`}
@@ -124,7 +283,14 @@ const FilterSlider = ({ slice = "genres" }: FilterSliderProps) => {
                             : "px-[2px] text-foreground"
                         }`}
                       >
-                        {category.title}
+                        {item.title}
+                        {item.count !== undefined && (
+                          <span
+                            className={`ml-1 text-xs ${isSelected ? "text-green-500/70" : "text-muted-foreground"}`}
+                          >
+                            ({item.count})
+                          </span>
+                        )}
                       </span>
                       <span className={`${isSelected ? "w-0" : "w-2"}`}></span>
                     </p>

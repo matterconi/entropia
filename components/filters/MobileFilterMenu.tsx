@@ -1,7 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useEffect } from "react";
+import { useParams } from "next/navigation"; // Import per leggere i parametri della route
+import React, { useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { IoClose } from "react-icons/io5";
 import { z } from "zod";
@@ -11,12 +12,14 @@ import SelectMenu from "@/components/filters/shared/SelectMenu";
 import SortPost from "@/components/filters/shared/SortPost";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { useFilterContext } from "@/context/FilterContext";
+import { useFilterCounts } from "@/context/FilterCountsContext";
 import { getFiltersConfig } from "@/data/filterConfig";
 
 const filtersSchema = z.object({
   authors: z.array(z.string()).optional(),
   categories: z.array(z.string()).optional(),
   genres: z.array(z.string()).optional(),
+  topics: z.array(z.string()).optional(),
   sort: z.string().optional(),
 });
 
@@ -25,7 +28,9 @@ interface Filters {
   authors: string[];
   categories: string[];
   genres: string[];
+  topics: string[];
   sort: string;
+  query: string;
 }
 
 interface Filter {
@@ -46,15 +51,101 @@ interface Field {
   onChange: (value: string | string[]) => void;
 }
 
-const renderFilterComponent = (filter: Filter, field: Field) => {
+// Funzione per processare le opzioni dei filtri (aggiungere conteggi e filtrare)
+const processFilterOptions = (
+  filter: Filter,
+  filterCounts: any,
+  selectedOptions: string[] = [],
+) => {
+  // Se non abbiamo conteggi per questo tipo di filtro, restituiamo le opzioni originali
+  if (!filterCounts[filter.id]) {
+    return filter.options;
+  }
+
+  // Prima aggiungiamo i conteggi a tutte le opzioni
+  const optionsWithCounts = filter.options.map((option) => {
+    // Cerca il conteggio corrispondente a questa opzione
+    const countItem = filterCounts[filter.id]?.find(
+      (item: { name: string }) => item.name === option.label,
+    );
+
+    // Se troviamo un conteggio, lo aggiungiamo all'opzione
+    if (countItem) {
+      return {
+        ...option,
+        count: countItem.count,
+      };
+    }
+
+    // Altrimenti, impostiamo esplicitamente count a 0
+    return {
+      ...option,
+      count: 0, // Impostiamo esplicitamente a 0 anziché lasciare undefined
+    };
+  });
+
+  // Poi filtriamo le opzioni per mostrare solo quelle con count > 0 o già selezionate
+  return optionsWithCounts.filter((option) => {
+    const isSelected = selectedOptions.includes(option.value);
+    return isSelected || (option.count !== undefined && option.count > 0);
+  });
+};
+
+// Componente per renderizzare i filtri
+const FilterComponent = ({
+  filter,
+  field,
+}: {
+  filter: Filter;
+  field: Field;
+}) => {
+  const { filterCounts } = useFilterCounts();
+
+  // Processa le opzioni (aggiungi conteggi e filtra)
+  const processedOptions = useMemo(() => {
+    // Ottieni l'array di opzioni selezionate all'interno del callback
+    const selectedOptions = Array.isArray(field.value)
+      ? field.value
+      : field.value
+        ? [field.value]
+        : [];
+    return processFilterOptions(filter, filterCounts, selectedOptions);
+  }, [filter, filterCounts, field.value]);
+
+  // Se non ci sono opzioni da mostrare dopo il filtraggio e non è il filtro sort, non renderizzare
+  if (processedOptions.length === 0 && filter.id !== "sort") {
+    return null;
+  }
+
+  // This fixes the issue with SortPost not having a default valueat
+  // SortPost con Data come opzione di default
   if (filter.id === "sort") {
+    // Prioritizziamo "Data" come valore di default
+    const defaultOption =
+      filter.options.find(
+        (opt) => opt.value === "Più Recenti" || opt.value === "new",
+      )?.value ||
+      filter.options.find(
+        (opt) => opt.label === "Più recenti" || opt.label === "new",
+      )?.value ||
+      filter.options[0]?.value ||
+      "Più recenti";
+
     return (
       <FilterSection label={filter.label}>
         <SortPost
           options={filter.options}
           onChange={field.onChange}
-          label={typeof field.value === "string" ? field.value : "Data"}
-          selectedOption={typeof field.value === "string" ? field.value : null}
+          label={
+            typeof field.value === "string" && field.value !== ""
+              ? field.value
+              : defaultOption
+          }
+          selectedOption={
+            typeof field.value === "string" && field.value !== ""
+              ? field.value
+              : defaultOption
+          }
         />
       </FilterSection>
     );
@@ -65,7 +156,7 @@ const renderFilterComponent = (filter: Filter, field: Field) => {
       <div className="pt-2">
         <FilterChips
           label={filter.label}
-          options={filter.options}
+          options={processedOptions}
           selectedOptions={field.value}
           onChange={field.onChange}
         />
@@ -76,7 +167,7 @@ const renderFilterComponent = (filter: Filter, field: Field) => {
   return (
     <SelectMenu
       label={filter.label}
-      options={filter.options}
+      options={processedOptions}
       selectedOptions={field.value}
       onChange={field.onChange}
     />
@@ -123,6 +214,23 @@ const MobileFilterMenu: React.FC<MobileFilterMenuProps> = ({
   }, [isOpen]);
 
   const { filters, updateFilters } = useFilterContext();
+  const { isLoadingCounts } = useFilterCounts(); // Aggiungiamo l'accesso ai conteggi
+
+  const params = useParams(); // Legge i parametri dalla route
+  const { categoria, genere, topic } = params; // Controlliamo quale parametro è presente
+
+  // Determina quale filtro nascondere in base alla route
+  let filterToRemove = "";
+  if (categoria) filterToRemove = "categories";
+  if (genere) filterToRemove = "genres";
+  if (topic) filterToRemove = "topics";
+
+  // Filtra i filtri visibili
+  const filtersConfig = getFiltersConfig();
+
+  const visibleFilters = filtersConfig.filter(
+    (filter) => filter.id !== filterToRemove,
+  );
 
   const form = useForm({
     resolver: zodResolver(filtersSchema),
@@ -133,8 +241,6 @@ const MobileFilterMenu: React.FC<MobileFilterMenuProps> = ({
     updateFilters(data);
     onClose();
   };
-
-  const filtersConfig = getFiltersConfig();
 
   return (
     <div className="fixed inset-0 bg-gray-300 bg-opacity-70 z-50 flex items-center justify-center">
@@ -150,16 +256,22 @@ const MobileFilterMenu: React.FC<MobileFilterMenuProps> = ({
 
         {/* Form per i filtri */}
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4">
-          {filtersConfig.map((filter) => (
-            <Controller
-              key={filter.id}
-              name={filter.id}
-              control={form.control}
-              render={({ field }) => (
-                <div>{renderFilterComponent(filter, field)}</div>
-              )}
-            />
-          ))}
+          {isLoadingCounts ? (
+            <div className="text-muted-foreground text-sm py-4">
+              Caricamento filtri in corso...
+            </div>
+          ) : (
+            visibleFilters.map((filter) => (
+              <Controller
+                key={filter.id}
+                name={filter.id}
+                control={form.control}
+                render={({ field }) => (
+                  <FilterComponent filter={filter} field={field} />
+                )}
+              />
+            ))
+          )}
 
           {/* Bottone per applicare i filtri */}
           <div className="pt-8 pb-4">

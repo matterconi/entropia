@@ -1,12 +1,14 @@
 "use client";
 
+import _ from "lodash";
 import Image from "next/image";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes";
 import React, { useEffect, useRef, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { RainbowInput } from "@/components/ui/rainbow-input";
+import { useFilterContext } from "@/context/FilterContext";
 
 interface LocalSearchProps {
   route?: string;
@@ -24,81 +26,77 @@ const LocalSearch = ({
   isSearch,
 }: LocalSearchProps) => {
   const { theme } = useTheme();
-  const pathname = usePathname();
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const query = searchParams.get("query") || "";
+  const { updateSearchQuery, filters } = useFilterContext();
 
-  const [searchQuery, setSearchQuery] = useState(query);
-  const [isSearching, setIsSearching] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
+  // Inizializza lo stato locale con il valore dal contesto o dai parametri URL
+  const [searchQuery, setSearchQuery] = useState(
+    filters.query || searchParams.get("query") || "",
+  );
 
-  // Aggiorna lo stato della ricerca quando l'input cambia
+  // Riferimento per il valore precedente del filtro
+  const prevFilterQueryRef = useRef(filters.query);
+
+  // Funzione debounce per aggiornare la query nel contesto
+  const debouncedUpdateQuery = useRef(
+    _.debounce((value: string) => {
+      console.log("🔍 Aggiorno query di ricerca:", value);
+      updateSearchQuery(value);
+    }, 500),
+  ).current;
+
+  // Gestisci il cambio del testo di ricerca
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    debouncedUpdateQuery(value);
+  };
+
+  // Sincronizza lo stato locale quando la query nel contesto cambia
   useEffect(() => {
-    setIsSearching(searchQuery.length > 0);
-  }, [searchQuery]);
-
-  // Chiusura automatica quando si clicca fuori dal componente
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target as Node)
-      ) {
-        setIsSearching(false);
-        setSearchQuery(""); // Resetta la query quando chiude
-      }
-    };
-
-    if (isSearching) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
+    // Controlla se il filtro è cambiato e se è diverso dallo stato locale
+    // Gestisce esplicitamente il caso del reset (quando filters.query è vuoto o undefined)
+    if (
+      prevFilterQueryRef.current !== filters.query ||
+      (filters.query === "" && searchQuery !== "")
+    ) {
+      setSearchQuery((filters.query as string) || "");
     }
 
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isSearching]);
+    // Aggiorna il riferimento per il prossimo ciclo
+    prevFilterQueryRef.current = filters.query;
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.query]);
+
+  // Aggiungi un effetto di cleanup per il debounce
+  useEffect(() => {
+    return () => {
+      debouncedUpdateQuery.cancel();
+    };
+  }, [debouncedUpdateQuery]);
 
   return (
     <div className="relative w-full max-w-3xl">
-      {/* Overlay Blur (solo se isSearching è attivo) */}
-      {isSearching && (
-        <div className="fixed inset-0 bg-gray-300 bg-opacity-40 backdrop-blur-md z-40"></div>
-      )}
-
-      <div ref={searchRef}>
-        {/* Input Ricerca */}
-        <div className="relative z-40 border-gradient animated-gradient p-[1px] rounded-md">
-          <RainbowInput className="w-full flex h-[54px] grow flex-1 items-center gap-4 rounded-md px-4 bg-background hover:!bg-background focus:!bg-background">
-            {imgSrc && (
-              <Image
-                src={imgSrc}
-                width={24}
-                height={24}
-                alt="Search"
-                className="cursor-pointer"
-              />
-            )}
-            <Input
-              type="text"
-              placeholder={placeholder}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={`h-fit no-focus w-full rounded-md border-none shadow-none outline-none focus:outline-none focus-visible:outline-none ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 ${otherClasses}`}
+      <div className="relative z-10 border-gradient animated-gradient p-[1px] rounded-md">
+        <RainbowInput className="w-full flex h-[54px] grow flex-1 items-center gap-4 rounded-md px-4 bg-background hover:!bg-background focus:!bg-background">
+          {imgSrc && (
+            <Image
+              src={imgSrc}
+              width={24}
+              height={24}
+              alt="Search"
+              className="cursor-pointer"
             />
-          </RainbowInput>
-        </div>
-
-        {/* Dropdown Risultati */}
-        {isSearching && (
-          <div className="absolute w-full mt-2 bg-background rounded-md shadow-lg border border-gray-200 overflow-hidden transition-all duration-300 transform translate-y-2 z-50 min-h-[350px]">
-            <div className="p-4">
-              <p className="text-gray-500">
-                🔍 Sto cercando &quot;{searchQuery}&quot;...
-              </p>
-            </div>
-          </div>
-        )}
+          )}
+          <Input
+            type="text"
+            placeholder={placeholder}
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className={`h-fit no-focus w-full rounded-md border-none shadow-none outline-none focus:outline-none focus-visible:outline-none ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 ${otherClasses}`}
+          />
+        </RainbowInput>
       </div>
     </div>
   );

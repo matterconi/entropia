@@ -1,21 +1,22 @@
 "use client";
 
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
+import { IoCloseSharp } from "react-icons/io5";
 
 import AuthForm from "@/components/auth/AuthForm";
 import { ShinyButton } from "@/components/ui/shiny-button";
+import { useUser } from "@/context/UserContext"; // Assicurati di usare il percorso corretto
 import {
   ForgotPasswordSchema,
   ForgotPasswordSchemaType,
   SignInSchema,
   SignInSchemaType,
 } from "@/validations/authSchema";
-import { IoCloseSharp } from "react-icons/io5";
+
 import { RainbowButton } from "../ui/rainbow-button";
-import { useUser } from "@/context/UserContext"; // Assicurati di usare il percorso corretto
-import Link from "next/link";
 
 interface SignInModalProps {
   isOpen: boolean;
@@ -42,66 +43,62 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
   if (loading) {
     return (
       <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-background bg-opacity-50"
-      onClick={onClose}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-background bg-opacity-50"
+        onClick={onClose}
       >
-      <div
-        className="relative max-sm:min-w-[300px] max-lg:min-w-[400px] lg:min-w-[450px]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="w-full h-full border-gradient p-[1px] animated-gradient rounded-lg">
-        <div className="mx-auto bg-background shadow-lg rounded-lg p-8 min-h-[400px]">
-          <div className="flex items-center justify-between">
-            {onClose && (
-              <button onClick={onClose}>
-                <IoCloseSharp className="h-6 w-6" />
-              </button>
-            )}
+        <div
+          className="relative max-sm:min-w-[300px] max-lg:min-w-[400px] lg:min-w-[450px]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="w-full h-full border-gradient p-[1px] animated-gradient rounded-lg">
+            <div className="mx-auto bg-background shadow-lg rounded-lg p-8 min-h-[400px]">
+              <div className="flex items-center justify-between">
+                {onClose && (
+                  <button onClick={onClose}>
+                    <IoCloseSharp className="h-6 w-6" />
+                  </button>
+                )}
+              </div>
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
-        </div>
-        </div>
         </div>
       </div>
-    </div>
     );
   }
 
   if (user) {
     return (
       <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-background bg-opacity-50"
-      onClick={onClose}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-background bg-opacity-50"
+        onClick={onClose}
       >
-      <div
-        className="relative max-sm:min-w-[300px] max-lg:min-w-[400px] lg:min-w-[450px]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="w-full h-full border-gradient p-[1px] animated-gradient rounded-lg">
-        <div className="mx-auto bg-background shadow-lg rounded-lg p-8 min-h-[400px] flex flex-col justify-center py-16">
-          <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Sei già autenticato</h2>
-            {onClose && (
-              <button onClick={onClose}>
-                <IoCloseSharp className="h-6 w-6" />
-              </button>
-            )}
-            
+        <div
+          className="relative max-sm:min-w-[300px] max-lg:min-w-[400px] lg:min-w-[450px]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="w-full h-full border-gradient p-[1px] animated-gradient rounded-lg">
+            <div className="mx-auto bg-background shadow-lg rounded-lg p-8 min-h-[400px] flex flex-col justify-center py-16">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">Sei già autenticato</h2>
+                {onClose && (
+                  <button onClick={onClose}>
+                    <IoCloseSharp className="h-6 w-6" />
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-col h-full space-y-4 mt-8">
+                <p>Non puoi registrarti perché hai già un account attivo.</p>
+                <Link href="/" className="w-full flex justify-center ">
+                  <RainbowButton className="w-fit">Vai alla Home</RainbowButton>
+                </Link>
+              </div>
+            </div>
           </div>
-          <div className="flex flex-col h-full space-y-4 mt-8">
-            
-            <p>Non puoi registrarti perché hai già un account attivo.</p>
-            <Link href="/" className="w-full flex justify-center ">
-              <RainbowButton className="w-fit">
-                Vai alla Home
-              </RainbowButton>
-            </Link>
-          </div>
-        </div>
         </div>
       </div>
-    </div>
     );
   }
 

@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     if (!email || !password) {
       return NextResponse.json(
         { error: "❌ Email e password sono obbligatori" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
           error:
             "❌ Non esiste un account Google associato a questa email. Registrati con Google.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
           error:
             "❌ Non esiste un account Google associato a questa email. Registrati con Google.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     if (credentialsAccount) {
       return NextResponse.json(
         { error: "❌ Questo account esiste già." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -92,13 +92,13 @@ export async function POST(req: Request) {
         message:
           "✅ Controlla la tua email per verificare l'account. L'account Google è già associato a questa email e hai aggiunto un account credentials.",
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error("Errore durante la registrazione:", error);
     return NextResponse.json(
       { error: "❌ Errore interno del server" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

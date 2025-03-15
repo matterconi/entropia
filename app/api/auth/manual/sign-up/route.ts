@@ -31,10 +31,11 @@ export async function POST(req: Request) {
       if (hasGoogleAccount) {
         return NextResponse.json(
           {
-            message: "⚠️ Esiste già un account Google associato a questa email. Se vuoi procedere con la registrazione manuale e associare i due account, visita il link apposito.",
+            message:
+              "⚠️ Esiste già un account Google associato a questa email. Se vuoi procedere con la registrazione manuale e associare i due account, visita il link apposito.",
             hasGoogleAccount: true,
           },
-          { status: 200 }
+          { status: 200 },
         );
       }
 

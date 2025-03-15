@@ -8,6 +8,7 @@ import { SignModalProvider } from "@/context/SignModalContext";
 import { ThemeProvider } from "@/context/theme/ThemeProvider";
 
 import { FilterProvider } from "./FilterContext";
+import { FilterCountsProvider } from "./FilterCountsContext";
 import { UserProvider } from "./UserContext";
 
 const Providers: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -22,7 +23,9 @@ const Providers: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <MenuProvider>
           <UserProvider>
             <FilterProvider>
-              <SignModalProvider>{children}</SignModalProvider>
+              <FilterCountsProvider>
+                <SignModalProvider>{children}</SignModalProvider>
+              </FilterCountsProvider>
             </FilterProvider>
           </UserProvider>
         </MenuProvider>

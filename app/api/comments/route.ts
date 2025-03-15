@@ -1,8 +1,9 @@
 // app/api/comments/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/mongoose";
+
 import Comments from "@/database/Comments"; // Modello che gestisce il documento dei commenti per un post
+import dbConnect from "@/lib/mongoose";
 
 /**
  * GET per recuperare i commenti
@@ -20,7 +21,7 @@ export async function GET(req: NextRequest) {
     if (!post) {
       return NextResponse.json(
         { error: "Post id obbligatorio" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -29,21 +30,26 @@ export async function GET(req: NextRequest) {
     const limit = Number(searchParams.get("limit")) || 5;
 
     // Recupera il documento dei commenti per il post usando l'operatore $slice per la paginazione
-    const commentsDoc = await Comments.findOne({ post }, { comments: { $slice: [skip, limit] } })
-      .populate("comments.user", "username profileImg");
-      
+    const commentsDoc = await Comments.findOne(
+      { post },
+      { comments: { $slice: [skip, limit] } },
+    ).populate("comments.user", "username profileImg");
+
     if (!commentsDoc) {
-        return NextResponse.json({ comments: [] }, { status: 200 });
+      return NextResponse.json({ comments: [] }, { status: 200 });
     }
 
     // Se viene passato "user", aggiunge un flag isOwner ad ogni commento
     let allComments = commentsDoc.comments;
     if (user) {
-        allComments = commentsDoc.comments.map((comment: any) => { // Add type annotation to 'comment'
-            const commentObj = typeof comment.toObject === "function" ? comment.toObject() : comment;
-            commentObj.isOwner = commentObj.user && commentObj.user._id.toString() === user;
-            return commentObj;
-        });
+      allComments = commentsDoc.comments.map((comment: any) => {
+        // Add type annotation to 'comment'
+        const commentObj =
+          typeof comment.toObject === "function" ? comment.toObject() : comment;
+        commentObj.isOwner =
+          commentObj.user && commentObj.user._id.toString() === user;
+        return commentObj;
+      });
     }
 
     return NextResponse.json({ comments: allComments }, { status: 200 });
@@ -51,7 +57,7 @@ export async function GET(req: NextRequest) {
     console.error("Errore durante GET /api/comments:", error);
     return NextResponse.json(
       { error: "Errore sul server", message: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -70,7 +76,7 @@ export async function POST(req: NextRequest) {
     if (!user || !post || !content) {
       return NextResponse.json(
         { error: "User, post e content sono obbligatori" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -79,7 +85,7 @@ export async function POST(req: NextRequest) {
       user,
       content,
       parentComment: parentComment || null,
-      createdAt: new Date()
+      createdAt: new Date(),
     };
 
     // Cerca il documento dei commenti per il post
@@ -94,14 +100,18 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { message: "Comment added", comment: newComment, comments: commentsDoc.comments },
-      { status: 200 }
+      {
+        message: "Comment added",
+        comment: newComment,
+        comments: commentsDoc.comments,
+      },
+      { status: 200 },
     );
   } catch (error: any) {
     console.error("Errore durante POST /api/comments:", error);
     return NextResponse.json(
       { error: "Errore sul server", message: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -120,33 +130,36 @@ export async function DELETE(req: NextRequest) {
     if (!user || !post || !commentId) {
       return NextResponse.json(
         { error: "User, post e commentId sono obbligatori" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Rimuove il commento che corrisponde a commentId e appartiene all'utente
     const updateResult = await Comments.updateOne(
       { post },
-      { $pull: { comments: { _id: commentId, user: user } } }
+      { $pull: { comments: { _id: commentId, user: user } } },
     );
 
     if (updateResult.modifiedCount === 0) {
       return NextResponse.json(
         { error: "Comment non trovato o non autorizzato" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const commentsDoc = await Comments.findOne({ post });
     return NextResponse.json(
-      { message: "Comment removed", comments: commentsDoc ? commentsDoc.comments : [] },
-      { status: 200 }
+      {
+        message: "Comment removed",
+        comments: commentsDoc ? commentsDoc.comments : [],
+      },
+      { status: 200 },
     );
   } catch (error: any) {
     console.error("Errore durante DELETE /api/comments:", error);
     return NextResponse.json(
       { error: "Errore sul server", message: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -165,7 +178,7 @@ export async function PUT(req: NextRequest) {
     if (!user || !post || !commentId || !content) {
       return NextResponse.json(
         { error: "User, post, commentId e content sono obbligatori" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -173,30 +186,30 @@ export async function PUT(req: NextRequest) {
     const updateResult = await Comments.updateOne(
       { post },
       { $set: { "comments.$[elem].content": content } },
-      { arrayFilters: [{ "elem._id": commentId, "elem.user": user }] }
+      { arrayFilters: [{ "elem._id": commentId, "elem.user": user }] },
     );
 
     if (updateResult.modifiedCount === 0) {
-        return NextResponse.json(
-            { error: "Comment non trovato o non autorizzato" },
-            { status: 400 }
-        );
+      return NextResponse.json(
+        { error: "Comment non trovato o non autorizzato" },
+        { status: 400 },
+      );
     }
 
     const commentsDoc = await Comments.findOne({ post });
     const updatedComment = commentsDoc?.comments.find(
-        (comment: any) => comment._id.toString() === commentId
+      (comment: any) => comment._id.toString() === commentId,
     );
 
     return NextResponse.json(
       { message: "Comment updated", comment: updatedComment },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error: any) {
     console.error("Errore durante PUT /api/comments:", error);
     return NextResponse.json(
       { error: "Errore sul server", message: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

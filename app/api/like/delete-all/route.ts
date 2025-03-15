@@ -1,10 +1,11 @@
 // app/api/like/delete-all/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/mongoose";
+
+import Article from "@/database/Article";
 import PostLike from "@/database/PostLike";
 import User from "@/database/User";
-import Article from "@/database/Article";
+import dbConnect from "@/lib/mongoose";
 
 /**
  * DELETE per eliminare TUTTI i like ai post.
@@ -15,13 +16,19 @@ export async function DELETE(req: NextRequest) {
   try {
     // Elimina tutti i documenti nella collezione PostLike
     const deleteResult = await PostLike.deleteMany({});
-    
+
     // Aggiorna tutti i documenti User rimuovendo ogni riferimento ai like
-    const updatedUsers = await User.updateMany({}, { $set: { likedPosts: [] } });
-    
+    const updatedUsers = await User.updateMany(
+      {},
+      { $set: { likedPosts: [] } },
+    );
+
     // Aggiorna tutti gli articoli impostando likeCount a zero
-    const updatedArticles = await Article.updateMany({}, { $set: { likeCount: 0 } });
-    
+    const updatedArticles = await Article.updateMany(
+      {},
+      { $set: { likeCount: 0 } },
+    );
+
     return NextResponse.json(
       {
         message: "Tutti i like sono stati eliminati.",
@@ -29,13 +36,13 @@ export async function DELETE(req: NextRequest) {
         updatedUsers,
         updatedArticles,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error: any) {
     console.error("Errore durante DELETE_ALL /api/like/delete-all:", error);
     return NextResponse.json(
       { error: "Errore sul server", message: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

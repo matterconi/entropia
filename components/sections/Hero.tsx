@@ -8,9 +8,7 @@ const fetchPosts = async () => {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
-    const response = await fetch(`${baseUrl}/api/articles`, {
-      next: { revalidate: 600000 }, // ISR: rigenera i dati ogni 10 minuti
-    });
+    const response = await fetch(`${baseUrl}/api/articles`);
 
     if (!response.ok) throw new Error("Errore nel recupero dei dati");
 
@@ -23,6 +21,15 @@ const fetchPosts = async () => {
 
 const page = async () => {
   const posts = await fetchPosts();
+  console.log(posts);
+
+  if (!posts) {
+    return (
+      <div>
+        <h1>Errore nel recupero dei dati</h1>
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="mx-12 relative w-screen bg-background ">

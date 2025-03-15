@@ -1,10 +1,11 @@
 // app/api/like/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/mongoose";
+
+import Article from "@/database/Article";
 import PostLike from "@/database/PostLike";
 import User from "@/database/User";
-import Article from "@/database/Article";
+import dbConnect from "@/lib/mongoose";
 
 /**
  * GET per recuperare i like
@@ -21,7 +22,7 @@ export async function GET(req: NextRequest) {
     if (!user) {
       return NextResponse.json(
         { error: "User id obbligatorio" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -33,16 +34,19 @@ export async function GET(req: NextRequest) {
       if (!foundUser) {
         return NextResponse.json(
           { error: "Utente non trovato" },
-          { status: 404 }
+          { status: 404 },
         );
       }
-      return NextResponse.json({ likedPosts: foundUser.likedPosts }, { status: 200 });
+      return NextResponse.json(
+        { likedPosts: foundUser.likedPosts },
+        { status: 200 },
+      );
     }
   } catch (error: any) {
     console.error("Errore durante GET /api/like:", error);
     return NextResponse.json(
       { error: "Errore sul server", message: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -62,7 +66,7 @@ export async function POST(req: NextRequest) {
     if (!user || !post) {
       return NextResponse.json(
         { error: "User e post sono obbligatori" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -70,7 +74,7 @@ export async function POST(req: NextRequest) {
     if (existingLike) {
       return NextResponse.json(
         { error: "L'utente ha già messo like a questo post" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -81,18 +85,18 @@ export async function POST(req: NextRequest) {
     const updatedArticle = await Article.findByIdAndUpdate(
       post,
       { $inc: { likeCount: 1 } },
-      { new: true }
+      { new: true },
     );
 
     return NextResponse.json(
       { like: newLike, likeCount: updatedArticle?.likeCount },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error: any) {
     console.error("Errore durante POST /api/like:", error);
     return NextResponse.json(
       { error: "Errore sul server", message: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -113,7 +117,7 @@ export async function DELETE(req: NextRequest) {
     if (!user || !post) {
       return NextResponse.json(
         { error: "User e post sono obbligatori" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -121,7 +125,7 @@ export async function DELETE(req: NextRequest) {
     if (!existingLike) {
       return NextResponse.json(
         { error: "L'utente non ha messo like a questo post" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -132,18 +136,18 @@ export async function DELETE(req: NextRequest) {
     const updatedArticle = await Article.findByIdAndUpdate(
       post,
       { $inc: { likeCount: -1 } },
-      { new: true }
+      { new: true },
     );
 
     return NextResponse.json(
       { message: "Like rimosso", likeCount: updatedArticle?.likeCount },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error: any) {
     console.error("Errore durante DELETE /api/like:", error);
     return NextResponse.json(
       { error: "Errore sul server", message: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

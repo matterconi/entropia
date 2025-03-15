@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useId, useState, useEffect } from "react";
+import React, { useEffect, useId, useState } from "react";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
-import { useUser } from "@/context/UserContext"; // Assicurati che il percorso sia corretto
-import UserNotVerifiedModal from "./UserNotVerifiedModal";
-import { User } from "@/types";
-import useAuthModal from "@/hooks/useAuthModal";
 
+import { useUser } from "@/context/UserContext"; // Assicurati che il percorso sia corretto
+import useAuthModal from "@/hooks/useAuthModal";
+import { User } from "@/types";
+
+import UserNotVerifiedModal from "./UserNotVerifiedModal";
 
 interface MiniCTAProps {
   id: string; // ID del post
@@ -18,30 +19,36 @@ const MiniCTA = ({ id, likeCount }: MiniCTAProps) => {
   const { user, loading } = useUser();
   const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(likeCount);
-  
-  // Utilizza il hook per il modale di autenticazione
-  const { isModalOpen, closeModal, checkUserCanPerformAction, isUserLoggedIn, user: modalUser } = useAuthModal();
-  // Funzione per controllare se l'utente ha messo like a questo post
-  const checkLikeStatus = async () => {
-    if (!user) {
-      setLiked(false);
-      return;
-    }
-    console.log(user);
-    try {
-      const res = await fetch(`/api/like?user=${user.id}&post=${id}`);
-      const data = await res.json();
-      if (res.ok) {
-        setLiked(data.liked);
-      } else {
-        console.error("Errore nel controllo del like:", data.error);
-      }
-    } catch (err) {
-      console.error("Errore nella richiesta per il like:", err);
-    }
-  };
 
+  // Utilizza il hook per il modale di autenticazione
+  const {
+    isModalOpen,
+    closeModal,
+    checkUserCanPerformAction,
+    isUserLoggedIn,
+    user: modalUser,
+  } = useAuthModal();
   useEffect(() => {
+    // Funzione per controllare se l'utente ha messo like a questo post
+    const checkLikeStatus = async () => {
+      if (!user) {
+        setLiked(false);
+        return;
+      }
+      console.log(user);
+      try {
+        const res = await fetch(`/api/like?user=${user.id}&post=${id}`);
+        const data = await res.json();
+        if (res.ok) {
+          setLiked(data.liked);
+        } else {
+          console.error("Errore nel controllo del like:", data.error);
+        }
+      } catch (err) {
+        console.error("Errore nella richiesta per il like:", err);
+      }
+    };
+
     if (!loading && user) {
       checkLikeStatus();
     }
@@ -49,8 +56,10 @@ const MiniCTA = ({ id, likeCount }: MiniCTAProps) => {
 
   const toggleLike = async () => {
     // Controlla se l'utente può eseguire l'azione
-    if (!checkUserCanPerformAction()) {
-      return;
+    console.log("👤 Utente:", user);
+    console.log("🔒 Utente autenticato:", isUserLoggedIn);
+    if (!isUserLoggedIn || !user) {
+      checkUserCanPerformAction();
     }
 
     if (liked) {
@@ -73,7 +82,23 @@ const MiniCTA = ({ id, likeCount }: MiniCTAProps) => {
         alert("Errore di rete");
       }
     } else {
-      // ... resto del codice per aggiungere il like
+      try {
+        const res = await fetch("/api/like", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user: user?.id, post: id }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setLiked(true);
+          setLikes(data.likeCount);
+        } else {
+          alert(data.error || "Errore nell'aggiungere il like");
+        }
+      } catch (err) {
+        console.error("Errore nella richiesta per aggiungere il like:", err);
+        alert("Errore di rete");
+      }
     }
   };
 
@@ -89,7 +114,11 @@ const MiniCTA = ({ id, likeCount }: MiniCTAProps) => {
       )}
       <div className="flex items-center justify-start">
         <div className="flex items-center justify-center">
-          <button onClick={toggleLike} className="p-2 rounded-full" aria-label="Like">
+          <button
+            onClick={toggleLike}
+            className="p-2 rounded-full"
+            aria-label="Like"
+          >
             <svg width="0" height="0" className="absolute">
               <defs>
                 <linearGradient

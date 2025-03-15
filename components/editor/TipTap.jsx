@@ -32,10 +32,6 @@ const CustomParagraph = Paragraph.extend({
 const MenuBar = ({ readOnly = false }) => {
   const { editor } = useCurrentEditor()
 
-  if (!editor || readOnly) {
-    return null
-  }
-
   return (
     <div className="control-group">
       <div className="button-group">

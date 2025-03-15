@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import React, { useState } from "react";
 import { DefaultValues, FieldValues, Path, useForm } from "react-hook-form";
+import { FaExclamationCircle } from "react-icons/fa";
 import { FiAlertCircle } from "react-icons/fi";
 import { IoCloseSharp } from "react-icons/io5";
 import { ZodObject, ZodType } from "zod";
@@ -13,7 +14,6 @@ import { ZodObject, ZodType } from "zod";
 import { Input } from "@/components/auth/SignInput";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { useSignModal } from "@/context/SignModalContext";
-import { FaExclamationCircle } from "react-icons/fa";
 
 interface AuthFormProps<T extends FieldValues> {
   schema: ZodObject<{ [key in keyof T]: ZodType<any> }>;
@@ -81,17 +81,17 @@ export default function AuthForm<T extends FieldValues>({
         return;
       }
       // Chiamata a signIn per entrambi i casi
-    const response = await signIn("credentials", {
-      email: (data as any).email,
-      password: (data as any).password,
-      redirect: false,
-    });
-    console.log("signIn response:", response);
+      const response = await signIn("credentials", {
+        email: (data as any).email,
+        password: (data as any).password,
+        redirect: false,
+      });
+      console.log("signIn response:", response);
 
-    if (response?.error) {
-      setError(response.error);
-      return;
-    }
+      if (response?.error) {
+        setError(response.error);
+        return;
+      }
       setHasGoogleAccount(false);
       if (formType === "SIGN_UP" && setIsRegistered) {
         setIsRegistered(true);
@@ -116,9 +116,9 @@ export default function AuthForm<T extends FieldValues>({
       return;
     }
 
-    if (result && 'hasGoogleAccount' in result && result.hasGoogleAccount) {
+    if (result && "hasGoogleAccount" in result && result.hasGoogleAccount) {
       setHasGoogleAccount(true);
-      console.log("User has Google account"); 
+      console.log("User has Google account");
       return;
     }
 
@@ -186,9 +186,9 @@ export default function AuthForm<T extends FieldValues>({
       <div className="w-full h-full border-gradient p-[1px] animated-gradient rounded-lg">
         <div className="mx-auto bg-background shadow-lg rounded-lg p-8">
           <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold text-center text-foreground font-title text-gradient animated-gradient">
+            <h2 className="text-3xl font-bold text-center text-foreground font-title text-gradient animated-gradient">
               <FaExclamationCircle className="inline text-red-500" />
-          </h2>
+            </h2>
             {onClose && (
               <button onClick={onClose}>
                 <IoCloseSharp className="h-6 w-6" />
@@ -197,7 +197,9 @@ export default function AuthForm<T extends FieldValues>({
           </div>
           <div className="mx-auto mt-8 px-4 w-full">
             <p className="text-foreground text-sm mb-6 max-w-[400px] mx-auto">
-              Questa email è già associata a un account Google. Se vuoi, puoi procedere con la registrazione manuale e associare i due account. O continuare l'autenticazione con Google
+              Questa email è già associata a un account Google. Se vuoi, puoi
+              procedere con la registrazione manuale e associare i due account.
+              O continuare l&apos;autenticazione con Google
             </p>
             {children}
             <form
@@ -205,7 +207,10 @@ export default function AuthForm<T extends FieldValues>({
               className="space-y-8 mt-8"
             >
               {Object.keys(defaultValues || {}).map((fieldName) => (
-                <div key={fieldName} className={`${fieldName !== "username" ? "flex flex-col gap-2 relative" : "hidden"}`}>
+                <div
+                  key={fieldName}
+                  className={`${fieldName !== "username" ? "flex flex-col gap-2 relative" : "hidden"}`}
+                >
                   <label className="absolute -top-3 left-4 bg-background px-2 text-sm font-semibold text-foreground">
                     {fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}
                   </label>
@@ -278,7 +283,7 @@ export default function AuthForm<T extends FieldValues>({
           </div>
         </div>
       </div>
-    )
+    );
   }
   return (
     <div className="w-full h-full border-gradient p-[1px] animated-gradient rounded-lg">

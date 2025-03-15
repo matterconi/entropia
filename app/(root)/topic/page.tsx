@@ -12,11 +12,11 @@ import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { ShinyButton } from "@/components/ui/shiny-button";
-import { MenuItem, topic } from "@/data/data";
+import { MenuItem, topics } from "@/data/data";
 
 const CategoriesPage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [categoriesState, setCategoriesState] = useState([null, topic[0]]);
+  const [categoriesState, setCategoriesState] = useState([null, topics[0]]);
 
   const [offset, setOffset] = useState("0%");
   const setCategory = (newCategory: MenuItem) => {
@@ -191,7 +191,7 @@ const CategoriesPage = () => {
               navigation
               className="!overflow-visible"
             >
-              {topic.map((category) => (
+              {topics.map((category: MenuItem) => (
                 <SwiperSlide
                   key={category.title}
                   className="!w-[250px]" // Le slide si adattano dinamicamente

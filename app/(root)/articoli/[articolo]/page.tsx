@@ -45,13 +45,16 @@ async function PostPage({
       return <div>⚠️ Post non trovato</div>;
     }
 
-    return <>
-    <PostRenderer post={post} id={postId}/>
-    <div className="max-md:px-6 px-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full mt-4">
-          {relatedPosts.map((post: Post, i: number) => 
-            <RelatedPostCard key={i} post={post} />)}
-      </div>
-      </>;
+    return (
+      <>
+        <PostRenderer post={post} id={postId} />
+        <div className="max-md:px-6 px-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full mt-4">
+          {relatedPosts.map((post: Post, i: number) => (
+            <RelatedPostCard key={i} post={post} />
+          ))}
+        </div>
+      </>
+    );
   } catch (error) {
     console.error("❌ Errore caricamento post:", error);
     return <div>⚠️ Errore nel caricamento del post.</div>;

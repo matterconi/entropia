@@ -23,7 +23,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         await dbConnect();
-        console.log('credentials:',credentials);
+        console.log("credentials:", credentials);
         // Se è presente un token, usalo per la verifica passwordless
         if (credentials?.token) {
           try {
@@ -145,7 +145,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
 
     async jwt({ token, user, account }) {
-      console.log('data:',token, user);
+      console.log("data:", token, user);
       if (user) {
         token.id = user.id;
         token.username = user.username || user.name;
@@ -163,22 +163,22 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
         try {
           // Check if token.id is a valid MongoDB ObjectId
-            const user = await User.findById(token.id);
-            if (user) {
-              // Aggiorna token con i dati più recenti dal database
-              token.username = user.username;
-              token.isAuthor = user.isAuthor;
-              token.profileImg = user.profileImg;
-              token.bio = user.bio;
-              // Trova l'account per verificare isVerified
-              const accountDoc = await Account.findOne({
-                user: token.id,
-                provider: token.provider,
-              });
-              if (accountDoc) {
-                token.isVerified = accountDoc.isVerified;
-              }
+          const user = await User.findById(token.id);
+          if (user) {
+            // Aggiorna token con i dati più recenti dal database
+            token.username = user.username;
+            token.isAuthor = user.isAuthor;
+            token.profileImg = user.profileImg;
+            token.bio = user.bio;
+            // Trova l'account per verificare isVerified
+            const accountDoc = await Account.findOne({
+              user: token.id,
+              provider: token.provider,
+            });
+            if (accountDoc) {
+              token.isVerified = accountDoc.isVerified;
             }
+          }
         } catch (error) {
           console.error("Error in JWT callback:", error);
           // Continue with the token as is

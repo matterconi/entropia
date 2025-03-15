@@ -5,7 +5,6 @@ import React from "react";
 
 import { socialMedia } from "@/data/data";
 
-
 export default function Footer() {
   return (
     <div className="max-md:h-[250px] max-lg:h-[225px] h-[200px] w-full relative">

@@ -1,4 +1,4 @@
-import { categories, genres } from "./data";
+import { categories, genres, topics } from "./data";
 
 interface Filter {
   id: string;
@@ -16,7 +16,10 @@ export function getFiltersConfig(): Filter[] {
       label: "Autori",
       componentType: "checkbox",
       options: [
-        { value: "Mario Rossi", label: "Mario Rossi" },
+        {
+          value: "MarioRossiMarioRossiMarioRossiMarioRossi",
+          label: "MarioRossiMarioRossiMarioRossiMarioRossi",
+        },
         { value: "Luca Verdi", label: "Luca Verdi" },
       ],
     },
@@ -39,12 +42,22 @@ export function getFiltersConfig(): Filter[] {
       })),
     },
     {
+      id: "topics",
+      label: "Topics",
+      componentType: isMobile ? "multiselect" : "chips",
+      options: topics.map((topic) => ({
+        value: topic.title,
+        label: topic.title,
+      })),
+    },
+    {
       id: "sort",
       label: "Ordina per",
       componentType: "radio",
       options: [
         { value: "alphabetical", label: "Ordine Alfabetico" },
-        { value: "date", label: "Data" },
+        { value: "new", label: "Più recenti" },
+        { value: "old", label: "Più vecchi" },
         { value: "views", label: "Visualizzazioni" },
         { value: "likes", label: "Like" },
       ],

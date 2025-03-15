@@ -56,13 +56,13 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post, isNew }) => {
                 {/* Avatar */}
                 <div className="w-8 h-8 rounded-full overflow-hidden relative">
                   <img
-                    src={`https://api.dicebear.com/5.x/adventurer/svg?seed=${author.username}`}
-                    alt={`${author.username}'s avatar`}
+                    src={`https://api.dicebear.com/5.x/adventurer/svg?seed=${"lololololo"}`}
+                    alt={`${"swag"}'s avatar`}
                     className="object-cover w-full h-full"
                   />
                 </div>
                 {/* Author Name */}
-                <p className="text-xs">{author.username}</p>
+                <p className="text-xs">{"gkflsbc"}</p>
               </div>
             </div>
             <div className="flex justify-center w-full mt-6">

@@ -51,8 +51,8 @@ const RemoveCommentModal: React.FC<RemoveCommentModalProps> = ({
           </button>
         </div>
         <p className="mb-6 text-sm text-foreground">
-          Sei sicuro di voler eliminare questo commento? L'azione non potrà essere
-          annullata.
+          Sei sicuro di voler eliminare questo commento? L&apos;azione non potrà
+          essere annullata.
         </p>
         <div className="flex justify-end space-x-4">
           <button

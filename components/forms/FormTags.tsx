@@ -5,7 +5,7 @@ import { UseFormSetValue, UseFormWatch } from "react-hook-form"; // ✅ Import d
 
 import FilterChips from "@/components/filters/shared/FilterChips";
 import SelectMenu from "@/components/filters/shared/SelectMenu";
-import { categories, genres, topic } from "@/data/data";
+import { categories, genres, topics } from "@/data/data";
 
 import SingleFilterChips from "../filters/shared/SingleFilterChips";
 import SingleSelectMenu from "../filters/shared/SingleSelectMenu";
@@ -35,7 +35,7 @@ const tagOptions = {
     value: title,
     label: title.slice(0, 1).toUpperCase() + title.slice(1),
   })),
-  topics: topic.map(({ title }) => ({
+  topics: topics.map(({ title }) => ({
     value: title,
     label: title.slice(0, 1).toUpperCase() + title.slice(1),
   })),

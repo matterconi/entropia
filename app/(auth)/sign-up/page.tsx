@@ -1,16 +1,16 @@
 "use client";
 
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 
 import AuthForm from "@/components/auth/AuthForm";
 import RegistrationSuccess from "@/components/auth/RegistrationSuccess";
-import { ShinyButton } from "@/components/ui/shiny-button";
-import { SignUpSchema, SignUpSchemaType } from "@/validations/authSchema";
-import { useUser } from "@/context/UserContext"; // Assicurati di usare il percorso corretto
 import { RainbowButton } from "@/components/ui/rainbow-button";
-import Link from "next/link";
+import { ShinyButton } from "@/components/ui/shiny-button";
+import { useUser } from "@/context/UserContext"; // Assicurati di usare il percorso corretto
+import { SignUpSchema, SignUpSchemaType } from "@/validations/authSchema";
 
 export default function SignUpPage() {
   // Controllo se l'utente è già autenticato
@@ -36,29 +36,27 @@ export default function SignUpPage() {
     await signIn("google", { callbackUrl: "/" }); // Redirect alla homepage dopo il login
   };
 
-      // Se il caricamento è in corso, mostra un messaggio di caricamento
-      if (loading) {
-        return (
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
-          </div>
-        );
-      }
-  
-      // Se l'utente è già autenticato, mostra un'interfaccia alternativa
-      if (user && !isRegistered) {
-        return (
-          <div className="flex flex-col items-center justify-center h-full space-y-4">
-            <h2 className="text-2xl font-bold">Sei già autenticato</h2>
-            <p>Non puoi registrarti perché hai già un account attivo.</p>
-            <Link href="/">
-              <RainbowButton className="w-fit !mt-8">
-                Vai alla Home
-              </RainbowButton>
-            </Link>
-          </div>
-        );
-      }
+  // Se il caricamento è in corso, mostra un messaggio di caricamento
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
+      </div>
+    );
+  }
+
+  // Se l'utente è già autenticato, mostra un'interfaccia alternativa
+  if (user && !isRegistered) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full space-y-4">
+        <h2 className="text-2xl font-bold">Sei già autenticato</h2>
+        <p>Non puoi registrarti perché hai già un account attivo.</p>
+        <Link href="/">
+          <RainbowButton className="w-fit !mt-8">Vai alla Home</RainbowButton>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="max-sm:min-w-[300px] max-lg:min-w-[400px] lg:min-w-[450px] mx-auto space-y-4">

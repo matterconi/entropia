@@ -44,6 +44,32 @@ export type CategoryKeys =
   | "viaggi"
   | "pensieri";
 
+export type GenreKeys =
+  | "romantico"
+  | "azione"
+  | "avventura"
+  | "fantasy"
+  | "fantascienza"
+  | "horror"
+  | "giallo"
+  | "drammatico"
+  | "storico";
+
+export type TopicKeys =
+  | "filosofia"
+  | "esistenzialismo"
+  | "cinema"
+  | "musica"
+  | "arte"
+  | "politica"
+  | "psicologia"
+  | "società"
+  | "storia"
+  | "scienza-e-tecnologia"
+  | "spiritualità"
+  | "letteratura"
+  | "cultura-pop";
+
 export type CategoryMap = Record<CategoryKeys, number>;
 export type ArticleMap = Record<CategoryKeys, string>;
 

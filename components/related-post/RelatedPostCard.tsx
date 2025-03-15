@@ -39,7 +39,7 @@ const RelatedPostCard: React.FC<RelatedPostProps> = ({ post, isHot }) => {
   return (
     <div className="w-full h-full relative">
       {/* Title */}
-      <div className="bg-background relative h-full w-full flex flex-col items-center justify-between pt-8 px-4 rounded-lg min-h-[350px]">
+      <div className="bg-background relative h-full w-full flex flex-col items-center justify-between pt-8 px-2 rounded-lg min-h-[350px]">
         <div className="bg-background w-full h-fit flex flex-col items-center justify-center z-40 rounded-lg p-2">
           {isHot && <Tag tag={{ label: "Hot", type: "hot" }} />}
           <h3 className="my-2 text-lg font-title text-center line-clamp-2 w-fit text-gradient animated-gradient">
@@ -57,13 +57,13 @@ const RelatedPostCard: React.FC<RelatedPostProps> = ({ post, isHot }) => {
               {/* Avatar */}
               <div className="w-8 h-8 rounded-full overflow-hidden relative">
                 <img
-                  src={`https://api.dicebear.com/5.x/adventurer/svg?seed=${author.username}`}
-                  alt={`${author.username}'s avatar`}
+                  src={`https://api.dicebear.com/5.x/adventurer/svg?seed=${"swag martini"}`}
+                  alt={`${"fjkds"}'s avatar`}
                   className="object-cover w-full h-full"
                 />
               </div>
               {/* Author Name */}
-              <p className="text-xs">{author.username}</p>
+              <p className="text-xs">{"superignlds"}</p>
             </div>
           </div>
           <div className="flex justify-center w-full mt-6">

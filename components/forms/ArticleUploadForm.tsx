@@ -10,6 +10,10 @@ import * as z from "zod";
 import FormTags from "@/components/forms/FormTags";
 import { Input } from "@/components/ui/input";
 import { RainbowButton } from "@/components/ui/rainbow-button";
+import { useUser } from "@/context/UserContext";
+
+import NonAuthorScreen from "../feedback-screens/NonAuthorScreen";
+import UserNotFoundScreen from "../feedback-screens/UserNotFoundScreen";
 
 // ✅ Zod validation schema
 const articleSchema = z.object({
@@ -132,8 +136,10 @@ function ImageUpload({
   );
 }
 
-export default function ArticleUploadForm({ userId }: { userId: string }) {
+export default function ArticleUploadForm() {
   const [uploading, setUploading] = useState(false);
+  const { user } = useUser();
+  const userId = user?.id;
   const formMethods = useForm<ArticleFormData>({
     resolver: zodResolver(articleSchema),
     defaultValues: {
@@ -277,6 +283,14 @@ export default function ArticleUploadForm({ userId }: { userId: string }) {
 
     setUploading(false);
   };
+
+  if (!userId) {
+    return <UserNotFoundScreen />;
+  }
+
+  if (!user.isAuthor) {
+    return <NonAuthorScreen />;
+  }
 
   return (
     <FormProvider {...formMethods}>

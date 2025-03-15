@@ -33,7 +33,7 @@ interface IPost {
   markdownContent: string;
 }
 
-const PostRenderer: React.FC<{ post: IPost, id: string }> = ({ post, id }) => {
+const PostRenderer: React.FC<{ post: IPost; id: string }> = ({ post, id }) => {
   const {
     title,
     chapterTitle,
@@ -92,7 +92,7 @@ const PostRenderer: React.FC<{ post: IPost, id: string }> = ({ post, id }) => {
       </div>
       <div className="flex max-md:flex-col max-md:items-start max-md:space-y-6 justify-between items-center w-full mt-6 h-full">
         <div className="max-md:mt-6 flex md:flex-col items-start justify-between w-full h-full gap-4">
-          <MiniCTA id={id} likeCount={likeCount}/>
+          <MiniCTA id={id} likeCount={likeCount} />
           <div className="flex flex-wrap gap-1 items-end justify-end">
             {[
               ...genres.map((tag) => ({ ...tag, type: "generi" })),
@@ -125,7 +125,7 @@ const PostRenderer: React.FC<{ post: IPost, id: string }> = ({ post, id }) => {
 
       {/* Comment Section */}
       <div className="self-start w-full">
-        <CommentSection id={id}/>
+        <CommentSection id={id} />
       </div>
       <div className="w-full h-[1px] bg-black mt-8"></div>
       <MiniFooter title={title} author={author.username} authorBio="" />

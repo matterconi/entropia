@@ -4,6 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -16,23 +17,31 @@ interface FilterContextType {
   updateFilters: (newFilters: Filters) => void;
   updatePartialFilter: (id: string, value: string | string[]) => void;
   clearFilters: () => void;
+  updateSearchQuery: (query: string) => void;
 }
 
-// **Modifica 1**: Aggiunto l'indice dinamico `[key: string]` per supportare tutti i filtri
 interface Filters {
   [key: string]: string | string[];
   authors: string[];
   categories: string[];
   genres: string[];
+  topics: string[];
   sort: string;
+  query: string;
 }
 
 // Definiamo quali parametri sono filtri
-const filterKeys = ["authors", "categories", "genres", "topic", "sort"];
+const filterKeys = [
+  "authors",
+  "categories",
+  "genres",
+  "topics",
+  "sort",
+  "query",
+];
 
 const FilterContext = createContext<FilterContextType | undefined>(undefined);
 
-// **Modifica 2**: Tipizzazione corretta del provider
 export const FilterProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
@@ -40,40 +49,73 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const prevPathnameRef = useRef(pathname);
+  const isInitialMount = useRef(true);
+  const isUpdatingFromURL = useRef(false);
+  const isUpdatingFilters = useRef(false);
+  const filtersRef = useRef<Filters>({
+    authors: [],
+    categories: [],
+    genres: [],
+    topics: [],
+    sort: "",
+    query: "",
+  });
 
   // Stato locale dei filtri
   const [filters, setFilters] = useState<Filters>({
     authors: [],
     categories: [],
     genres: [],
+    topics: [],
     sort: "",
+    query: "",
   });
+
+  // Aggiorna il ref quando i filtri cambiano
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
 
   const updateFilters = (newFilters: Filters) => {
     setFilters(newFilters);
   };
 
-  // **Modifica 3**: Sincronizzazione dei filtri con l'URL
+  // Sincronizza i filtri con i parametri URL all'inizializzazione
   useEffect(() => {
-    const params = new URLSearchParams(searchParams);
+    if (isInitialMount.current) {
+      const params = new URLSearchParams(searchParams.toString());
+      const initialFilters: Filters = {
+        authors: params.get("authors")?.split(",").filter(Boolean) || [],
+        categories: params.get("categories")?.split(",").filter(Boolean) || [],
+        genres: params.get("genres")?.split(",").filter(Boolean) || [],
+        topics: params.get("topics")?.split(",").filter(Boolean) || [],
+        sort: params.get("sort") || "",
+        query: params.get("query") || "",
+      };
 
-    setFilters({
-      authors: params.get("authors")?.split(",") || [],
-      categories: params.get("categories")?.split(",") || [],
-      genres: params.get("genres")?.split(",") || [],
-      sort: params.get("sort") || "",
-    });
+      setFilters(initialFilters);
+      isInitialMount.current = false;
+    }
   }, [searchParams]);
 
+  // Sincronizzazione dell'URL quando i filtri cambiano
   useEffect(() => {
+    // Ignora i cambiamenti durante l'inizializzazione o quando si aggiorna da URL
+    if (isInitialMount.current || isUpdatingFromURL.current) {
+      isUpdatingFromURL.current = false;
+      return;
+    }
+
+    // Salta se il pathname è cambiato
     if (prevPathnameRef.current !== pathname) {
       prevPathnameRef.current = pathname;
       return;
     }
 
-    const currentParams = new URLSearchParams(searchParams);
+    const currentParams = new URLSearchParams(searchParams.toString());
     const newParams = new URLSearchParams();
 
+    // Aggiungi i nuovi filtri
     filterKeys.forEach((key) => {
       const value = filters[key];
       if (Array.isArray(value) && value.length > 0) {
@@ -83,22 +125,71 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({
       }
     });
 
+    // Preserva altri parametri URL non-filtro
     for (const [key, value] of currentParams.entries()) {
       if (!filterKeys.includes(key)) {
         newParams.set(key, value);
       }
     }
 
-    const hasFiltersChanged = filterKeys.some(
-      (key) => currentParams.get(key) !== newParams.get(key),
-    );
+    // Verifica se ci sono cambiamenti reali
+    let hasFiltersChanged = false;
+    for (const key of filterKeys) {
+      const currentValue = currentParams.get(key) || "";
+      const newValue = newParams.get(key) || "";
+      if (currentValue !== newValue) {
+        hasFiltersChanged = true;
+        break;
+      }
+    }
 
     if (hasFiltersChanged) {
+      isUpdatingFilters.current = true;
       router.replace(`${pathname}?${newParams.toString()}`, { scroll: false });
     }
   }, [filters, pathname, router, searchParams]);
 
-  // **Modifica 4**: Funzione per aggiornare un filtro specifico con stringa generica
+  // Funzione memoizzata per controllare le differenze tra filtri
+  const areFiltersDifferent = useCallback((newFilters: Filters) => {
+    return filterKeys.some((key) => {
+      const typedKey = key as keyof Filters;
+      const current = filtersRef.current[typedKey];
+      const newValue = newFilters[typedKey];
+
+      if (Array.isArray(current) && Array.isArray(newValue)) {
+        if (current.length !== newValue.length) return true;
+        return current.some((item, index) => item !== newValue[index]);
+      }
+
+      return current !== newValue;
+    });
+  }, []);
+
+  // Sincronizzazione quando l'URL cambia
+  useEffect(() => {
+    // Ignora se stiamo noi stessi aggiornando l'URL o se è il primo mount
+    if (isUpdatingFilters.current || isInitialMount.current) {
+      isUpdatingFilters.current = false;
+      return;
+    }
+
+    const params = new URLSearchParams(searchParams.toString());
+    const newFilters: Filters = {
+      authors: params.get("authors")?.split(",").filter(Boolean) || [],
+      categories: params.get("categories")?.split(",").filter(Boolean) || [],
+      genres: params.get("genres")?.split(",").filter(Boolean) || [],
+      topics: params.get("topics")?.split(",").filter(Boolean) || [],
+      sort: params.get("sort") || "",
+      query: params.get("query") || "",
+    };
+
+    // Usa la funzione memoizzata per controllare le differenze
+    if (areFiltersDifferent(newFilters)) {
+      isUpdatingFromURL.current = true;
+      setFilters(newFilters);
+    }
+  }, [searchParams, areFiltersDifferent]);
+
   const updatePartialFilter = (key: string, value: string | string[]) => {
     setFilters((prevFilters) => {
       const newValue = value ?? (Array.isArray(prevFilters[key]) ? [] : "");
@@ -109,16 +200,22 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({
     });
   };
 
-  // **Modifica 5**: Funzione per resettare i filtri senza rimuovere altri parametri
+  // Funzione specifica per aggiornare la query di ricerca
+  const updateSearchQuery = (query: string) => {
+    updatePartialFilter("query", query);
+  };
+
   const clearFilters = () => {
     setFilters({
       authors: [],
       categories: [],
       genres: [],
+      topics: [],
       sort: "",
+      query: "",
     });
 
-    const currentParams = new URLSearchParams(searchParams);
+    const currentParams = new URLSearchParams(searchParams.toString());
     filterKeys.forEach((key) => currentParams.delete(key));
 
     router.replace(`${pathname}?${currentParams.toString()}`, {
@@ -130,10 +227,11 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({
     <FilterContext.Provider
       value={{
         filters,
-        setFilters, // ✅ Aggiunto qui
+        setFilters,
         updateFilters,
         updatePartialFilter,
         clearFilters,
+        updateSearchQuery,
       }}
     >
       {children}

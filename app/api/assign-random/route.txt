@@ -1,0 +1,200 @@
+/*
+import mongoose from "mongoose";
+import { NextRequest, NextResponse } from "next/server";
+
+import Article from "@/database/Article";
+import Genre from "@/database/Genre";
+import Topic from "@/database/Topic";
+import dbConnect from "@/lib/mongoose";
+
+/**
+ * Assegna generi e topic casuali agli articoli
+ */
+export async function assignRandomReferences() {
+  console.log(
+    "🔄 Inizio assegnazione casuale di generi e topic agli articoli...",
+  );
+  await dbConnect();
+
+  try {
+    // Step 1: Recupera tutti i generi e topic
+    const genres = await Genre.find().lean();
+    const topics = await Topic.find().lean();
+
+    console.log(`📊 Trovati ${genres.length} generi e ${topics.length} topic`);
+
+    if (genres.length === 0 || topics.length === 0) {
+      return {
+        success: false,
+        message: "Generi o topic mancanti nel database.",
+      };
+    }
+
+    // Step 2: Recupera tutti gli articoli
+    const articles = await Article.find().lean();
+    console.log(`📊 Trovati ${articles.length} articoli da aggiornare`);
+
+    if (articles.length === 0) {
+      return {
+        success: false,
+        message: "Nessun articolo trovato nel database.",
+      };
+    }
+
+    // Step 3: Aggiorna ogni articolo con generi e topic casuali
+    let updatedCount = 0;
+
+    for (const article of articles) {
+      try {
+        // Seleziona 1-3 generi casuali
+        const randomGenres = getRandomItems(
+          genres,
+          Math.floor(Math.random() * 3) + 1,
+        );
+        const genreIds = randomGenres.map((genre) => genre._id);
+
+        // Seleziona 1-3 topic casuali
+        const randomTopics = getRandomItems(
+          topics,
+          Math.floor(Math.random() * 3) + 1,
+        );
+        const topicIds = randomTopics.map((topic) => topic._id);
+
+        // Aggiorna l'articolo
+        await Article.updateOne(
+          { _id: article._id },
+          {
+            $set: {
+              genres: genreIds,
+              topics: topicIds,
+            },
+          },
+        );
+
+        console.log(`✅ Articolo aggiornato: "${article.title}"`);
+        console.log(`   Generi: ${randomGenres.map((g) => g.name).join(", ")}`);
+        console.log(`   Topic: ${randomTopics.map((t) => t.name).join(", ")}`);
+
+        updatedCount++;
+      } catch (error) {
+        console.error(
+          `❌ Errore aggiornamento articolo ${article._id} (${article.title}):`,
+          error,
+        );
+      }
+    }
+
+    console.log(
+      `✅ Assegnazione completata: ${updatedCount}/${articles.length} articoli aggiornati`,
+    );
+
+    return {
+      success: true,
+      message: "Riferimenti casuali assegnati agli articoli",
+      details: {
+        totalArticles: articles.length,
+        updatedArticles: updatedCount,
+      },
+    };
+  } catch (error) {
+    console.error("❌ Errore durante l'assegnazione dei riferimenti:", error);
+    return {
+      success: false,
+      message: `Errore: ${error.message}`,
+    };
+  }
+}
+
+/**
+ * Seleziona elementi casuali da un array
+ */
+function getRandomItems(array, count) {
+  // Assicurati che il conteggio non superi la lunghezza dell'array
+  const safeCount = Math.min(count, array.length);
+
+  // Copia e mischia l'array
+  const shuffled = [...array].sort(() => 0.5 - Math.random());
+
+  // Restituisci i primi 'count' elementi
+  return shuffled.slice(0, safeCount);
+}
+
+/**
+ * GET - Recupera articoli con i loro riferimenti attuali
+ */
+export async function GET(req: NextRequest) {
+  console.log("🔍 Recupero articoli con i loro riferimenti...");
+
+  await dbConnect();
+
+  try {
+    const articles = await Article.find()
+      .populate("genres", "name")
+      .populate("topics", "name")
+      .select("title genres topics")
+      .lean();
+
+    return NextResponse.json(
+      {
+        message: "Articoli recuperati con successo",
+        totalArticles: articles.length,
+        articles: articles.map((article) => ({
+          _id: article._id,
+          title: article.title,
+          genres: article.genres
+            ? article.genres.map((g) => (typeof g === "string" ? g : g.name))
+            : [],
+          topics: article.topics
+            ? article.topics.map((t) => (typeof t === "string" ? t : t.name))
+            : [],
+        })),
+      },
+      { status: 200 },
+    );
+  } catch (error) {
+    console.error("❌ Errore nel recupero degli articoli:", error);
+    return NextResponse.json(
+      {
+        error: "Errore nel recupero degli articoli",
+      },
+      { status: 500 },
+    );
+  }
+}
+
+/**
+ * POST - Assegna generi e topic casuali agli articoli
+ */
+export async function POST(req: NextRequest) {
+  console.log("🔄 API /api/assign-random: Assegnazione riferimenti casuali...");
+
+  try {
+    const result = await assignRandomReferences();
+
+    if (result.success) {
+      return NextResponse.json(
+        {
+          message: result.message,
+          details: result.details,
+        },
+        { status: 200 },
+      );
+    } else {
+      return NextResponse.json(
+        {
+          error: result.message,
+        },
+        { status: 500 },
+      );
+    }
+  } catch (error: any) {
+    console.error("❌ Errore API:", error.message);
+    return NextResponse.json(
+      {
+        error: "Internal Server Error: " + error.message,
+      },
+      { status: 500 },
+    );
+  }
+}
+*/

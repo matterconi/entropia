@@ -54,7 +54,57 @@ const CategoriesPage = () => {
       <h1 className="mb-6 w-full font-title max-sm:text-[2.5rem] max-md:text-[3rem] md:text-6xl lg:text-7xl xl:text-7xl text-center flex justify-center items-center font-bold gap-4 max-lg:flex-col-reverse lg:mt-8">
         <span className="text-gradient animated-gradient py-2">Categorie</span>
       </h1>
-      <div className="mb-16" ref={containerRef}>
+      {/* Slider delle Categorie */}
+      <div className="w-full h-full relative max-w-5xl mx-auto overflow-hidden mt-16">
+        <div className="relative w-full">
+          {/* Contenitore Slider con Effetto Opaco */}
+          <div className="relative w-full">
+            {/* Pseudo-elementi per l'effetto dissolvenza */}
+            <div className="absolute inset-0 pointer-events-none z-10">
+              {/* Lato Sinistro */}
+              <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background to-transparent z-10" />
+              {/* Lato Destro */}
+              <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent z-10" />
+            </div>
+
+            {/* Slider */}
+            <Swiper
+              modules={[Navigation]}
+              spaceBetween={20}
+              slidesPerView="auto"
+              navigation
+              className="!overflow-visible"
+            >
+              {categories.map((category) => (
+                <SwiperSlide
+                  key={category.title}
+                  className="!w-[250px]" // Le slide si adattano dinamicamente
+                >
+                  <button
+                    className="flex flex-col items-center justify-center p-4 rounded-lg shadow-lg h-[150px] w-full"
+                    onClick={() => setCategory(category)}
+                  >
+                    <p className="mt-2 text-sm font-semibold z-30 bg-background p-2 rounded-lg">
+                      {category.title}
+                    </p>
+
+                    <Image
+                      src={`/assets/${category.title.toLowerCase()}.webp`}
+                      alt={category.title}
+                      fill
+                      className="rounded-lg object-cover"
+                      style={{
+                        objectPosition: `center ${offset}`, // Posizione dinamica
+                      }}
+                    />
+                  </button>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+        </div>
+      </div>
+      <div className="mt-16" ref={containerRef}>
         <div className="w-full h-full bg-background rounded-lg overflow-hidden">
           <div className="w-full h-full relative max-w-5xl mx-auto">
             {/* Title */}
@@ -167,61 +217,6 @@ const CategoriesPage = () => {
           {/* Button */}
         </div>
       </div>
-      {/* Slider delle Categorie */}
-      <div className="w-full h-full relative max-w-5xl mx-auto overflow-hidden">
-        <div className="relative w-full">
-          {/* Contenitore Slider con Effetto Opaco */}
-          <div className="relative w-full">
-            {/* Pseudo-elementi per l'effetto dissolvenza */}
-            <div className="absolute inset-0 pointer-events-none z-10">
-              {/* Lato Sinistro */}
-              <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background to-transparent z-10" />
-              {/* Lato Destro */}
-              <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent z-10" />
-            </div>
-
-            {/* Slider */}
-            <Swiper
-              modules={[Navigation]}
-              spaceBetween={20}
-              slidesPerView="auto"
-              navigation
-              className="!overflow-visible"
-            >
-              {categories.map((category) => (
-                <SwiperSlide
-                  key={category.title}
-                  className="!w-[250px]" // Le slide si adattano dinamicamente
-                >
-                  <button
-                    className="flex flex-col items-center justify-center p-4 rounded-lg shadow-lg h-[150px] w-full"
-                    onClick={() => setCategory(category)}
-                  >
-                    <p className="mt-2 text-sm font-semibold z-30 bg-background p-2 rounded-lg">
-                      {category.title}
-                    </p>
-
-                    <Image
-                      src={`/assets/${category.title.toLowerCase()}.webp`}
-                      alt={category.title}
-                      fill
-                      className="rounded-lg object-cover"
-                      style={{
-                        objectPosition: `center ${offset}`, // Posizione dinamica
-                      }}
-                    />
-                  </button>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          </div>
-        </div>
-      </div>
-      <h1 className="mt-8 mb-6 w-full font-title max-sm:text-[2.5rem] max-md:text-[3rem] md:text-6xl lg:text-7xl xl:text-7xl text-center flex justify-center items-center font-bold gap-4 max-lg:flex-col-reverse lg:mt-8">
-        <span className="text-gradient animated-gradient py-2">
-          {`Articoli in  ${categoriesState[1]?.title}`}{" "}
-        </span>
-      </h1>
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React from "react";
 
 import InfiniteMovingCards from "@/components/ui/infinite-moving-cards";
-import { genres, topic } from "@/data/data";
+import { genres, topics } from "@/data/data";
 
 const Generi = () => {
   return (
@@ -17,7 +17,7 @@ const Generi = () => {
         Topic
       </h1>
       <div className="mt-16 flex flex-col gap-4 items-center justify-center w-full ">
-        <InfiniteMovingCards items={topic} direction="left" speed="slow" />
+        <InfiniteMovingCards items={topics} direction="left" speed="slow" />
       </div>
     </div>
   );

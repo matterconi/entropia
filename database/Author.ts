@@ -1,26 +1,42 @@
 import mongoose, { Document, model, models, Schema } from "mongoose";
 
-export interface IAuthor extends Document {
-  user: mongoose.Types.ObjectId; // Link to User
-  bio?: string; // Short bio of the author
-  articles: mongoose.Types.ObjectId[]; // List of published articles
+interface CountItem {
+  id: mongoose.Types.ObjectId;
+  name: string;
+  count: number;
 }
 
-const AuthorSchema = new Schema<IAuthor>(
+export interface IGenre extends Document {
+  name: string;
+  totalArticles: number;
+  categoryCounts: CountItem[];
+  topicCounts: CountItem[];
+  authorCounts: CountItem[];
+}
+
+const CountItemSchema = new Schema(
   {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-      unique: true,
-    }, // Each author is linked to one user
-    bio: { type: String, default: "" },
-    articles: [{ type: mongoose.Schema.Types.ObjectId, ref: "Article" }], // List of published articles
+    id: { type: mongoose.Schema.Types.ObjectId, required: true },
+    name: { type: String, required: true },
+    count: { type: Number, default: 0 },
+  },
+  { _id: false },
+);
+
+const GenreSchema = new Schema<IGenre>(
+  {
+    name: { type: String, unique: true, required: true, index: true },
+    totalArticles: { type: Number, default: 0 },
+    categoryCounts: [CountItemSchema],
+    topicCounts: [CountItemSchema],
+    authorCounts: [CountItemSchema],
   },
   { timestamps: true },
 );
 
-// Index for fast author lookups
-AuthorSchema.index({ user: 1 });
+// Indici per ottimizzare le query sui conteggi
+GenreSchema.index({ "categoryCounts.id": 1 });
+GenreSchema.index({ "topicCounts.id": 1 });
+GenreSchema.index({ "authorCounts.id": 1 });
 
-export default models.Author || model<IAuthor>("Author", AuthorSchema);
+export default models.Genre || model<IGenre>("Genre", GenreSchema);

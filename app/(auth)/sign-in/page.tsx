@@ -1,19 +1,19 @@
 "use client";
 
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 
 import AuthForm from "@/components/auth/AuthForm";
+import { RainbowButton } from "@/components/ui/rainbow-button";
 import { ShinyButton } from "@/components/ui/shiny-button";
+import { useUser } from "@/context/UserContext"; // Assicurati di avere il percorso corretto
 import {
   ForgotPasswordSchema,
   ForgotPasswordSchemaType,
   SignInSchema,
 } from "@/validations/authSchema";
-import { useUser } from "@/context/UserContext"; // Assicurati di avere il percorso corretto
-import { RainbowButton } from "@/components/ui/rainbow-button";
-import Link from "next/link";
 
 export default function SignInPage() {
   const { user, loading } = useUser();
@@ -35,9 +35,7 @@ export default function SignInPage() {
         <h2 className="text-2xl font-bold">Sei già autenticato</h2>
         <p>Non puoi effettuare il login perché hai già un account attivo.</p>
         <Link href="/">
-          <RainbowButton className="w-fit !mt-8">
-            Vai alla Home
-          </RainbowButton>
+          <RainbowButton className="w-fit !mt-8">Vai alla Home</RainbowButton>
         </Link>
       </div>
     );

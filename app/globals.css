@@ -38,6 +38,8 @@
     --color-4: 195 100% 63%;
     --color-5: 90 100% 63%;
     --button-active-bg: #e2e8f0;
+    --shadow-strength: 0.05; /* Valore più basso per una shadow più leggera */
+    --shadow-color: hsl(var(--foreground) / var(--shadow-strength));
   }
 
   .dark {
@@ -72,6 +74,8 @@
     --color-4: 195 100% 63%;
     --color-5: 90 100% 63%;
     --button-active-bg: #4a5568;
+    --shadow-strength: 0.15; /* Valore più basso per una shadow più leggera */
+    --shadow-color: hsl(var(--foreground) / var(--shadow-strength));
   }
 }
 

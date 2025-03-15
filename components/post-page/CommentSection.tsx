@@ -1,27 +1,27 @@
 "use client";
 
-import React, { useEffect, useId, useState } from "react";
-import { useUser } from "@/context/UserContext";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
+import { PopoverClose } from "@radix-ui/react-popover"; // Importa il componente di chiusura
 import DOMPurify from "dompurify";
-import TipTap from "@/components/editor/TipTap";
-import { IoPaperPlane, IoClose } from "react-icons/io5";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import React, { useEffect, useId, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { BsThreeDots } from "react-icons/bs";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { IoClose, IoPaperPlane } from "react-icons/io5";
+import { z } from "zod";
+
+import TipTap from "@/components/editor/TipTap";
 import {
   Popover,
-  PopoverTrigger,
   PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover"; // Usa il componente Popover che hai già definito
-import { PopoverClose } from "@radix-ui/react-popover"; // Importa il componente di chiusura
+import { useUser } from "@/context/UserContext";
+import useAuthModal from "@/hooks/useAuthModal";
+import { User } from "@/types";
+
 import RemoveCommentModal from "./RemoveCommentModal";
 import UserNotVerifiedModal from "./UserNotVerifiedModal";
-import useAuthModal from "@/hooks/useAuthModal";
-
-
-import { User } from "@/types";
 
 const commentSchema = z.object({
   comment: z
@@ -54,9 +54,15 @@ const CommentSection = ({ id }: CommentSectionProps) => {
   const [editContent, setEditContent] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [loadingComments, setLoadingComments] = useState<boolean>(true);
-  
+
   // Utilizza il hook per il modale di autenticazione
-  const { isModalOpen, closeModal, checkUserCanPerformAction, isUserLoggedIn, user: modalUser } = useAuthModal();
+  const {
+    isModalOpen,
+    closeModal,
+    checkUserCanPerformAction,
+    isUserLoggedIn,
+    user: modalUser,
+  } = useAuthModal();
 
   const {
     handleSubmit,
@@ -75,31 +81,33 @@ const CommentSection = ({ id }: CommentSectionProps) => {
   }, [commentValue]);
 
   // Funzione per recuperare i commenti (pag 5 per query)
-  const fetchComments = async (skip = 0, limit = 5) => {
-    setLoadingComments(true);
-    try {
-      let url = `/api/comments?post=${id}&skip=${skip}&limit=${limit}`;
-      if (user) {
-        url += `&user=${user.id}`;
+  const fetchComments = React.useCallback(
+    async (skip = 0, limit = 5) => {
+      setLoadingComments(true);
+      try {
+        let url = `/api/comments?post=${id}&skip=${skip}&limit=${limit}`;
+        if (user) {
+          url += `&user=${user.id}`;
+        }
+        const res = await fetch(url);
+        const data = await res.json();
+        if (res.ok) {
+          setComments(data.comments);
+        } else {
+          console.error("Errore nel recupero dei commenti:", data.error);
+        }
+      } catch (err) {
+        console.error("Errore nella richiesta dei commenti:", err);
+      } finally {
+        setLoadingComments(false);
       }
-      const res = await fetch(url);
-      const data = await res.json();
-      if (res.ok) {
-        setComments(data.comments);
-      } else {
-        console.error("Errore nel recupero dei commenti:", data.error);
-      }
-    } catch (err) {
-      console.error("Errore nella richiesta dei commenti:", err);
-    } finally {
-      setLoadingComments(false);
-    }
-  };
-  
+    },
+    [id, user],
+  );
 
   useEffect(() => {
     fetchComments();
-  }, [id, user]);
+  }, [fetchComments]);
 
   // Aggiungi un nuovo commento tramite la route POST
   const handleAddComment = async (data: CommentSchema) => {
@@ -107,7 +115,7 @@ const CommentSection = ({ id }: CommentSectionProps) => {
     if (!checkUserCanPerformAction()) {
       return;
     }
-    
+
     try {
       const res = await fetch("/api/comments", {
         method: "POST",
@@ -194,46 +202,46 @@ const CommentSection = ({ id }: CommentSectionProps) => {
       <div className="mt-8">
         {/* Visualizza un loading state se i commenti sono in fase di caricamento */}
         <h4 className="text-md font-semibold mb-2 text-gradient">
-        Aggiungi un commento
-      </h4>
-      <form className="relative" onSubmit={handleSubmit(handleAddComment)}>
-        <div className="h-full w-full border-gradient p-[1px] rounded-lg">
-          <div className="h-full w-full bg-background rounded-lg">
-            <Controller
-              name="comment"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <TipTap
-                  value={field.value}
-                  onChange={field.onChange}
-                  isClear={isClear} 
-                  defaultValue={undefined}  
-                  editorType="editor"     
-               />
-              )}
-            />
+          Aggiungi un commento
+        </h4>
+        <form className="relative" onSubmit={handleSubmit(handleAddComment)}>
+          <div className="h-full w-full border-gradient p-[1px] rounded-lg">
+            <div className="h-full w-full bg-background rounded-lg">
+              <Controller
+                name="comment"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TipTap
+                    value={field.value}
+                    onChange={field.onChange}
+                    isClear={isClear}
+                    defaultValue={undefined}
+                    editorType="editor"
+                  />
+                )}
+              />
+            </div>
           </div>
-        </div>
-        <div className="absolute right-4 bottom-4 rounded-full w-8 h-8 border-gradient animated-gradient flex items-center justify-center">
-          <button
-            type="submit"
-            className="flex items-center justify-center w-full h-full rounded-full"
-          >
-            <IoPaperPlane className="h-5 w-5 cursor-pointer text-foreground" />
-          </button>
-        </div>
-      </form>
-      {errors.comment && (
-        <p className="text-sm text-red-500 mt-1 pb-4">
-          {errors.comment.message}
-        </p>
-      )}
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin h-8 w-8 border-4 border-t-transparent border-blue-500 rounded-full"></div>
+          <div className="absolute right-4 bottom-4 rounded-full w-8 h-8 border-gradient animated-gradient flex items-center justify-center">
+            <button
+              type="submit"
+              className="flex items-center justify-center w-full h-full rounded-full"
+            >
+              <IoPaperPlane className="h-5 w-5 cursor-pointer text-foreground" />
+            </button>
           </div>
+        </form>
+        {errors.comment && (
+          <p className="text-sm text-red-500 mt-1 pb-4">
+            {errors.comment.message}
+          </p>
+        )}
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin h-8 w-8 border-4 border-t-transparent border-blue-500 rounded-full"></div>
+        </div>
       </div>
-        )
+    );
   }
 
   return (
@@ -261,9 +269,9 @@ const CommentSection = ({ id }: CommentSectionProps) => {
                 <TipTap
                   value={field.value}
                   onChange={field.onChange}
-                  isClear={isClear} 
-                  defaultValue={undefined} 
-                  editorType="editor"               
+                  isClear={isClear}
+                  defaultValue={undefined}
+                  editorType="editor"
                 />
               )}
             />
@@ -303,45 +311,46 @@ const CommentSection = ({ id }: CommentSectionProps) => {
               <div className="flex items-center gap-2">
                 {editingCommentId !== comment._id && (
                   <>
-                  <div className="h-6 w-6 bg-green-600 rounded-full text-foreground flex items-center justify-center">
-                  {comment.user.username[0].toUpperCase()}
-                </div>
-                <strong>{comment.user.username}</strong>
-                <p className="text-xs py-1 self-end">
-                  {new Date(comment.createdAt).toLocaleString()}
-                </p>
-                {comment.isOwner && (
-                  <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="ml-2 text-gray-500 hover:text-gray-700 transition-colors">
-                      <BsThreeDots className="h-5 w-5" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-fit">
-                    <div className="flex flex-col space-y-1 bg-gray-100 dark:bg-slate-800 rounded-lg px-4 py-2">
-                      <PopoverClose asChild>
-                        <button
-                          onClick={() => {
-                            setEditingCommentId(comment._id);
-                            setEditContent(comment.content);
-                          }}
-                          className="text-sm font-semibold text-left text-foreground px-2 py-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
-                        >
-                          Modifica
-                        </button>
-                      </PopoverClose>
-                      <PopoverClose asChild>
-                        <button
-                          onClick={() => setIsOpen(true)}
-                          className="text-sm font-semibold text-left text-foreground px-2 py-1 rounded hover:bg-red-100 dark:hover:bg-red-900 transition-colors"
-                        >
-                          Cancella
-                        </button>
-                      </PopoverClose>
+                    <div className="h-6 w-6 bg-green-600 rounded-full text-foreground flex items-center justify-center">
+                      {comment.user.username[0].toUpperCase()}
                     </div>
-                  </PopoverContent>
-                </Popover>
-                )}</>
+                    <strong>{comment.user.username}</strong>
+                    <p className="text-xs py-1 self-end">
+                      {new Date(comment.createdAt).toLocaleString()}
+                    </p>
+                    {comment.isOwner && (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="ml-2 text-gray-500 hover:text-gray-700 transition-colors">
+                            <BsThreeDots className="h-5 w-5" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-fit">
+                          <div className="flex flex-col space-y-1 bg-gray-100 dark:bg-slate-800 rounded-lg px-4 py-2">
+                            <PopoverClose asChild>
+                              <button
+                                onClick={() => {
+                                  setEditingCommentId(comment._id);
+                                  setEditContent(comment.content);
+                                }}
+                                className="text-sm font-semibold text-left text-foreground px-2 py-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
+                              >
+                                Modifica
+                              </button>
+                            </PopoverClose>
+                            <PopoverClose asChild>
+                              <button
+                                onClick={() => setIsOpen(true)}
+                                className="text-sm font-semibold text-left text-foreground px-2 py-1 rounded hover:bg-red-100 dark:hover:bg-red-900 transition-colors"
+                              >
+                                Cancella
+                              </button>
+                            </PopoverClose>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                  </>
                 )}
                 {/* Mostra il menu popup se l'utente è il proprietario */}
                 {isOpen && (
@@ -357,53 +366,53 @@ const CommentSection = ({ id }: CommentSectionProps) => {
               </div>
               {editingCommentId === comment._id ? (
                 <>
-                <h4 className="text-md font-semibold mb-2 text-gradient">
-                Modifica
-              </h4>
-                <form
-                  className="relative "
-                  onSubmit={handleSubmit((data) =>
-                    handleEditComment(comment._id, data.comment)
-                  )}
-                >
-                  {/* Bottone per annullare la modifica */}
-                  <div
-                    className="absolute top-2 right-2 cursor-pointer"
-                    onClick={() => {
-                      setEditingCommentId(null);
-                      setEditContent("");
-                      reset();
-                    }}
+                  <h4 className="text-md font-semibold mb-2 text-gradient">
+                    Modifica
+                  </h4>
+                  <form
+                    className="relative "
+                    onSubmit={handleSubmit((data) =>
+                      handleEditComment(comment._id, data.comment),
+                    )}
                   >
-                    <IoClose className="h-5 w-5 text-red-500" />
-                  </div>
-                  <div className="w-full border-gradient p-[1px] rounded-lg">
-                    <div className="w-full bg-background rounded-lg">
-                      <Controller
-                        name="comment"
-                        control={control}
-                        defaultValue={comment.content}
-                        render={({ field }) => (
-                          <TipTap
-                            value={field.value}
-                            onChange={field.onChange}
-                            isClear={isClear}
-                            defaultValue={comment.content}
-                            editorType="comment"
-                          />
-                        )}
-                      />
-                    </div>
-                  </div>
-                  <div className="absolute right-4 bottom-4 rounded-full w-8 h-8 border-gradient animated-gradient flex items-center justify-center">
-                    <button
-                      type="submit"
-                      className="flex items-center justify-center w-full h-full rounded-full"
+                    {/* Bottone per annullare la modifica */}
+                    <div
+                      className="absolute top-2 right-2 cursor-pointer"
+                      onClick={() => {
+                        setEditingCommentId(null);
+                        setEditContent("");
+                        reset();
+                      }}
                     >
-                      <IoPaperPlane className="h-5 w-5 cursor-pointer text-foreground" />
-                    </button>
-                  </div>
-                </form>
+                      <IoClose className="h-5 w-5 text-red-500" />
+                    </div>
+                    <div className="w-full border-gradient p-[1px] rounded-lg">
+                      <div className="w-full bg-background rounded-lg">
+                        <Controller
+                          name="comment"
+                          control={control}
+                          defaultValue={comment.content}
+                          render={({ field }) => (
+                            <TipTap
+                              value={field.value}
+                              onChange={field.onChange}
+                              isClear={isClear}
+                              defaultValue={comment.content}
+                              editorType="comment"
+                            />
+                          )}
+                        />
+                      </div>
+                    </div>
+                    <div className="absolute right-4 bottom-4 rounded-full w-8 h-8 border-gradient animated-gradient flex items-center justify-center">
+                      <button
+                        type="submit"
+                        className="flex items-center justify-center w-full h-full rounded-full"
+                      >
+                        <IoPaperPlane className="h-5 w-5 cursor-pointer text-foreground" />
+                      </button>
+                    </div>
+                  </form>
                 </>
               ) : (
                 <div className="ml-8">
@@ -441,7 +450,10 @@ const CommentSection = ({ id }: CommentSectionProps) => {
             <p className="text-gradient">
               {showAll ? "Mostra meno" : "Mostra tutti i commenti"}
             </p>
-            <div className="cursor-pointer" onClick={() => setShowAll(!showAll)}>
+            <div
+              className="cursor-pointer"
+              onClick={() => setShowAll(!showAll)}
+            >
               {showAll ? (
                 <FaChevronUp className="h-5 w-5" />
               ) : (

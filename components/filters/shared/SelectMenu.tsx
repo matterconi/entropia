@@ -49,7 +49,7 @@ const SelectMenu: React.FC<SelectMenuProps> = ({
       : options;
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full min-w-[250px]">
       <Popover onOpenChange={(open) => setIsOpen(open)}>
         {/* Trigger del Popover */}
         <PopoverTrigger asChild>
@@ -155,7 +155,9 @@ const SelectMenu: React.FC<SelectMenuProps> = ({
                         checked={selectedOptions.includes(option.value)}
                         onCheckedChange={() => handleToggle(option.value)}
                       />
-                      <span className="text-sm">{option.label}</span>
+                      <span className="text-sm truncate block w-full">
+                        {option.label}
+                      </span>
                     </label>
                   ))
                 ) : (

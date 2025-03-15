@@ -110,7 +110,7 @@ export const genres: MenuItem[] = [
 ];
 
 // Define topics (argomenti)
-export const topic: MenuItem[] = [
+export const topics = [
   {
     title: "Filosofia",
     description:
@@ -157,7 +157,7 @@ export const topic: MenuItem[] = [
     title: "Società",
     description:
       "Approfondimenti su cultura, evoluzioni sociali e temi d'attualità. La letteratura come mezzo per comprendere il mondo.",
-    href: "/topic/societa",
+    href: "/topic/società",
   },
   {
     title: "Storia",
@@ -175,7 +175,7 @@ export const topic: MenuItem[] = [
     title: "Spiritualità",
     description:
       "Riflessioni sul senso della vita, la trascendenza e il rapporto tra uomo e universo. Una prospettiva tra il mistico e il personale.",
-    href: "/topic/spiritualita",
+    href: "/topic/spiritualità",
   },
   {
     title: "Letteratura",

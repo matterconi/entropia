@@ -1,7 +1,6 @@
 import React from "react";
 
 import SocialShareBar from "./SocialShareBar";
-import Contacts from "../sections/Contacts";
 
 interface MiniFooterProps {
   title: string;
@@ -21,7 +20,11 @@ const MiniFooter = ({ title, author, authorBio }: MiniFooterProps) => {
         </div>
         <h1 className="text-lg">{"Matteo Marconi"}</h1>
       </div>
-      <p className="mt-4">{"Matteo è esperto nel perdere occasioni e guardare altri fare ciò che vorrebbe fare, isolarsi e staccarsi dal mondo, come una cozza al contrario"}</p>
+      <p className="mt-4">
+        {
+          "Matteo è esperto nel perdere occasioni e guardare altri fare ciò che vorrebbe fare, isolarsi e staccarsi dal mondo, come una cozza al contrario"
+        }
+      </p>
       <div className="my-8">
         <SocialShareBar />
       </div>

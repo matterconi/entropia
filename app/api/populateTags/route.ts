@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { categories, genres, topic } from "@/data/data";
+import { categories, genres, topics } from "@/data/data";
 import Category from "@/database/Category";
 import Genre from "@/database/Genre";
 import Topic from "@/database/Topic";
@@ -29,7 +29,7 @@ export async function GET() {
     }
 
     // Popola i topics
-    for (const { title } of topic) {
+    for (const { title } of topics) {
       const existing = await Topic.findOne({ name: title }); // ✅ Cerca per `name`
       if (!existing) {
         await Topic.create({ name: title }); // ✅ Salva con `name`
