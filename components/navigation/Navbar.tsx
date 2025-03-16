@@ -36,7 +36,7 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`relative top-0 flex h-[105px] items-center justify-between z-50 ${
+        className={`relative top-0 flex h-[95px] md:h-[105px] items-center justify-between z-50 ${
           isMenuOpen
             ? ""
             : "pt-8 pb-6 mx-4 md:mx-8 lg:mx-6 space-x-8 lg:space-x-4 xl:space-x-8"

@@ -33,12 +33,9 @@ const page = async () => {
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="mx-12 relative w-screen bg-background ">
-        <h1 className="mt-4 md:mt-8 mb-4 md:mb-12 lg:mb-8 w-full font-title max-sm:text-[2.5rem] max-md:text-[3rem] md:text-6xl lg:text-7xl xl:text-7xl text-center flex justify-center items-center font-bold gap-4 max-lg:flex-col-reverse lg:mt-8">
-          <span className="max-md:hidden text-gradient animated-gradient">
+        <h1 className="max-md:hidden md:mt-8 md:mb-12 lg:mb-8 w-full font-title text-6xl lg:text-7xl xl:text-7xl text-center flex justify-center items-center font-bold gap-4 lg:mt-8">
+          <span className="text-gradient animated-gradient">
             Novità da Versia
-          </span>
-          <span className="md:hidden text-gradient animated-gradient">
-            Novità
           </span>
         </h1>
 
