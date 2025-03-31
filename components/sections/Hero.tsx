@@ -1,8 +1,12 @@
 import Image from "next/image";
 import React from "react";
 
+import CollectionsMovingCards from "@/components/collections/CollectionsMovingCards";
 import FeaturedPostSlider from "@/components/featured-post/FeaturedPostSlider";
 import InfiniteMovingCardsWithImage from "@/components/ui/infinite-moving-cards-with-image";
+
+import PercosiDesk from "./PercorsiDesk";
+import PercorsiMobile from "./PercorsiMobile";
 
 const fetchPosts = async () => {
   try {
@@ -21,7 +25,7 @@ const fetchPosts = async () => {
 
 const page = async () => {
   const posts = await fetchPosts();
-  console.log(posts);
+  console.log("post:", posts);
 
   if (!posts) {
     return (
@@ -33,12 +37,6 @@ const page = async () => {
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="mx-12 relative w-screen bg-background ">
-        <h1 className="max-md:hidden md:mt-8 md:mb-12 lg:mb-8 w-full font-title text-6xl lg:text-7xl xl:text-7xl text-center flex justify-center items-center font-bold gap-4 lg:mt-8">
-          <span className="text-gradient animated-gradient">
-            Novità da Versia
-          </span>
-        </h1>
-
         <div className="xl:flex w-full items-end">
           <FeaturedPostSlider posts={posts} isNew />
         </div>
@@ -47,9 +45,19 @@ const page = async () => {
         Top Picks
       </h1>
       <div className="mt-8 max-md:mt-4">
-        <InfiniteMovingCardsWithImage posts={posts} />
+        <InfiniteMovingCardsWithImage posts={posts} speed={"slow"} />
       </div>
-      <div className="w-full  px-12 max-md:px-6 mt-8"></div>
+      <h1 className="max-sm:text-[2.5rem] max-md:text-[3rem] md:text-6xl lg:text-7xl xl:text-7xl max-md:mt-8 mt-12 font-title text-gradient font-bold px-10 text-center sm:px-4">
+        I nostri Percorsi
+      </h1>
+      <div className="mt-8 max-md:mt-4">
+        <div className="lg:hidden">
+          <PercorsiMobile />
+        </div>
+        <div className="hidden lg:block">
+          <PercosiDesk />
+        </div>
+      </div>
     </div>
   );
 };

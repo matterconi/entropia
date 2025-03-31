@@ -16,7 +16,7 @@ export async function GET() {
     for (const { title } of genres) {
       const existing = await Genre.findOne({ name: title }); // ✅ Cerca per `name`
       if (!existing) {
-        await Genre.create({ name: title }); // ✅ Salva con `name`
+        await Genre.create({ name: title.toLowerCase() }); // ✅ Salva con `name`
       }
     }
 
@@ -24,7 +24,7 @@ export async function GET() {
     for (const { title } of categories) {
       const existing = await Category.findOne({ name: title }); // ✅ Cerca per `name`
       if (!existing) {
-        await Category.create({ name: title }); // ✅ Salva con `name`
+        await Category.create({ name: title.toLowerCase() }); // ✅ Salva con `name`
       }
     }
 
@@ -32,7 +32,7 @@ export async function GET() {
     for (const { title } of topics) {
       const existing = await Topic.findOne({ name: title }); // ✅ Cerca per `name`
       if (!existing) {
-        await Topic.create({ name: title }); // ✅ Salva con `name`
+        await Topic.create({ name: title.toLowerCase() }); // ✅ Salva con `name`
       }
     }
 

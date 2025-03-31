@@ -7,9 +7,12 @@ import Topic from "@/database/Topic";
 import dbConnect from "@/lib/mongoose";
 
 /**
- * Funzione avanzata per ricalcolare i contatori con mappatura corretta dei nomi
+ * Funzione unificata per ricalcolare i contatori con mappatura corretta dei nomi
+ * Questa versione supporta:
+ * - Categorie come array di ID semplici
+ * - Generi e topic come array di oggetti complessi con id e relevance
  */
-export async function recalculateCountersWithNames() {
+export async function recalculateCounters() {
   console.log("🔄 [DEBUG] Inizio ricalcolo contatori con mappatura nomi...");
 
   try {
@@ -162,43 +165,28 @@ async function resetAllCounters() {
  */
 async function loadAllEntityNames() {
   const nameRegistry = {
-    categories: new Map<string, string>(),
-    genres: new Map<string, string>(),
-    topics: new Map<string, string>(),
+    categories: new Map(),
+    genres: new Map(),
+    topics: new Map(),
   };
 
   try {
     // Carica nomi categorie
     const categories = await Category.find().select("_id name").lean();
     categories.forEach((cat) =>
-      nameRegistry.categories.set(
-        (
-          cat as unknown as { _id: mongoose.Types.ObjectId; name: string }
-        )._id.toString(),
-        (cat as unknown as { name: string }).name,
-      ),
+      nameRegistry.categories.set(cat._id.toString(), cat.name),
     );
 
     // Carica nomi generi
     const genres = await Genre.find().select("_id name").lean();
     genres.forEach((genre) =>
-      nameRegistry.genres.set(
-        (
-          genre as unknown as { _id: mongoose.Types.ObjectId; name: string }
-        )._id.toString(),
-        (genre as unknown as { name: string }).name,
-      ),
+      nameRegistry.genres.set(genre._id.toString(), genre.name),
     );
 
     // Carica nomi topic
     const topics = await Topic.find().select("_id name").lean();
     topics.forEach((topic) =>
-      nameRegistry.topics.set(
-        (
-          topic as unknown as { _id: mongoose.Types.ObjectId; name: string }
-        )._id.toString(),
-        (topic as unknown as { name: string }).name,
-      ),
+      nameRegistry.topics.set(topic._id.toString(), topic.name),
     );
 
     console.log(
@@ -213,11 +201,11 @@ async function loadAllEntityNames() {
 
 /**
  * Calcola i contatori per tutte le entità
+ * Versione unificata che gestisce:
+ * - Categorie come array semplice di ID
+ * - Generi e topic come array di oggetti con id e relevance
  */
-function calculateCounters(
-  articles: (mongoose.FlattenMaps<any> &
-    Required<{ _id: unknown }> & { __v: number })[],
-) {
+function calculateCounters(articles) {
   const counters = {
     categories: new Map(),
     genres: new Map(),
@@ -228,43 +216,74 @@ function calculateCounters(
 
   // Per ogni articolo
   for (const article of articles) {
-    // Estrai ID assicurandoci che siano array validi
-    const categoryIds = ensureValidArray(article.categories);
-    const genreIds = ensureValidArray(article.genres);
-    const topicIds = ensureValidArray(article.topics);
+    // Log compatto per non sovraccaricare la console
+    console.log(`DEBUG: Articolo: ${article.title || article._id}`);
+
+    // Per le categorie, mantieni la logica più semplice poiché non hanno relevance
+    const categoryIds = ensureValidArray(article.categories).map((cat) =>
+      cat.toString(),
+    );
+
+    // Estrai ID dai generi (che potrebbero essere oggetti complessi con id e relevance)
+    const genreIds = ensureValidArray(article.genres).map((genre) => {
+      // Per debugging solo il primo genere di ogni articolo
+      if (article.genres.indexOf(genre) === 0) {
+        console.log("Debug primo genere:", JSON.stringify(genre));
+      }
+
+      if (typeof genre === "object" && genre !== null) {
+        if ("id" in genre) return genre.id.toString();
+        // Se non c'è id, prova con _id
+        if ("_id" in genre && genre._id) return genre._id.toString();
+      }
+      // Fallback per generi che sono stringhe o ObjectId
+      return genre.toString();
+    });
+
+    // Estrai ID dai topic (che potrebbero essere oggetti complessi con id e relevance)
+    const topicIds = ensureValidArray(article.topics).map((topic) => {
+      // Per debugging solo il primo topic di ogni articolo
+      if (article.topics.indexOf(topic) === 0) {
+        console.log("Debug primo topic:", JSON.stringify(topic));
+      }
+
+      if (typeof topic === "object" && topic !== null) {
+        if ("id" in topic) return topic.id.toString();
+        // Se non c'è id, prova con _id
+        if ("_id" in topic && topic._id) return topic._id.toString();
+      }
+      // Fallback per topic che sono stringhe o ObjectId
+      return topic.toString();
+    });
 
     // Per ogni categoria in questo articolo
     for (const categoryId of categoryIds) {
-      const categoryIdStr = categoryId.toString();
-
       // Inizializza il contatore se non esiste
-      if (!counters.categories.has(categoryIdStr)) {
-        counters.categories.set(categoryIdStr, {
+      if (!counters.categories.has(categoryId)) {
+        counters.categories.set(categoryId, {
           totalArticles: 0,
           genres: new Map(),
           topics: new Map(),
         });
       }
 
-      const categoryCounter = counters.categories.get(categoryIdStr);
+      const categoryCounter = counters.categories.get(categoryId);
       categoryCounter.totalArticles++;
 
       // Conta generi associati a questa categoria
       for (const genreId of genreIds) {
-        const genreIdStr = genreId.toString();
         categoryCounter.genres.set(
-          genreIdStr,
-          (categoryCounter.genres.get(genreIdStr) || 0) + 1,
+          genreId,
+          (categoryCounter.genres.get(genreId) || 0) + 1,
         );
         processedRelations++;
       }
 
       // Conta topic associati a questa categoria
       for (const topicId of topicIds) {
-        const topicIdStr = topicId.toString();
         categoryCounter.topics.set(
-          topicIdStr,
-          (categoryCounter.topics.get(topicIdStr) || 0) + 1,
+          topicId,
+          (categoryCounter.topics.get(topicId) || 0) + 1,
         );
         processedRelations++;
       }
@@ -272,36 +291,32 @@ function calculateCounters(
 
     // Per ogni genere in questo articolo
     for (const genreId of genreIds) {
-      const genreIdStr = genreId.toString();
-
       // Inizializza il contatore se non esiste
-      if (!counters.genres.has(genreIdStr)) {
-        counters.genres.set(genreIdStr, {
+      if (!counters.genres.has(genreId)) {
+        counters.genres.set(genreId, {
           totalArticles: 0,
           categories: new Map(),
           topics: new Map(),
         });
       }
 
-      const genreCounter = counters.genres.get(genreIdStr);
+      const genreCounter = counters.genres.get(genreId);
       genreCounter.totalArticles++;
 
       // Conta categorie associate a questo genere
       for (const categoryId of categoryIds) {
-        const categoryIdStr = categoryId.toString();
         genreCounter.categories.set(
-          categoryIdStr,
-          (genreCounter.categories.get(categoryIdStr) || 0) + 1,
+          categoryId,
+          (genreCounter.categories.get(categoryId) || 0) + 1,
         );
         processedRelations++;
       }
 
       // Conta topic associati a questo genere
       for (const topicId of topicIds) {
-        const topicIdStr = topicId.toString();
         genreCounter.topics.set(
-          topicIdStr,
-          (genreCounter.topics.get(topicIdStr) || 0) + 1,
+          topicId,
+          (genreCounter.topics.get(topicId) || 0) + 1,
         );
         processedRelations++;
       }
@@ -309,36 +324,32 @@ function calculateCounters(
 
     // Per ogni topic in questo articolo
     for (const topicId of topicIds) {
-      const topicIdStr = topicId.toString();
-
       // Inizializza il contatore se non esiste
-      if (!counters.topics.has(topicIdStr)) {
-        counters.topics.set(topicIdStr, {
+      if (!counters.topics.has(topicId)) {
+        counters.topics.set(topicId, {
           totalArticles: 0,
           categories: new Map(),
           genres: new Map(),
         });
       }
 
-      const topicCounter = counters.topics.get(topicIdStr);
+      const topicCounter = counters.topics.get(topicId);
       topicCounter.totalArticles++;
 
       // Conta categorie associate a questo topic
       for (const categoryId of categoryIds) {
-        const categoryIdStr = categoryId.toString();
         topicCounter.categories.set(
-          categoryIdStr,
-          (topicCounter.categories.get(categoryIdStr) || 0) + 1,
+          categoryId,
+          (topicCounter.categories.get(categoryId) || 0) + 1,
         );
         processedRelations++;
       }
 
       // Conta generi associati a questo topic
       for (const genreId of genreIds) {
-        const genreIdStr = genreId.toString();
         topicCounter.genres.set(
-          genreIdStr,
-          (topicCounter.genres.get(genreIdStr) || 0) + 1,
+          genreId,
+          (topicCounter.genres.get(genreId) || 0) + 1,
         );
         processedRelations++;
       }
@@ -354,7 +365,7 @@ function calculateCounters(
 /**
  * Assicura che l'input sia un array valido
  */
-function ensureValidArray(input: any) {
+function ensureValidArray(input) {
   if (!input) return [];
   if (!Array.isArray(input)) return [input];
   return input;
@@ -363,19 +374,23 @@ function ensureValidArray(input: any) {
 /**
  * Aggiorna il database con i contatori calcolati utilizzando nomi corretti
  */
-async function updateDatabaseWithNames(
-  counters: { categories: any; genres: any; topics: any },
-  nameRegistry: { categories: any; genres: any; topics: any },
-) {
+async function updateDatabaseWithNames(counters, nameRegistry) {
   let categoryUpdates = 0;
   let genreUpdates = 0;
   let topicUpdates = 0;
 
   // Funzione per convertire una mappa di conteggi in un array di CountItem
-  function mapToCountItems(
-    map: any[],
-    namesMap: { get: (arg0: any) => string },
-  ) {
+  function mapToCountItems(map, namesMap) {
+    // Debug limitato per non sovraccaricare la console
+    if (map.size > 0 && Math.random() < 0.1) {
+      // Solo 10% delle mappe
+      console.log(`DEBUG mapToCountItems, entries: ${map.size}`);
+      const firstEntry = Array.from(map.entries())[0];
+      console.log(
+        `DEBUG first entry: key=${firstEntry[0]}, value=${firstEntry[1]}`,
+      );
+    }
+
     return Array.from(map.entries())
       .filter(([id, count]) => count > 0)
       .map(([id, count]) => {
@@ -504,4 +519,4 @@ async function updateDatabaseWithNames(
   };
 }
 
-export default recalculateCountersWithNames;
+export default recalculateCounters;

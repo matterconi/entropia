@@ -59,11 +59,14 @@ const Cards = ({
         if (speed === "fast") {
           containerRef.current.style.setProperty("--animation-duration", "20s");
         } else if (speed === "normal") {
-          containerRef.current.style.setProperty("--animation-duration", "40s");
+          containerRef.current.style.setProperty(
+            "--animation-duration",
+            "100s",
+          );
         } else {
           containerRef.current.style.setProperty(
             "--animation-duration",
-            "1000s",
+            "800s",
           );
         }
       }

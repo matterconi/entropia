@@ -9,7 +9,7 @@ import { CategoryKeys, GenreKeys, Post, TopicKeys } from "@/types";
 // Componente per la griglia di articoli con caricamento incrementale
 const ArticlesGrid = ({
   initialPosts,
-  type,
+  type?,
   baseUrl,
   queryString,
 }: {

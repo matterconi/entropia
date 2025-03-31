@@ -199,7 +199,7 @@ export default function AuthForm<T extends FieldValues>({
             <p className="text-foreground text-sm mb-6 max-w-[400px] mx-auto">
               Questa email è già associata a un account Google. Se vuoi, puoi
               procedere con la registrazione manuale e associare i due account.
-              O continuare l&apos;autenticazione con Google
+              O continuare l'autenticazione con Google
             </p>
             {children}
             <form

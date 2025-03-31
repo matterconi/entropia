@@ -2,154 +2,45 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState } from "react";
-import { useDropzone } from "react-dropzone";
 import { FormProvider, useForm } from "react-hook-form";
-import { FaFileAlt, FaImage } from "react-icons/fa";
-import * as z from "zod";
+import { z } from "zod";
 
+import NonAuthorScreen from "@/components/feedback-screens/NonAuthorScreen";
+import UserNotFoundScreen from "@/components/feedback-screens/UserNotFoundScreen";
 import FormTags from "@/components/forms/FormTags";
+import ImageUpload from "@/components/forms/ImageUpload";
+import MarkdownUpload from "@/components/forms/MarkdownUpload";
+import SerieSelector from "@/components/forms/SerieSelector";
+// Importo i componenti modulari
 import { Input } from "@/components/ui/input";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { useUser } from "@/context/UserContext";
+// Importo le funzioni di upload
+import {
+  submitFormData,
+  uploadImageToCloudinary,
+  uploadMarkdownToSupabase,
+} from "@/lib/upload/uploadHelpers";
+// Importo gli schemi di validazione
+import {
+  getDefaultValues,
+  getSchema,
+} from "@/schemas/articleUploadValidationSchema";
 
-import NonAuthorScreen from "../feedback-screens/NonAuthorScreen";
-import UserNotFoundScreen from "../feedback-screens/UserNotFoundScreen";
-
-// ✅ Zod validation schema
-const articleSchema = z.object({
-  title: z.string().min(5, "Title must be at least 5 characters long"),
-  markdownPath: z.string().min(1, "Markdown file is required"), // Percorso su Supabase
-  coverImage: z.string().url("Invalid image URL"),
-  category: z.string(), // ✅ Default category
-  genres: z.array(z.string()),
-  topics: z.array(z.string()),
-});
-
-type ArticleFormData = z.infer<typeof articleSchema>;
-
-function MarkdownUpload({
-  onMarkdownUpload,
-}: {
-  onMarkdownUpload: (file: File) => void;
-}) {
-  const [fileName, setFileName] = useState<string | null>(null);
-
-  const mdDropzone = useDropzone({
-    accept: { "text/markdown": [".md"] },
-    maxFiles: 1,
-    onDrop: async (acceptedFiles) => {
-      if (acceptedFiles.length > 0) {
-        const file = acceptedFiles[0];
-        setFileName(file.name); // Mostra il nome del file
-        onMarkdownUpload(file); // Passa il file al form principale
-      }
-    },
-  });
-
-  return (
-    <div>
-      <label className="block text-base font-semibold mb-2">
-        Contenuto dell&apos;Articolo{" "}
-        <span className="text-xs font-light">(Formato Markdown .md)</span>
-      </label>
-
-      {/* Upload Box */}
-      <div
-        {...mdDropzone.getRootProps()}
-        className={`relative flex flex-col items-center justify-center w-full h-36 border rounded-lg cursor-pointer transition ${
-          fileName
-            ? "border-solid border-green-500 bg-green-50"
-            : "border-dashed border-gray-300 hover:border-green-500"
-        }`}
-      >
-        <input {...mdDropzone.getInputProps()} className="hidden" />
-
-        {/* Icona o nome del file */}
-        {fileName ? (
-          <p className="text-green-600 font-semibold">{fileName}</p>
-        ) : (
-          <div className="flex flex-col items-center">
-            <FaFileAlt className="text-gray-400 text-4xl" />
-            <p className="text-gray-500 text-sm mt-3">
-              Premi qui per caricare il file .md, oppure trascinalo
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+interface ArticleUploadFormProps {
+  tipo: "post" | "serie" | "capitolo";
 }
 
-function ImageUpload({
-  onImageUpload,
-}: {
-  onImageUpload: (file: File) => void;
-}) {
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setImagePreview(URL.createObjectURL(file)); // Mostra anteprima
-      onImageUpload(file); // Passa il file al form principale
-    }
-  };
-
-  return (
-    <div>
-      <label className="block text-base font-semibold mb-2">
-        Immagine di copertina{" "}
-      </label>
-      <label
-        htmlFor="image-upload"
-        className={`relative flex flex-col items-center justify-center w-full h-40 border rounded-lg cursor-pointer transition ${
-          imagePreview
-            ? "border-0 border-green-500 bg-green-50"
-            : "border-dashed border-gray-300 hover:border-green-500"
-        }`}
-      >
-        {/* Mostra l'icona o l'anteprima dell'immagine */}
-        {imagePreview ? (
-          <img
-            src={imagePreview}
-            alt="Image preview"
-            className="w-full h-full object-cover rounded-lg"
-          />
-        ) : (
-          <div className="flex flex-col items-center">
-            <FaImage className="text-gray-400 text-4xl" />
-            <p className="text-gray-500 text-sm mt-2">
-              Click or Drag to Upload
-            </p>
-          </div>
-        )}
-
-        <input
-          type="file"
-          id="image-upload"
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileChange}
-        />
-      </label>
-    </div>
-  );
-}
-
-export default function ArticleUploadForm() {
+export default function ArticleUploadForm({ tipo }: ArticleUploadFormProps) {
   const [uploading, setUploading] = useState(false);
   const { user } = useUser();
   const userId = user?.id;
-  const formMethods = useForm<ArticleFormData>({
-    resolver: zodResolver(articleSchema),
-    defaultValues: {
-      title: "",
-      markdownPath: "",
-      coverImage: "",
-      category: "", // �� Assicura che non sia undefined
-      genres: [], // 👈 Assicura che non sia undefined
-      topics: [], // 👈 Assicura che non sia undefined
-    },
+
+  type FormType = z.infer<ReturnType<typeof getSchema>>;
+
+  const formMethods = useForm<FormType>({
+    resolver: zodResolver(getSchema(tipo)),
+    defaultValues: getDefaultValues(tipo) as any, // Cast temporaneo
   });
 
   const {
@@ -160,188 +51,167 @@ export default function ArticleUploadForm() {
     formState: { errors },
   } = formMethods;
 
-  const coverImage = watch("coverImage");
-  const markdownPath = watch("markdownPath");
-
-  // ✅ Markdown file dropzone con upload via API
-  const mdDropzone = useDropzone({
-    accept: { "text/markdown": [".md"] },
-    maxFiles: 1,
-    onDrop: async (acceptedFiles) => {
-      if (acceptedFiles.length > 0) {
-        const file = acceptedFiles[0];
-        console.log("📄 Markdown file selected:", file);
-        await uploadMarkdownToSupabase(file);
-      }
-    },
-  });
-
-  // 🔼 Upload del file Markdown tramite API di Supabase
-  const uploadMarkdownToSupabase = async (file: File) => {
-    try {
-      setUploading(true);
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("articleId", `${userId}-${Date.now()}`); // Nome univoco
-
-      const response = await fetch("/api/supabase/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) throw new Error("Failed to upload Markdown file.");
-
-      const data = await response.json();
-      console.log("✅ Markdown uploaded:", data.filePath);
-      setValue("markdownPath", data.filePath, { shouldValidate: true });
-    } catch (error: any) {
-      console.error("❌ Error uploading Markdown:", error.message);
-      alert("Failed to upload Markdown file.");
-    } finally {
-      setUploading(false);
-    }
+  // Funzione per gestire l'upload markdown
+  const handleMarkdownUpload = async (file: File) => {
+    await uploadMarkdownToSupabase(file, userId!, setUploading, (filePath) =>
+      setValue("markdownPath", filePath, { shouldValidate: true }),
+    );
   };
 
-  // 🔼 Upload immagine su Cloudinary
-  const handleImageUpload = async (imageFile: File) => {
-    try {
-      setUploading(true);
-
-      // 🔍 Get Cloudinary signature
-      const signatureResponse = await fetch("/api/cloudinary/signature", {
-        method: "POST",
-      });
-
-      const signatureData = await signatureResponse.json();
-      if (!signatureData.signature || !signatureData.timestamp) {
-        throw new Error("Signature or timestamp is missing from API response.");
-      }
-
-      // 🔍 Upload Image to Cloudinary
-      const formData = new FormData();
-      formData.append("file", imageFile);
-      formData.append("timestamp", signatureData.timestamp);
-      formData.append("signature", signatureData.signature);
-      formData.append("api_key", signatureData.api_key);
-
-      const uploadResponse = await fetch(
-        `https://api.cloudinary.com/v1_1/${signatureData.cloud_name}/image/upload`,
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
-
-      const uploadData = await uploadResponse.json();
-      if (!uploadData.secure_url) {
-        throw new Error("No image URL received from Cloudinary!");
-      }
-
-      setValue("coverImage", uploadData.secure_url, { shouldValidate: true });
-    } catch (error: any) {
-      console.error("❌ Error uploading image:", error.message);
-    } finally {
-      setUploading(false);
-    }
+  // Funzione per gestire l'upload immagine
+  const handleImageUpload = async (file: File) => {
+    await uploadImageToCloudinary(file, setUploading, (imageUrl) =>
+      setValue("coverImage", imageUrl, { shouldValidate: true }),
+    );
   };
 
-  // 📝 Gestione della sottomissione dell'articolo
-  const onSubmit = async (data: ArticleFormData) => {
-    console.log("📤 Dati del form inviati:", data);
-    setUploading(true);
-
-    const formData = {
-      title: data.title,
-      coverImage: data.coverImage,
-      markdownPath: data.markdownPath,
-      categories: data.category,
-      genres: data.genres,
-      topics: data.topics,
-      author: userId,
-    };
-
-    console.log("📝 FormData preparato per il backend:", formData);
-
-    try {
-      const response = await fetch("/api/articles", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("❌ Errore nella risposta:", errorText);
-        throw new Error("Errore nel caricamento dell’articolo");
-      }
-
-      window.location.reload();
-    } catch (error) {
-      console.error("❌ Errore nell'invio:", error);
-      alert("Errore nel caricamento dell’articolo.");
-    }
-
-    setUploading(false);
+  // Submit del form
+  const onSubmit = async (data: any) => {
+    await submitFormData(tipo, data, userId!, setUploading);
   };
 
+  // Verifica delle autorizzazioni
   if (!userId) {
     return <UserNotFoundScreen />;
   }
 
-  if (!user.isAuthor) {
+  if (user.role === "user") {
     return <NonAuthorScreen />;
   }
+
+  // Ottieni titolo appropriato
+  const getFormTitle = () => {
+    switch (tipo) {
+      case "post":
+        return "Carica un nuovo articolo";
+      case "serie":
+        return "Crea una nuova serie";
+      case "capitolo":
+        return "Aggiungi un nuovo capitolo";
+      default:
+        return "Carica contenuto";
+    }
+  };
+
+  // Ottieni testo del pulsante
+  const getButtonText = () => {
+    if (uploading) return "Caricamento...";
+
+    switch (tipo) {
+      case "post":
+        return "Pubblica articolo";
+      case "serie":
+        return "Crea serie e primo capitolo";
+      case "capitolo":
+        return "Aggiungi capitolo";
+      default:
+        return "Pubblica";
+    }
+  };
 
   return (
     <FormProvider {...formMethods}>
       <div className="border-gradient w-full h-full mt-12 p-[1px] animated-gradient rounded-lg">
         <div className="mx-auto p-6 bg-white dark:bg-gray-900 rounded-lg">
           <h2 className="text-2xl font-bold text-center mb-6 font-title text-gradient animated-gradient">
-            Carica un nuovo articolo
+            {getFormTitle()}
           </h2>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-8">
-            {/* Title Input */}
-            <div className="lg:flex items-center justify-center space-y-6">
-              <div className="lg:w-1/2 lg:px-12 space-y-6">
-                <div>
-                  <label className="block text-base font-semibold mb-2">
-                    Titolo{" "}
-                    <span className="text-xs font-light">
-                      (Max 39 caratteri)
-                    </span>
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="Inserisci il titolo dell'articolo"
-                    className="w-full p-3 border rounded-md transition border-gray-300 focus:border-green-500 hover:border-green-500"
-                    {...register("title")}
+            <div className="lg:flex items-start justify-center gap-8">
+              {/* Colonna sinistra - dettagli principali */}
+              <div className="lg:w-1/2 space-y-6">
+                {/* Serie selector (solo per capitoli) */}
+                {tipo === "capitolo" && (
+                  <SerieSelector
+                    onSerieSelect={(id) =>
+                      setValue("serieId", id, { shouldValidate: true })
+                    }
+                    user={user}
                   />
-                  {errors.title && (
-                    <p className="text-red-500">{errors.title.message}</p>
-                  )}
-                </div>
+                )}
+
+                {/* Titolo (non per capitoli) */}
+                {tipo !== "capitolo" && (
+                  <div>
+                    <label className="block text-base font-semibold mb-2">
+                      Titolo{tipo === "serie" ? " della serie" : ""}{" "}
+                      <span className="text-xs font-light">
+                        (Max 39 caratteri)
+                      </span>
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder={`Inserisci il titolo ${tipo === "serie" ? "della serie" : "dell'articolo"}`}
+                      className="w-full p-3 border rounded-md transition border-gray-300 focus:border-green-500 hover:border-green-500"
+                      {...register("title")}
+                    />
+                    {(tipo === "post" || tipo === "serie") &&
+                      (errors as any).title && (
+                        <p className="text-red-500">
+                          {(errors as any).title?.message}
+                        </p>
+                      )}
+                  </div>
+                )}
+
+                {/* Titolo del capitolo (per serie e capitoli) */}
+                {(tipo === "serie" || tipo === "capitolo") && (
+                  <div>
+                    <label className="block text-base font-semibold mb-2">
+                      Titolo del capitolo{" "}
+                      <span className="text-xs font-light">
+                        (Max 39 caratteri)
+                      </span>
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="Inserisci il titolo del capitolo"
+                      className="w-full p-3 border rounded-md transition border-gray-300 focus:border-green-500 hover:border-green-500"
+                      {...register("chapterTitle")}
+                    />
+                    {(tipo === "serie" || tipo === "capitolo") &&
+                      (errors as any).chapterTitle && (
+                        <p className="text-red-500">
+                          {(errors as any).chapterTitle?.message}
+                        </p>
+                      )}
+                  </div>
+                )}
 
                 {/* Markdown File Upload */}
                 <MarkdownUpload
-                  onMarkdownUpload={(file) => uploadMarkdownToSupabase(file)}
+                  onMarkdownUpload={handleMarkdownUpload}
+                  label={
+                    tipo === "capitolo"
+                      ? "Contenuto del capitolo"
+                      : "Contenuto dell'articolo"
+                  }
                 />
 
-                {/* Image Upload */}
+                {/* Image Upload (opzionale per capitoli) */}
                 <ImageUpload
-                  onImageUpload={(file) => handleImageUpload(file)}
+                  onImageUpload={handleImageUpload}
+                  isOptional={tipo === "capitolo"}
                 />
               </div>
-              <FormTags setValue={setValue} watch={watch} />
+
+              {/* Colonna destra - tags e categorie */}
+              {tipo !== "capitolo" && (
+                <div className="lg:w-1/2 mt-6 lg:mt-0">
+                  <FormTags setValue={setValue as any} watch={watch as any} />
+                </div>
+              )}
             </div>
+
             {/* Submit button */}
             <div className="flex justify-center">
               <RainbowButton
                 type="submit"
                 className="mt-8 mb-4 lg:max-w-[300px]"
-                onClick={() => console.log("🚀 Invio dati...")}
+                disabled={uploading}
               >
-                {uploading ? "Caricamento..." : "Carica Articolo"}
+                {getButtonText()}
               </RainbowButton>
             </div>
           </form>

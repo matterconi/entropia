@@ -16,7 +16,12 @@ import { AuthorInput } from "../../ui/AuthorInput";
 
 interface SelectMenuProps {
   label: string;
-  options: { value: string; label: string }[];
+  options: {
+    value: string;
+    label: string;
+    count?: number; // Aggiungiamo il count come proprietà opzionale
+    id?: string;
+  }[];
   selectedOptions: string | string[];
   onChange: (selected: string[]) => void;
 }
@@ -31,16 +36,20 @@ const SelectMenu: React.FC<SelectMenuProps> = ({
   const [searchQuery, setSearchQuery] = useState(""); // Stato per la ricerca
   const uniqueId = useId();
 
+  // Assicuriamoci che selectedOptions sia sempre un array
+  const selectedOptionsArray = Array.isArray(selectedOptions)
+    ? selectedOptions
+    : [];
+
   const handleToggle = (value: string) => {
-    const optionsArray = Array.isArray(selectedOptions) ? selectedOptions : [];
-    if (optionsArray.includes(value)) {
-      onChange(optionsArray.filter((option) => option !== value));
+    if (selectedOptionsArray.includes(value)) {
+      onChange(selectedOptionsArray.filter((option) => option !== value));
     } else {
-      onChange([...optionsArray, value]);
+      onChange([...selectedOptionsArray, value]);
     }
   };
 
-  // 🔹 Filtra gli autori basandosi sulla ricerca (case insensitive)
+  // Filtra gli autori basandosi sulla ricerca (case insensitive)
   const filteredOptions =
     label === "Autori"
       ? options.filter((option) =>
@@ -61,9 +70,9 @@ const SelectMenu: React.FC<SelectMenuProps> = ({
               >
                 <h3 className="font-semibold text-sm">{label}</h3>
                 <div className="flex items-center justify-center">
-                  {selectedOptions.length > 0 && (
+                  {selectedOptionsArray.length > 0 && (
                     <div className="text-sm pr-4">
-                      ({selectedOptions.length})
+                      ({selectedOptionsArray.length})
                     </div>
                   )}
                   <svg width="0" height="0" className="absolute">
@@ -152,11 +161,20 @@ const SelectMenu: React.FC<SelectMenuProps> = ({
                       className="flex items-center space-x-2 cursor-pointer"
                     >
                       <Checkbox
-                        checked={selectedOptions.includes(option.value)}
+                        checked={selectedOptionsArray.includes(option.value)}
                         onCheckedChange={() => handleToggle(option.value)}
                       />
-                      <span className="text-sm truncate block w-full">
+                      <span className="text-sm flex-1 truncate">
                         {option.label}
+                        {/* Mostra il conteggio se disponibile */}
+                        {option.count !== undefined && (
+                          <span
+                            className={`ml-1 text-xs text-muted-foreground
+                            }`}
+                          >
+                            ({option.count})
+                          </span>
+                        )}
                       </span>
                     </label>
                   ))

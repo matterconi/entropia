@@ -44,9 +44,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         username: session.user.username,
         email: session.user.email ?? "",
         profileImg: session.user.profileImg,
-        isAuthor: session.user.isAuthor,
         isVerified: session.user.isVerified,
-        bio: session.user.bio || "", // Add the 'bio' property to the object and provide a default value
+        bio: session.user.bio || "", // Default value for bio
+        role: session.user.role || "user", // Add the role property with a default value
       });
       setLoading(false);
       hasSetFinalState.current = true;
@@ -65,16 +65,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       hasSetFinalState.current = false;
     }
   }, [session]);
-
-  // Debug logs
-  useEffect(() => {
-    console.log("Current state:", {
-      status,
-      user,
-      loading,
-      hasSetFinalState: hasSetFinalState.current,
-    });
-  }, [status, user, loading]);
 
   return (
     <UserContext.Provider value={{ user, loading, setUser }}>

@@ -74,7 +74,6 @@ export async function PUT(
         username: updatedUser.username,
         email: updatedUser.email, // Mantiene l'email e altri campi
         profileImg: updatedUser.profileImg,
-        isAuthor: updatedUser.isAuthor,
       },
     });
   } catch (error) {

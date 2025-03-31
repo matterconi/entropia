@@ -9,22 +9,30 @@ import CommentSection from "@/components/post-page/CommentSection";
 import MiniCTA from "@/components/post-page/MiniCTA";
 import MiniFooter from "@/components/post-page/MiniFooter";
 import PaginationMenu from "@/components/post-page/PaginationMenu";
+import RecommendedArticles from "@/components/post-page/RecommendedArticles";
 import Tag from "@/components/tag/Tag";
 
+import TagManager from "../tag/TagManager";
 import { ShinyButton } from "../ui/shiny-button";
 
 interface IArticle {
   title: string;
   chapterTitle?: string;
   chapterIndex?: number;
-  markdownPath: string; // ✅ Contenuto Markdown scaricato da Supabase
+  markdownPath: string;
   coverImage: string;
-  author: { username: string; _id: string };
+  author: { username: string; _id: string; profileimg?: string; bio?: string };
   genres: { _id: string; name: string }[];
   categories: { _id: string; name: string }[];
   topics: { _id: string; name: string }[];
   publicationDate: string;
   likeCount: number;
+  series: {
+    _id: string;
+    title: string;
+    totalChapters: number;
+    chapters: string[];
+  };
 }
 
 interface IPost {
@@ -84,42 +92,39 @@ const PostRenderer: React.FC<{ post: IPost; id: string }> = ({ post, id }) => {
       </div>
 
       {/* Metadata & Tags */}
-      <div className="flex max-md:flex-col-reverse max-md:justify-center items-center justify-between w-full max-md:items-start max-md:gap-4 h-full mt-4">
-        <PaginationMenu />
-        <p className="max-md:self-end">
-          {new Date(publicationDate).toLocaleDateString()}
-        </p>
-      </div>
+      {post.article.series?._id ? (
+        <div className="flex max-md:flex-col-reverse max-md:justify-center items-center justify-between w-full max-md:items-start max-md:gap-4 h-full mt-4">
+          <PaginationMenu
+            serie={post.article.series}
+            chapterIndex={post.article.chapterIndex || 1}
+          />
+          <p className="max-md:self-end">
+            {new Date(publicationDate).toLocaleDateString()}
+          </p>
+        </div>
+      ) : (
+        <div className="flex justify-end my-8 w-full">
+          <p className="max-md:self-end">
+            {new Date(publicationDate).toLocaleDateString()}
+          </p>
+        </div>
+      )}
       <div className="flex max-md:flex-col max-md:items-start max-md:space-y-6 justify-between items-center w-full mt-6 h-full">
         <div className="max-md:mt-6 flex md:flex-col items-start justify-between w-full h-full gap-4">
           <MiniCTA id={id} likeCount={likeCount} />
           <div className="flex flex-wrap gap-1 items-end justify-end">
-            {[
-              ...genres.map((tag) => ({ ...tag, type: "generi" })),
-              ...categories.map((tag) => ({ ...tag, type: "categorie" })),
-              ...topics.map((tag) => ({ ...tag, type: "topic" })),
-            ].map((tag, i) => (
-              <Tag key={i} tag={{ label: tag.name, type: tag.type }} />
-            ))}
+            <TagManager
+              tags={[
+                ...genres.map((tag) => ({ label: tag.name, type: "generi" })),
+                ...categories.map((tag) => ({
+                  label: tag.name,
+                  type: "categorie",
+                })),
+                ...topics.map((tag) => ({ label: tag.name, type: "topic" })),
+              ]}
+              maxPerCategory={2}
+            />
           </div>
-        </div>
-        <div className="flex md:flex-col justify-start items-center md:items-end gap-4 w-full">
-          <Image
-            src={coverImage}
-            alt={title}
-            width={75}
-            height={75}
-            className="object-cover rounded-lg"
-          />
-          <Link href={`/nft/${title.toLowerCase()}`}>
-            <div className="w-fit h-full p-[1px] border-gradient animated-gradient rounded-lg">
-              <div className="bg-background w-fit h-full rounded-lg">
-                <ShinyButton className="font-title text-gradient">
-                  <p className="text-gradient text-sm">NFT Ufficiale</p>
-                </ShinyButton>
-              </div>
-            </div>
-          </Link>
         </div>
       </div>
 
@@ -127,8 +132,12 @@ const PostRenderer: React.FC<{ post: IPost; id: string }> = ({ post, id }) => {
       <div className="self-start w-full">
         <CommentSection id={id} />
       </div>
+
       <div className="w-full h-[1px] bg-black mt-8"></div>
-      <MiniFooter title={title} author={author.username} authorBio="" />
+      <MiniFooter title={title} author={author} nftImage={coverImage} />
+      <div className="w-full h-[1px] bg-black mt-8"></div>
+      {/* Recommended Articles Section */}
+      <RecommendedArticles articleId={id} />
     </div>
   );
 };

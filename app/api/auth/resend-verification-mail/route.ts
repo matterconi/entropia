@@ -1,59 +1,78 @@
 import crypto from "crypto";
 import { NextResponse } from "next/server";
 
-import Account from "@/database/Account";
-import User from "@/database/User";
+import RegistrationRequest from "@/database/RegistrationRequest";
 import sendVerificationEmail from "@/lib/email/onResendEmail"; // la tua funzione che usa nodemailer
 import dbConnect from "@/lib/mongoose";
 
 export async function POST(req: Request) {
   try {
-    const { email } = await req.json();
+    const { email, registrationToken } = await req.json();
+
+    // Validazione dei dati di input
     if (!email) {
       return NextResponse.json(
         { error: "❌ Email obbligatoria." },
         { status: 400 },
       );
     }
+
     await dbConnect();
 
-    // Trova l'utente associato all'email
-    const user = await User.findOne({ email });
-    if (!user) {
+    // Cerca la richiesta di registrazione usando l'email e il token
+    let registrationRequest;
+
+    if (registrationToken) {
+      // Se è stato fornito un token, cerca per token ed email
+      registrationRequest = await RegistrationRequest.findOne({
+        email,
+        token: registrationToken,
+        expiresAt: { $gt: new Date() }, // Controlla che non sia scaduta
+      });
+    } else {
+      // Altrimenti cerca solo per email (prendi la più recente)
+      registrationRequest = await RegistrationRequest.findOne({
+        email,
+        expiresAt: { $gt: new Date() },
+      }).sort({ createdAt: -1 });
+    }
+
+    if (!registrationRequest) {
       return NextResponse.json(
-        { error: "❌ Nessun account trovato con questa email." },
+        {
+          error:
+            "❌ Nessuna richiesta di registrazione valida trovata per questa email.",
+        },
         { status: 400 },
       );
     }
 
-    // Cerca l'account con credenziali associato all'utente
-    const account = await Account.findOne({
-      user: user._id,
-      provider: "credentials",
-    });
-    if (!account) {
-      return NextResponse.json(
-        { error: "❌ Nessun account con credenziali trovato." },
-        { status: 400 },
-      );
-    }
+    // Genera un nuovo codice di verifica (mantenendo lo stesso token)
+    const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
 
-    if (account.isVerified) {
-      return NextResponse.json(
-        { error: "⚠️ Questo account è già verificato." },
-        { status: 400 },
-      );
-    }
+    // Aggiorna il codice di verifica
+    registrationRequest.verificationCode = verificationCode;
 
-    // Genera un nuovo token di verifica per aggiornare l'account
-    account.verificationToken = crypto.randomBytes(32).toString("hex");
-    await account.save();
+    // Aggiorna la data di scadenza (estendi di altre 24 ore)
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24);
+    registrationRequest.expiresAt = expiresAt;
 
-    // Invia l'email di verifica usando il token aggiornato
-    await sendVerificationEmail(email, account.verificationToken);
+    await registrationRequest.save();
+
+    // Invia l'email di verifica con il nuovo codice e token
+    await sendVerificationEmail(
+      email,
+      verificationCode,
+      registrationRequest.token,
+    );
 
     return NextResponse.json(
-      { message: "✅ Email di verifica inviata di nuovo!" },
+      {
+        message: "✅ Email di verifica inviata di nuovo!",
+        email: email,
+        registrationToken: registrationRequest.token,
+      },
       { status: 200 },
     );
   } catch (error) {

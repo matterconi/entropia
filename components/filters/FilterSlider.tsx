@@ -5,7 +5,6 @@ import "swiper/css/autoplay";
 import "swiper/css/navigation";
 
 import { CheckCircle } from "lucide-react";
-import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import type { Swiper } from "swiper";
 import { Autoplay, Navigation } from "swiper/modules";
@@ -13,45 +12,10 @@ import { Swiper as SwiperReact, SwiperSlide } from "swiper/react";
 
 import { useFilterContext } from "@/context/FilterContext";
 import { useFilterCounts } from "@/context/FilterCountsContext";
-import { categories, genres, topics } from "@/data/data";
 
 const FilterSlider = () => {
   const { filters, updatePartialFilter } = useFilterContext();
   const { filterCounts, isLoadingCounts } = useFilterCounts();
-  const params = useParams();
-
-  // Identifica quale parametro è presente nella route
-  const { categoria, genere, topic } = params;
-
-  // Determina quale filtro rimuovere in base alla route
-  let filterToRemove = "";
-  let pageType = "";
-  let pageValue = "";
-
-  if (categoria) {
-    filterToRemove = "categories";
-    pageType = "categoria";
-    pageValue = Array.isArray(categoria) ? categoria[0] : categoria;
-  }
-  if (genere) {
-    filterToRemove = "genres";
-    pageType = "genere";
-    pageValue = Array.isArray(genere) ? genere[0] : genere;
-  }
-  if (topic) {
-    filterToRemove = "topics";
-    pageType = "topic";
-    pageValue = Array.isArray(topic) ? topic[0] : topic;
-  }
-
-  // Ottieni i tipi di filtri disponibili (escludendo quello della pagina corrente)
-  const availableFilters: Array<"categories" | "genres" | "topics"> = [
-    "categories",
-    "genres",
-    "topics",
-  ].filter((filter) => filter !== filterToRemove) as Array<
-    "categories" | "genres" | "topics"
-  >;
 
   // Stato per tenere traccia dei filtri selezionati per ciascun tipo di filtro
   const [selectedFilters, setSelectedFilters] = useState({
@@ -84,10 +48,7 @@ const FilterSlider = () => {
     });
   }, [filters]);
 
-  // IMPORTANTE: Rimosso l'effect che chiama refreshCounts quando cambiano i filtri
-  // Questo previene il ciclo infinito di aggiornamenti
-
-  // Gestisce il click su un elemento del filtro - per selezione multipla
+  // Gestisce il click su un elemento del filtro
   const handleClick = (
     filterType: "categories" | "genres" | "topics",
     item: string,
@@ -122,67 +83,6 @@ const FilterSlider = () => {
     }
   };
 
-  // Combina tutti i dati dei filtri disponibili in un unico array
-  const getCombinedFilterData = () => {
-    const combinedData: {
-      filterType: "categories" | "genres" | "topics";
-      title: string;
-      description: string;
-      href: string;
-      count?: number;
-    }[] = [];
-
-    availableFilters.forEach((filterType) => {
-      let dataSource;
-      switch (filterType) {
-        case "categories":
-          dataSource = categories;
-          break;
-        case "topics":
-          dataSource = topics;
-          break;
-        case "genres":
-        default:
-          dataSource = genres;
-          break;
-      }
-
-      // Aggiungi il tipo di filtro a ciascun elemento per identificarlo più tardi
-      dataSource.forEach((item) => {
-        // Cerca il conteggio per questo elemento
-        let count;
-        if (filterCounts[filterType]) {
-          const countItem = filterCounts[filterType]?.find(
-            (c) => c.name === item.title,
-          );
-          if (countItem) {
-            count = countItem.count;
-          }
-        }
-
-        combinedData.push({
-          ...item,
-          filterType,
-          count,
-        });
-      });
-    });
-
-    // Filtra per mostrare solo gli elementi che hanno almeno un articolo o sono già selezionati
-    const filteredData = combinedData.filter(
-      (item) =>
-        (item.count !== undefined && item.count > 0) ||
-        isItemSelected(item.filterType, item.title),
-    );
-
-    // Ordina i filtri SOLO in ordine decrescente per conteggio
-    return filteredData.sort((a, b) => {
-      return (b.count || 0) - (a.count || 0);
-    });
-  };
-
-  const combinedFilterData = getCombinedFilterData();
-
   // Aggiorna lo stato isScrollable con un leggero ritardo
   const updateScrollableState = React.useCallback(() => {
     setTimeout(() => {
@@ -201,10 +101,56 @@ const FilterSlider = () => {
       window.removeEventListener("resize", updateScrollableState);
       document.removeEventListener("fullscreenchange", updateScrollableState);
     };
-  }, [swiperInstance, updateScrollableState]);
+  }, [updateScrollableState]);
+
+  // Prepara i dati per lo slider direttamente dai filterCounts
+  const prepareFilterItems = () => {
+    const items = [];
+
+    // Aggiungi categorie se presenti
+    if (filterCounts.categories && filterCounts.categories.length > 0) {
+      filterCounts.categories.forEach((category) => {
+        items.push({
+          filterType: "categories" as const,
+          title: category.name,
+          id: category.id,
+          count: category.count,
+        });
+      });
+    }
+
+    // Aggiungi generi se presenti
+    if (filterCounts.genres && filterCounts.genres.length > 0) {
+      filterCounts.genres.forEach((genre) => {
+        items.push({
+          filterType: "genres" as const,
+          title: genre.name,
+          id: genre.id,
+          count: genre.count,
+        });
+      });
+    }
+
+    // Aggiungi topic se presenti
+    if (filterCounts.topics && filterCounts.topics.length > 0) {
+      filterCounts.topics.forEach((topic) => {
+        items.push({
+          filterType: "topics" as const,
+          title: topic.name,
+          id: topic.id,
+          count: topic.count,
+        });
+      });
+    }
+
+    // Ordina per conteggio in ordine decrescente
+    return items.sort((a, b) => (b.count || 0) - (a.count || 0));
+  };
+
+  const filterItems = prepareFilterItems();
 
   // Se stiamo ancora caricando i conteggi e non abbiamo dati, mostra un messaggio
-  if (isLoadingCounts && combinedFilterData.length === 0) {
+  if (isLoadingCounts) {
     return (
       <div className="relative overflow-x-hidden pr-6 py-3 text-sm text-muted-foreground">
         Caricamento filtri in corso...
@@ -213,7 +159,7 @@ const FilterSlider = () => {
   }
 
   // Se non ci sono filtri disponibili, nascondi completamente il componente
-  if (combinedFilterData.length === 0 && !isLoadingCounts) {
+  if (filterItems.length === 0 && !isLoadingCounts) {
     return null;
   }
 
@@ -244,19 +190,18 @@ const FilterSlider = () => {
           }, 50);
         }}
       >
-        {combinedFilterData.map((item) => {
-          const filterType = item.filterType;
-          const isSelected = isItemSelected(filterType, item.title);
+        {filterItems.map((item) => {
+          const isSelected = isItemSelected(item.filterType, item.title);
 
           return (
             <SwiperSlide
-              key={`${filterType}-${item.title}`}
+              key={`${item.filterType}-${item.id}`}
               className="!w-auto flex items-center justify-center"
             >
               <div className="dark:w-full dark:h-full border-gradient p-[1px] rounded-lg animated-gradient">
                 <div className="w-full h-full bg-background rounded-lg p-1">
                   <button
-                    onClick={() => handleClick(filterType, item.title)}
+                    onClick={() => handleClick(item.filterType, item.title)}
                     className={`cursor-pointer flex items-center justify-center rounded-lg px-2 py-1 transition-all duration-300 ${
                       isSelected ? "text-green-500" : "text-foreground"
                     }`}

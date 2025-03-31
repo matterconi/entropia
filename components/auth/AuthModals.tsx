@@ -4,10 +4,11 @@ import React from "react";
 
 import SignInModal from "@/components/auth/SignInModal";
 import SignUpModal from "@/components/auth/SignUpModal";
-import { useSignModal } from "@/context/SignModalContext";
+import { useAuth } from "@/context/AuthContext"; // Importa il nuovo hook unificato
 
 export default function AuthModals() {
-  const { isOpen, signType, closeModal } = useSignModal();
+  // Ora utilizziamo useAuth invece di useSignModal
+  const { isOpen, signType, closeModal } = useAuth();
 
   return (
     <>

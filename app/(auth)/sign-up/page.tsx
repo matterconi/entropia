@@ -2,38 +2,48 @@
 
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 
-import AuthForm from "@/components/auth/AuthForm";
-import RegistrationSuccess from "@/components/auth/RegistrationSuccess";
+import AuthForm from "@/components/auth/authform/AuthForm";
+import RegistrationRequest from "@/components/auth/registration-request/RegistrationRequest";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { ShinyButton } from "@/components/ui/shiny-button";
-import { useUser } from "@/context/UserContext"; // Assicurati di usare il percorso corretto
+import { useUser } from "@/context/UserContext";
 import { SignUpSchema, SignUpSchemaType } from "@/validations/authSchema";
 
 export default function SignUpPage() {
   // Controllo se l'utente è già autenticato
   const { user, loading } = useUser();
 
-  // Stato persistente in localStorage per gestire la registrazione
-  const [isRegistered, setIsRegistered] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("isRegistered") === "true";
-    }
-    return false;
-  });
-
-  // Al mount, aggiorna lo stato in base a localStorage
-  useEffect(() => {
-    const storedRegistered = localStorage.getItem("isRegistered");
-    if (storedRegistered === "true") {
-      setIsRegistered(true);
-    }
-  }, []);
+  // Stati locali per la gestione del flusso di registrazione
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [registrationData, setRegistrationData] = useState<{
+    email: string | null;
+    registrationToken: string | null;
+  }>({ email: null, registrationToken: null });
 
   const handleGoogleSignUp = async () => {
     await signIn("google", { callbackUrl: "/" }); // Redirect alla homepage dopo il login
+  };
+
+  // Handler per gestire lo stato di registrazione
+  const handleSetIsRegistered = (value: React.SetStateAction<boolean>) => {
+    const newValue = typeof value === "function" ? value(isRegistered) : value;
+    console.log("Setting isRegistered to:", newValue);
+    setIsRegistered(newValue);
+  };
+
+  // Handler per gestire i dati di registrazione
+  const handleSetRegistrationData = (data: {
+    email: string;
+    registrationToken: string;
+  }) => {
+    console.log("Setting registration data:", data);
+    setRegistrationData({
+      email: data.email,
+      registrationToken: data.registrationToken,
+    });
   };
 
   // Se il caricamento è in corso, mostra un messaggio di caricamento
@@ -64,10 +74,11 @@ export default function SignUpPage() {
         <>
           {/* Form di registrazione */}
           <AuthForm<SignUpSchemaType>
-            schema={SignUpSchema}
-            defaultValues={{ username: "", email: "", password: "" }}
+            schema={SignUpSchema} // Aggiungi lo schema qui
+            defaultValues={{ email: "", "conferma email": "", password: "" }}
             formType="SIGN_UP"
-            setIsRegistered={setIsRegistered}
+            setIsRegistered={handleSetIsRegistered}
+            setRegistrationData={handleSetRegistrationData}
           >
             {/* Pulsante per il Sign-Up con Google */}
             <div className="border-gradient p-[1px] animated-gradient rounded-lg mb-8 mt-10">
@@ -94,7 +105,10 @@ export default function SignUpPage() {
           </AuthForm>
         </>
       ) : (
-        <RegistrationSuccess />
+        <RegistrationRequest
+          email={registrationData.email || undefined}
+          registrationToken={registrationData.registrationToken || undefined}
+        />
       )}
     </div>
   );

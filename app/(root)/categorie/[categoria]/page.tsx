@@ -47,8 +47,6 @@ async function Page({
     );
   }
 
-  const section = categories[categoria as keyof typeof categories];
-
   const resolvedSearchParams = await searchParams;
   const filteredParams = Object.entries(resolvedSearchParams).reduce(
     (acc, [key, value]) => {
@@ -74,8 +72,6 @@ async function Page({
     ? `${baseUrl}?${queryString}`
     : `${baseUrl}?${new URLSearchParams({ limit: "8" }).toString()}`;
 
-  console.log("🔍 Fetching URLs:", { baseUrl, filteredUrl });
-
   // Fetch degli articoli: originali per Featured e filtrati per la griglia
   let originalPosts = [];
   let filteredPosts = [];
@@ -97,10 +93,6 @@ async function Page({
 
       originalPosts = originalData.articles;
       filteredPosts = filteredData.articles;
-
-      console.log(
-        `✅ Fetched ${originalPosts.length} original posts and ${filteredPosts.length} filtered posts`,
-      );
     } else {
       // Se non ci sono filtri, eseguiamo due query: una per tutti gli articoli (featured) e una limitata per la griglia
       const [fullRes, limitedRes] = await Promise.all([
@@ -162,14 +154,16 @@ async function Page({
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="mx-12 relative w-screen bg-background">
-        <SectionHeader section={section - 1} type={categorie} />
+        <SectionHeader
+          title={categoria.charAt(0).toUpperCase() + categoria.slice(1)}
+        />
         {/* Usiamo i post originali (non filtrati) per il componente Featured */}
         <FeaturedPost posts={originalPosts} isNew />
       </div>
 
       {/* Slider con il pulsante per il menu */}
       <h1 className="text-4xl text-gradient font-title p-4 mt-8 font-semibold">
-        {`${articles[categoria as CategoryKeys]} ${categoria}`}
+        {`${articles[categoria as CategoryKeys]} ${categoria.charAt(0).toUpperCase() + categoria.slice(1)}`}
       </h1>
 
       <div className="w-full flex items-center justify-center px-12 mb-8 mt-6">

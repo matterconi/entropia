@@ -6,12 +6,15 @@ interface CountItem {
   count: number;
 }
 
-export interface IGenre extends Document {
+export interface IAuthor extends Document {
   name: string;
   totalArticles: number;
-  categoryCounts: CountItem[];
-  topicCounts: CountItem[];
-  authorCounts: CountItem[];
+  articlesByCategory: CountItem[];
+  articlesByGenre: CountItem[];
+  articlesByTopic: CountItem[];
+  series: mongoose.Types.ObjectId | null; // Riferimento alla serie dell'autore (opzionale)
+  bio?: string;
+  avatar?: string;
 }
 
 const CountItemSchema = new Schema(
@@ -23,20 +26,27 @@ const CountItemSchema = new Schema(
   { _id: false },
 );
 
-const GenreSchema = new Schema<IGenre>(
+const AuthorSchema = new Schema<IAuthor>(
   {
-    name: { type: String, unique: true, required: true, index: true },
+    name: { type: String, required: true, index: true },
     totalArticles: { type: Number, default: 0 },
-    categoryCounts: [CountItemSchema],
-    topicCounts: [CountItemSchema],
-    authorCounts: [CountItemSchema],
+    articlesByCategory: [CountItemSchema],
+    articlesByGenre: [CountItemSchema],
+    articlesByTopic: [CountItemSchema],
+    series: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Series",
+      default: null,
+    },
+    bio: { type: String },
+    avatar: { type: String },
   },
   { timestamps: true },
 );
 
 // Indici per ottimizzare le query sui conteggi
-GenreSchema.index({ "categoryCounts.id": 1 });
-GenreSchema.index({ "topicCounts.id": 1 });
-GenreSchema.index({ "authorCounts.id": 1 });
+AuthorSchema.index({ "articlesByCategory.id": 1 });
+AuthorSchema.index({ "articlesByGenre.id": 1 });
+AuthorSchema.index({ "articlesByTopic.id": 1 });
 
-export default models.Genre || model<IGenre>("Genre", GenreSchema);
+export default models.Author || model<IAuthor>("Author", AuthorSchema);

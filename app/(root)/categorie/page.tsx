@@ -49,13 +49,13 @@ const CategoriesPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background px-4 py-4 w-full">
+    <div className="min-h-screen bg-background px-4 py-4 max-md:py-0 w-full">
       {/* Categoria in Evidenza */}
-      <h1 className="mb-6 w-full font-title max-sm:text-[2.5rem] max-md:text-[3rem] md:text-6xl lg:text-7xl xl:text-7xl text-center flex justify-center items-center font-bold gap-4 max-lg:flex-col-reverse lg:mt-8">
+      <h1 className="max-md:hidden mb-6 w-full font-title max-sm:text-[2.5rem] max-md:text-[3rem] md:text-6xl lg:text-7xl xl:text-7xl text-center flex justify-center items-center font-bold gap-4 max-lg:flex-col-reverse lg:mt-8">
         <span className="text-gradient animated-gradient py-2">Categorie</span>
       </h1>
       {/* Slider delle Categorie */}
-      <div className="w-full h-full relative max-w-5xl mx-auto overflow-hidden mt-16">
+      <div className="w-full h-full relative max-w-5xl mx-auto overflow-hidden mt-16 max-md:mt-8">
         <div className="relative w-full">
           {/* Contenitore Slider con Effetto Opaco */}
           <div className="relative w-full">

@@ -1,4 +1,5 @@
 export interface AuthorSummary {
+  profileimg: string;
   _id: string;
   username: string;
 }
@@ -11,6 +12,14 @@ export interface AuthorFull extends AuthorSummary {
 export interface CategoriesOrGenresOrTopics {
   id: number;
   name: string;
+  relevance?: number;
+}
+
+export interface Series {
+  chapters: string[];
+  title: string;
+  totalChapters: number;
+  _id: string;
 }
 
 export interface Post {
@@ -22,7 +31,10 @@ export interface Post {
   categories: CategoriesOrGenresOrTopics[];
   genres: CategoriesOrGenresOrTopics[];
   topics: CategoriesOrGenresOrTopics[];
+  aiDescription: string;
   createdAt: string;
+  series?: Series;
+  isSeriesChapter: boolean;
 }
 
 export interface User {
@@ -30,9 +42,9 @@ export interface User {
   username: string;
   email: string;
   profileImg?: string;
-  isAuthor: boolean;
   isVerified: boolean;
   bio: string;
+  role: string;
 }
 
 export type CategoryKeys =

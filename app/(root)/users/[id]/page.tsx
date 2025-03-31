@@ -18,7 +18,6 @@ export default async function UserProfilePage() {
   );
 
   const data = await response.json();
-  console.log(data);
   const posts = data || [];
 
   return (

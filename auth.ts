@@ -5,7 +5,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
 import Account from "@/database/Account";
-import User from "@/database/User";
+import RegistrationRequest from "@/database/RegistrationRequest";
+import User, { UserRole } from "@/database/User"; // Importa UserRole dallo schema User
 import dbConnect from "@/lib/mongoose";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
@@ -23,7 +24,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         await dbConnect();
-        console.log("credentials:", credentials);
+
         // Se è presente un token, usalo per la verifica passwordless
         if (credentials?.token) {
           try {
@@ -41,7 +42,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
               username: user.username,
               email: user.email,
               profileImg: user.profileImg,
-              isAuthor: user.isAuthor,
+              role: user.role, // Aggiungi ruolo
               isVerified: true,
               bio: user.bio,
             };
@@ -71,6 +72,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           credentials!.password as string,
           account.password,
         );
+
         if (!isValid) {
           throw new Error("❌ Password errata");
         }
@@ -80,7 +82,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           username: user.username,
           email: user.email,
           profileImg: user.profileImg,
-          isAuthor: user.isAuthor,
+          role: user.role, // Aggiungi ruolo
           isVerified: account.isVerified,
           bio: user.bio,
         };
@@ -101,9 +103,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             username: user.name,
             email: user.email,
             profileImg: user.image || "/default-profile.png",
-            isAuthor: false,
-            accounts: [], // Assicurati che il campo accounts esista
-            bio: "", // Assicurati che il campo bio esista
+            role: "user" as UserRole, // Cast esplicito a UserRole
+            accounts: [],
+            bio: "",
           });
           await existingUser.save();
         }
@@ -132,7 +134,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
         // MODIFICA: Aggiungi l'id MongoDB all'oggetto user
         user.id = existingUser._id.toString();
-        user.isAuthor = existingUser.isAuthor;
+        user.role = existingUser.role; // Aggiungi il ruolo
         user.isVerified = true;
 
         return true;
@@ -145,14 +147,20 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
 
     async jwt({ token, user, account }) {
-      console.log("data:", token, user);
       if (user) {
         token.id = user.id;
         token.username = user.username || user.name;
-        token.isAuthor = user.isAuthor;
         token.profileImg = user.profileImg || user.image;
         token.isVerified = user.isVerified;
         token.bio = user.bio;
+
+        // Verifica che il ruolo sia valido
+        const userRole = user.role as string;
+        if (["user", "author", "editor", "admin"].includes(userRole)) {
+          token.role = userRole as UserRole;
+        } else {
+          token.role = "user" as UserRole; // fallback a user se non valido
+        }
 
         if (account) {
           token.provider = account.provider;
@@ -167,9 +175,16 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           if (user) {
             // Aggiorna token con i dati più recenti dal database
             token.username = user.username;
-            token.isAuthor = user.isAuthor;
             token.profileImg = user.profileImg;
             token.bio = user.bio;
+
+            // Assicurati che il ruolo dal database sia valido per TypeScript
+            if (["user", "author", "editor", "admin"].includes(user.role)) {
+              token.role = user.role as UserRole;
+            } else {
+              token.role = "user" as UserRole; // fallback a user se non valido
+            }
+
             // Trova l'account per verificare isVerified
             const accountDoc = await Account.findOne({
               user: token.id,
@@ -191,10 +206,18 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       if (session?.user && token) {
         session.user.id = token.id as string;
         session.user.username = token.username as string;
-        session.user.isAuthor = token.isAuthor as boolean;
         session.user.profileImg = token.profileImg as string;
-        session.user.isVerified = token.isVerified as boolean; // ✅ Estratto dall'account
-        session.user.bio = token.bio as string; // ✅ Estratto dall'account
+        session.user.isVerified = token.isVerified as boolean;
+        session.user.bio = token.bio as string;
+
+        // Correzione per il tipaggio: assicuriamoci che sia un UserRole valido
+        const role = token.role as string;
+        if (["user", "author", "editor", "admin"].includes(role)) {
+          session.user.role = role as UserRole;
+        } else {
+          // Se per qualche motivo il ruolo non è valido, impostiamo "user" come fallback
+          session.user.role = "user" as UserRole;
+        }
       }
       return session;
     },

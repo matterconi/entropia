@@ -8,13 +8,11 @@ declare module "next-auth" {
       username: string;
       email: string;
       profileImg?: string;
-      isAuthor: boolean;
     } & DefaultSession["user"];
   }
 
   interface User extends DefaultUser {
     username: string;
     profileImg?: string;
-    isAuthor: boolean;
   }
 }

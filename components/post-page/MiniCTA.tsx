@@ -5,7 +5,6 @@ import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 
 import { useUser } from "@/context/UserContext"; // Assicurati che il percorso sia corretto
 import useAuthModal from "@/hooks/useAuthModal";
-import { User } from "@/types";
 
 import UserNotVerifiedModal from "./UserNotVerifiedModal";
 
@@ -35,7 +34,7 @@ const MiniCTA = ({ id, likeCount }: MiniCTAProps) => {
         setLiked(false);
         return;
       }
-      console.log(user);
+
       try {
         const res = await fetch(`/api/like?user=${user.id}&post=${id}`);
         const data = await res.json();
@@ -60,9 +59,7 @@ const MiniCTA = ({ id, likeCount }: MiniCTAProps) => {
     console.log("🔒 Utente autenticato:", isUserLoggedIn);
     if (!isUserLoggedIn || !user) {
       checkUserCanPerformAction();
-    }
-
-    if (liked) {
+    } else if (liked) {
       // Rimuove il like se già presente
       try {
         const res = await fetch("/api/like", {

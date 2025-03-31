@@ -1,40 +1,46 @@
-.swiper-button-next,
-.swiper-button-prev {
-  background-color: #fff; /* Cambia il colore di sfondo */
-  color: #000; /* Cambia il colore del testo/icona */
-  width: 40px; /* Cambia la dimensione */
-  height: 40px;
-  border-radius: 50%; /* Forma circolare */
+.swiper-button-next, .swiper-button-prev {
+  background-color: rgba(255, 255, 255, 0.7); /* Sfondo semi-trasparente */
+  color: #333; /* Colore più scuro per contrasto */
+  width: 36px; /* Dimensione ridotta */
+  height: 36px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  justify-content: center; /* Fix positioning */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Aggiungi ombra */
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Ombra più sottile */
+  opacity: 0.8; /* Opacità moderata ma visibile */
+  transition: opacity 0.3s ease, background-color 0.3s ease;
 }
 
-.swiper-button-next::after,
-.swiper-button-prev::after {
-  font-size: 1.5rem; /* Cambia la dimensione dell'icona */
-  font-weight: bold;
-  transition: transform 0.3s ease; /* Smooth transformation */
+/* Riduzione della dimensione delle icone */
+.swiper-button-next::after, .swiper-button-prev::after {
+  font-size: 1rem; /* Icona più piccola */
+  font-weight: normal; /* Non in grassetto */
 }
 
-.swiper-button-next::after {
-  transform: translateX(0);
+/* Effetto hover */
+.swiper-button-next:hover, .swiper-button-prev:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+  opacity: 1;
 }
 
-.swiper-button-prev::after {
-  transform: translateX(0);
+/* Posizionamento più vicino ai bordi */
+.swiper-button-next {
+  right: 5px;
 }
 
-.swiper-button-next:hover::after {
-  transform: translateX(10%); /* Sposta positivamente */
+.swiper-button-prev {
+  left: 5px;
 }
 
-.swiper-button-prev:hover::after {
-  transform: translateX(-10%); /* Sposta negativamente */
-}
-
-.swiper-button-next:hover,
-.swiper-button-prev:hover {
-  background-color: #444; /* Colore al passaggio del mouse */
+/* Media query per schermi piccoli - riduci ulteriormente ma mantieni visibili */
+@media (max-width: 640px) {
+  .swiper-button-next, .swiper-button-prev {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .swiper-button-next::after, .swiper-button-prev::after {
+    font-size: 0.8rem;
+  }
 }

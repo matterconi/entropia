@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { IoCloseSharp } from "react-icons/io5";
 
-import AuthForm from "@/components/auth/AuthForm";
+import AuthForm from "@/components/auth/authform/AuthForm";
 import { ShinyButton } from "@/components/ui/shiny-button";
 import { useUser } from "@/context/UserContext"; // Assicurati di usare il percorso corretto
 import {

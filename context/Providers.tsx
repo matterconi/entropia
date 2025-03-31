@@ -3,8 +3,8 @@
 import { SessionProvider } from "next-auth/react";
 import React from "react";
 
+import { AuthProvider } from "@/context/AuthContext"; // Importa il nuovo context unificato
 import { MenuProvider } from "@/context/MenuContext";
-import { SignModalProvider } from "@/context/SignModalContext";
 import { ThemeProvider } from "@/context/theme/ThemeProvider";
 
 import { FilterProvider } from "./FilterContext";
@@ -24,7 +24,7 @@ const Providers: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <UserProvider>
             <FilterProvider>
               <FilterCountsProvider>
-                <SignModalProvider>{children}</SignModalProvider>
+                <AuthProvider>{children}</AuthProvider>
               </FilterCountsProvider>
             </FilterProvider>
           </UserProvider>

@@ -80,7 +80,6 @@ export async function GET(req: NextRequest) {
           username: account.user.username,
           email: account.user.email,
           profileImg: account.user.profileImg,
-          isAuthor: account.user.isAuthor,
           isVerified: account.isVerified,
         },
       },

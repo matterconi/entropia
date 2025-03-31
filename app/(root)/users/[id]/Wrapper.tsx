@@ -46,7 +46,7 @@ export default function ProfileClientWrapper({
   if (!user) return <p className="text-center">User not found</p>;
 
   // Generate avatar using Dicebear with email as seed
-  const emailSeed = user.email.split("@")[0];
+  const emailSeed = user.username;
   const avatarUrl = `https://api.dicebear.com/5.x/adventurer/svg?seed=${emailSeed}`;
 
   // Se il form è attivo, mostra solo quello
@@ -78,9 +78,13 @@ export default function ProfileClientWrapper({
               <div className="flex flex-col items-center p-8">
                 {/* Avatar con bordo sfumato */}
                 <div className="relative mb-6">
-                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full blur opacity-70 animate-pulse"></div>
+                  <div className="absolute inset-0 border-gradient rounded-full blur animate-pulse"></div>
                   <img
-                    src={user.profileImg || avatarUrl}
+                    src={
+                      user.profileImg !== "/default-profile.png"
+                        ? user.profileImg
+                        : avatarUrl
+                    }
                     alt={`${user.username || "User"} profile`}
                     className="relative rounded-full size-32 sm:size-40 border-4 border-white dark:border-slate-700 object-cover z-10"
                   />

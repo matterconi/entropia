@@ -2,108 +2,202 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import React, { useEffect, useRef, useState } from "react";
-import { FiAlertCircle } from "react-icons/fi";
-import { IoReload } from "react-icons/io5";
-import { MdMarkEmailRead } from "react-icons/md";
+import { FaCheckCircle } from "react-icons/fa";
+import { IoMdMail } from "react-icons/io";
+import { RiErrorWarningLine } from "react-icons/ri";
 
+import FlickeringGrid from "@/components/ui/flickering-grid";
 import { RainbowButton } from "@/components/ui/rainbow-button";
-import { ShinyButton } from "@/components/ui/shiny-button";
 
 export default function VerifyEmail() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+  const email = searchParams.get("email");
   const router = useRouter();
   const [localStatus, setLocalStatus] = useState("loading");
   const [message, setMessage] = useState("");
-  // useRef per assicurare che la chiamata sia eseguita una sola volta
   const didFetch = useRef(false);
+  const [dimensions, setDimensions] = useState({ width: 1200, height: 800 });
+
+  // Set dimensions on client side
+  useEffect(() => {
+    setDimensions({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+  }, []);
 
   useEffect(() => {
-    console.log("DEBUG: In VerifyEmail useEffect, token:", token);
-    if (didFetch.current) {
-      console.log("DEBUG: Chiamata già eseguita, non rifarla");
-      return;
-    }
+    if (didFetch.current) return;
     if (!token) {
       setLocalStatus("error");
-      setMessage("Token non valido o assente");
+      setMessage("Il tuo token di verifica è mancante oppure non è valido");
       return;
     }
-    didFetch.current = true; // Segna che la chiamata è stata eseguita
+    didFetch.current = true;
 
-    console.log("DEBUG: Chiamo l'endpoint di verifica con token:", token);
-    fetch(`/api/auth/verify-email?token=${token}`)
-      .then((res) => res.json())
-      .then(async (data) => {
-        console.log("DEBUG: Risposta dall'endpoint di verifica:", data);
-        if (data.error) {
+    async function verifyAccount() {
+      try {
+        const verifyResponse = await fetch("/api/auth/complete-registration", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, email }),
+        });
+
+        const verifyData = await verifyResponse.json();
+
+        if (!verifyResponse.ok || !verifyData.success) {
           setLocalStatus("error");
-          setMessage(data.error);
-        } else if (data.token) {
-          // Usa il token restituito per aggiornare la sessione via signIn
-          const result = await signIn("credentials", {
-            token: data.token,
+          setMessage(verifyData.error || "Errore durante la verifica");
+          return;
+        }
+
+        if (verifyData.token) {
+          const signInResult = await signIn("credentials", {
+            token: verifyData.token,
             redirect: false,
           });
-          console.log("DEBUG: Risultato di signIn:", result);
-          if (result?.error) {
+
+          if (signInResult?.error) {
             setLocalStatus("error");
-            setMessage(result.error);
+            setMessage(
+              "Errore durante l'autenticazione: " + signInResult.error,
+            );
           } else {
             setLocalStatus("success");
-            setMessage("Verifica completata!");
-            // Reindirizza alla dashboard dopo 2 secondi
+            setMessage("Verifica completata con successo!");
+
+            setTimeout(() => {
+              router.push("/");
+            }, 3000);
           }
+        } else {
+          setLocalStatus("error");
+          setMessage("Token di autenticazione mancante nella risposta");
         }
-      })
-      .catch((error) => {
-        console.error("DEBUG: Errore durante la fetch:", error);
+      } catch (error) {
         setLocalStatus("error");
-        setMessage(error.message);
-      });
-  }, [token, router]);
+        setMessage("Si è verificato un errore durante la verifica");
+      }
+    }
+
+    verifyAccount();
+  }, [token, email, router]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full bg-gray-100 text-center">
-      <div className="bg-white px-16 rounded-lg shadow-lg border border-gray-200 max-w-md h-full my-16 flex flex-col items-center justify-center min-w-[400px]">
-        {localStatus === "loading" && (
-          <div className="flex flex-col items-center gap-2 text-blue-500">
-            <IoReload size={24} className="animate-spin" />
-            <p className="text-lg font-medium">Verifica in corso...</p>
-          </div>
-        )}
+    <div className="relative min-h-screen w-full overflow-hidden flex flex-col items-center">
+      {/* Flickering grid background - stile Versia */}
+      <FlickeringGrid
+        className="z-0 absolute inset-0 [mask-image:radial-gradient(600px_circle_at_center,white,transparent)] w-full"
+        squareSize={4}
+        gridGap={6}
+        color="#60A5FA"
+        maxOpacity={0.5}
+        flickerChance={0.1}
+        height={dimensions.height}
+        width={dimensions.width}
+      />
 
-        {localStatus === "error" && (
-          <div className="text-center p-4">
+      {/* Title in stile Versia */}
+      <h1 className="text-gradient font-title text-6xl md:text-7xl p-8 text-center mt-16 mb-8 font-semibold z-10">
+        {localStatus === "loading"
+          ? "Verifica"
+          : localStatus === "success"
+            ? "Evvai!"
+            : "Ops!"}
+      </h1>
+
+      {/* Contenuto principale */}
+      <div className="border-gradient p-[1px] rounded-lg w-full max-w-2xl flex flex-col items-center justify-center z-10">
+        <div className="z-10 w-full h-auto py-16 bg-background rounded-lg px-4 max-md:px-8">
+          {localStatus === "loading" && (
             <div className="flex flex-col items-center">
-              <FiAlertCircle className="w-20 h-20 text-red-500 mb-4" />
-              <h2 className="text-4xl font-bold text-red-500">Errore</h2>
-              <p className="text-base text-gray-700 mt-12 ">{message}</p>
-              <Link href="/">
-                <RainbowButton className="mt-6">Torna alla home</RainbowButton>
-              </Link>
-            </div>
-          </div>
-        )}
+              <div className="relative w-32 h-32 flex items-center justify-center mb-8">
+                <div className="absolute inset-0 bg-blue-500 opacity-20 rounded-full animate-pulse"></div>
+                <div className="relative border-4 border-blue-500 border-t-transparent rounded-full w-20 h-20 animate-spin"></div>
+                <IoMdMail className="absolute text-blue-500 text-4xl" />
+              </div>
 
-        {localStatus === "success" && (
-          <>
-            <div className="flex items-center justify-center w-20 h-20 mx-auto bg-green-100 text-green-600 rounded-full shadow-lg mb-4">
-              <MdMarkEmailRead size={50} />
+              <h2 className="text-4xl font-title text-foreground text-center mb-4">
+                Stiamo verificando la tua
+                <span className="text-gradient"> email</span>
+              </h2>
+
+              <p className="text-center text-muted-foreground max-w-lg mb-8">
+                Questo processo richiede solo pochi secondi, grazie per la
+                pazienza.
+              </p>
+
+              <div className="h-14 flex items-center justify-center mt-8">
+                <div className="w-8 h-8 border-4 border-blue-400 border-t-blue-200 rounded-full animate-spin"></div>
+              </div>
+
+              <p className="text-sm text-muted-foreground mt-4">
+                La verifica è automatica, non è necessario fare nulla...
+              </p>
             </div>
-            <h2 className="text-3xl font-bold text-green-600">
-              🎉 Verifica completata!
-            </h2>
-            <p className="text-lg text-gray-700 mt-12">
-              Il tuo account è stato verificato e sei autenticato.
-            </p>
-            <Link href="/">
-              <RainbowButton className="mt-4">Torna alla home</RainbowButton>
-            </Link>
-          </>
-        )}
+          )}
+
+          {localStatus === "error" && (
+            <div className="flex flex-col items-center">
+              <div className="relative w-32 h-32 flex items-center justify-center mb-8">
+                <div className="absolute inset-0 bg-red-500 opacity-20 rounded-full animate-pulse"></div>
+                <RiErrorWarningLine className="text-6xl text-red-500" />
+              </div>
+
+              <h2 className="text-4xl font-title text-foreground mb-4">
+                Qualcosa è andato <span className="text-gradient">storto</span>
+              </h2>
+
+              <p className="text-center text-red-700 max-w-lg px-4 py-2 bg-red-100 rounded-lg ">
+                {message}
+              </p>
+
+              <Link href="/sign-up" className="mt-12">
+                <RainbowButton className="w-fit p-4 px-6">
+                  <p className="font-semibold">Torna alla home</p>
+                </RainbowButton>
+              </Link>
+
+              <p className="text-sm text-muted-foreground mt-4">
+                Prova a effettuare una nuova registrazione o contattaci per
+                supporto.
+              </p>
+            </div>
+          )}
+
+          {localStatus === "success" && (
+            <div className="flex flex-col items-center">
+              <div className="relative w-32 h-32 flex items-center justify-center mb-8">
+                <div className="absolute inset-0 bg-green-500 opacity-20 rounded-full animate-pulse"></div>
+                <FaCheckCircle className="text-6xl text-green-500" />
+              </div>
+
+              <h2 className="text-4xl font-title text-foreground text-center mb-4">
+                Benvenuto in <span className="text-gradient">Versia</span>
+              </h2>
+
+              <p className="text-center text-muted-foreground max-w-lg mb-8">
+                La tua email è stata verificata con successo! Sei pronto per
+                iniziare.
+              </p>
+
+              <Link href="/" className="mt-8">
+                <RainbowButton className="w-fit p-4 px-6">
+                  <p className="font-semibold text-gradient">
+                    Inizia l&apos;esperienza
+                  </p>
+                </RainbowButton>
+              </Link>
+
+              <p className="text-sm text-muted-foreground mt-4">
+                Sarai reindirizzato automaticamente tra pochi secondi...
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

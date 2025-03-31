@@ -18,8 +18,8 @@ import MobileMenu from "@/components/navigation/MobileMenu";
 import ThemeSwitch from "@/components/navigation/ThemeSwitch";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { ShinyButton } from "@/components/ui/shiny-button";
+import { useAuth } from "@/context/AuthContext"; // Importa il nuovo hook unificato
 import { useMenu } from "@/context/MenuContext";
-import { useSignModal } from "@/context/SignModalContext";
 import { useUser } from "@/context/UserContext";
 import { useSystemTheme } from "@/hooks/useSystemTheme";
 
@@ -31,7 +31,7 @@ export default function Navbar() {
   const isSystemDark = useSystemTheme();
   const isDarkMode = theme === "dark" || (theme === "system" && isSystemDark);
 
-  const { openModal } = useSignModal(); // Modale per SignIn / SignUp
+  const { openModal } = useAuth(); // Modale per SignIn / SignUp utilizzando il context unificato
 
   return (
     <>

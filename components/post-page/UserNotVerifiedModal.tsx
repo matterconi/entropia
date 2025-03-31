@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { IoClose, IoCloseSharp, IoReload } from "react-icons/io5";
 import { MdErrorOutline, MdMarkEmailRead } from "react-icons/md";
 
-import { useSignModal } from "@/context/SignModalContext";
+import { useSignModal } from "@/context/AuthContext";
 import { User } from "@/types";
 
 import { RainbowButton } from "../ui/rainbow-button";

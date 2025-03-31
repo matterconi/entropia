@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { error: "❌ Email e password sono obbligatori" },
+        { error: "Email e password sono obbligatori" },
         { status: 400 },
       );
     }
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json(
-        { error: "❌ Questo account non esiste" },
+        { error: "Questo account non esiste" },
         { status: 400 },
       );
     }
@@ -35,8 +35,7 @@ export async function POST(req: NextRequest) {
     if (!account) {
       return NextResponse.json(
         {
-          error:
-            "⚠️ Questo account non è stato registrato con email e password.",
+          error: "Questo account non è stato registrato con email e password.",
         },
         { status: 400 },
       );
@@ -45,10 +44,7 @@ export async function POST(req: NextRequest) {
     // Verifica la password
     const isPasswordValid = await bcrypt.compare(password, account.password);
     if (!isPasswordValid) {
-      return NextResponse.json(
-        { error: "❌ Password errata" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Password errata" }, { status: 400 });
     }
 
     return NextResponse.json(
@@ -58,7 +54,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Errore durante il login:", error);
     return NextResponse.json(
-      { error: "❌ Errore durante il login" },
+      { error: "Errore durante il login" },
       { status: 500 },
     );
   }

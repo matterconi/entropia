@@ -5,57 +5,76 @@ import FeaturedPost from "@/components/featured-post/FeaturedPostSlider";
 import NoArticlesScreen from "@/components/feedback-screens/NoArticlesScreen";
 import Filters from "@/components/filters/Filters";
 import LocalSearch from "@/components/post-page/LocalSearch";
-import ArticlesGrid from "@/components/related-post/PostGrid"; // Importa il nuovo componente
-import { genres as generi } from "@/data/data";
+import ArticlesGrid from "@/components/related-post/PostGrid";
+import Genre from "@/database/Genre";
+import dbConnect from "@/lib/mongoose";
 import { GenreKeys } from "@/types";
 
-const genres: { [key: string]: number } = {
-  romantico: 1,
-  azione: 2,
-  avventura: 3,
-  fantasy: 4,
-  fantascienza: 5,
-  horror: 6,
-  giallo: 7,
-  drammatico: 8,
-  storico: 9,
-};
-
-const plurals = {
-  romantico: "romantici",
-  azione: "d'azione",
-  avventura: "di avventura",
-  fantasy: "fantasy",
-  fantascienza: "di fantascienza",
-  horror: "horror",
-  giallo: "gialli",
-  drammatico: "drammatici",
-  storico: "storici",
-};
+// Funzione per ottenere dinamicamente i generi dal database
+async function getGenres() {
+  await dbConnect();
+  // Fetch di tutti i generi dal database
+  const genres = await Genre.find({}).select("_id name").lean();
+  return genres;
+}
 
 async function Page({
   params,
   searchParams,
 }: {
-  params: Promise<{ genere: keyof typeof plurals }>;
+  params: Promise<{ genere: string }>;
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  // Aspettiamo la risoluzione di params
+  // Risolviamo le Promise
   const resolvedParams = await params;
   const { genere } = resolvedParams;
-  console.log("genere", genere);
 
-  if (!genere || !(genere in genres)) {
+  // Otteniamo i generi disponibili dal database
+  const genres = await getGenres();
+
+  // Convertiamo l'array dei generi in un formato che possiamo usare facilmente
+  // Utilizziamo una struttura {slug: id} per il mapping, dove slug è il nome convertito in formato URL
+  const genresMap = genres.reduce(
+    (acc, g) => {
+      // Convertiamo il nome del genere in un formato URL (lowercase, spazi -> trattini)
+      const slug = g.name.toLowerCase().replace(/\s+/g, "-");
+      acc[slug] = g._id.toString();
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+
+  // Convertiamo anche nel formato inverso (id -> nome) per la visualizzazione
+  const genreNames = genres.reduce(
+    (acc, g) => {
+      acc[g._id.toString()] = g.name;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+
+  // Verifichiamo se il genere richiesto esiste
+  if (!genere || !(genere in genresMap)) {
     return (
-      <div>
-        <h1>Genere non trovato!</h1>
+      <div className="flex items-center justify-center min-h-screen">
+        <h1 className="text-2xl font-bold">Genere non trovato!</h1>
+        <p className="mt-4">
+          Il genere richiesto non esiste nel nostro database.
+        </p>
       </div>
     );
   }
 
-  const section = genres[genere];
+  // Otteniamo l'ID del genere dal mapping
+  const genreId = genresMap[genere];
 
-  // Gestione dei parametri di ricerca
+  // Otteniamo il nome del genere per la visualizzazione
+  const rawGenreDisplayName =
+    Object.values(genres).find((g) => g._id.toString() === genreId)?.name ||
+    genere.split("-").join(" ");
+  const genreDisplayName =
+    rawGenreDisplayName.charAt(0).toUpperCase() + rawGenreDisplayName.slice(1);
+
   const resolvedSearchParams = await searchParams;
   const filteredParams = Object.entries(resolvedSearchParams).reduce(
     (acc, [key, value]) => {
@@ -81,8 +100,6 @@ async function Page({
     ? `${baseUrl}?${queryString}`
     : `${baseUrl}?${new URLSearchParams({ limit: "8" }).toString()}`;
 
-  console.log("🔍 Fetching URLs:", { baseUrl, filteredUrl });
-
   // Fetch degli articoli: originali per Featured e filtrati per la griglia
   let originalPosts = [];
   let filteredPosts = [];
@@ -103,10 +120,6 @@ async function Page({
 
       originalPosts = originalData.articles;
       filteredPosts = filteredData.articles;
-
-      console.log(
-        `✅ Fetched ${originalPosts.length} original posts and ${filteredPosts.length} filtered posts`,
-      );
     } else {
       // Se non ci sono filtri, eseguiamo due query: una per tutti gli articoli (featured) e una limitata per la griglia
       const [fullRes, limitedRes] = await Promise.all([
@@ -123,10 +136,6 @@ async function Page({
 
       originalPosts = fullData.articles;
       filteredPosts = limitedData.articles;
-
-      console.log(
-        `✅ Fetched ${originalPosts.length} original posts and ${filteredPosts.length} initial limited posts`,
-      );
     }
   } catch (error) {
     console.error("❌ Errore nel fetch degli articoli:", error);
@@ -143,7 +152,7 @@ async function Page({
       };
     } else {
       return {
-        title: `Purtroppo non ci sono ancora contenuti ${plurals[genere]} disponibili`,
+        title: `Purtroppo non ci sono ancora contenuti in ${genreDisplayName} disponibili`,
         message: `Non abbiamo ancora articoli per questo genere. Torna a visitarci presto per scoprire nuovi contenuti!`,
         actionText: "",
         onAction: null,
@@ -168,14 +177,15 @@ async function Page({
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="mx-12 relative w-screen bg-background">
-        <SectionHeader section={section - 1} type={generi} />
+        {/* Passiamo il titolo direttamente a SectionHeader */}
+        <SectionHeader title={genreDisplayName} />
         {/* Usiamo i post originali (non filtrati) per il componente Featured */}
         <FeaturedPost posts={originalPosts} isNew />
       </div>
 
       {/* Slider con il pulsante per il menu */}
       <h1 className="text-center text-4xl text-gradient font-title p-4 mt-8 font-semibold">
-        {`Tutti i contenuti ${plurals[genere]}`}
+        {`Tutto in ${genreDisplayName}`}
       </h1>
 
       <div className="w-full flex items-center justify-center px-12 mb-8 mt-6">

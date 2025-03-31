@@ -15,7 +15,6 @@ import {
 
 import ThemeSwitch from "@/components/navigation/ThemeSwitch";
 import { useMenu } from "@/context/MenuContext";
-import { useSignModal } from "@/context/SignModalContext"; // 👈 Importiamo il contesto modale
 import { useUser } from "@/context/UserContext"; // 👈 Importiamo il contesto utente
 import { useSystemTheme } from "@/hooks/useSystemTheme";
 
@@ -26,7 +25,6 @@ import { ShinyButton } from "../ui/shiny-button";
 export default function MobileMenu() {
   const { isMenuOpen, toggleMenuVisibility } = useMenu(); // Usa il contesto per il menu
   const { user } = useUser(); // 👈 Recuperiamo l'utente dal context
-  const { openModal } = useSignModal(); // 👈 Modale per Sign-In / Sign-Up
   const [isActive, setIsActive] = useState("");
   const pathname = usePathname();
   const { theme } = useTheme();

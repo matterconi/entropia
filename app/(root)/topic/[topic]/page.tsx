@@ -5,65 +5,92 @@ import FeaturedPost from "@/components/featured-post/FeaturedPostSlider";
 import NoArticlesScreen from "@/components/feedback-screens/NoArticlesScreen";
 import Filters from "@/components/filters/Filters";
 import LocalSearch from "@/components/post-page/LocalSearch";
-import ArticlesGrid from "@/components/related-post/PostGrid"; // Importa il nuovo componente
-import { topics as top } from "@/data/data";
+import ArticlesGrid from "@/components/related-post/PostGrid";
+import Topic from "@/database/Topic";
+import dbConnect from "@/lib/mongoose";
+import { denormalizeSlug } from "@/lib/normalizeSlug"; // Importa la funzione di processamento slug
 import { TopicKeys } from "@/types";
 
-// Topic mapping for section identification
-const topicsArr = {
-  filosofia: 1,
-  esistenzialismo: 2,
-  cinema: 3,
-  musica: 4,
-  arte: 5,
-  politica: 6,
-  psicologia: 7,
-  società: 8,
-  storia: 9,
-  "scienza-e-tecnologia": 10,
-  spiritualità: 11,
-  letteratura: 12,
-  "cultura-pop": 13,
-};
-
-// Prepositions for Italian grammar
-const prepositions = {
-  filosofia: "di ",
-  esistenzialismo: "di ",
-  cinema: "di ",
-  musica: "di ",
-  arte: "d'",
-  politica: "di ",
-  psicologia: "di ",
-  società: "della ",
-  storia: "di ",
-  "scienza-e-tecnologia": "di ",
-  spiritualità: "della ",
-  letteratura: "di ",
-  "cultura-pop": "della ",
-};
+// Versione dinamica che otterrà i topic dal database
+async function getTopics() {
+  await dbConnect();
+  // Fetch di tutti i topic dal database
+  const topics = await Topic.find({}).select("_id name").lean();
+  return topics;
+}
 
 async function Page({
   params,
   searchParams,
 }: {
-  params: Promise<{ topic: keyof typeof prepositions }>;
+  params: Promise<{ topic: string }>;
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   // Risolviamo le Promise
   const resolvedParams = await params;
-  const { topic } = resolvedParams;
-  console.log("topic", topic);
+  const { topic: rawTopic } = resolvedParams;
 
-  if (!topic || !(topic in topicsArr)) {
+  // Processa lo slug del topic per gestire URL-encoding e accenti
+  const topicSlug = denormalizeSlug(rawTopic);
+
+  // Otteniamo i topic disponibili dal database
+  const topics = await getTopics();
+
+  // Convertiamo l'array dei topic in un formato che possiamo usare facilmente
+  // Creiamo due mappe: una normale e una normalizzata
+  const topicsMap = {};
+  const normalizedTopicsMap = {};
+
+  topics.forEach((t) => {
+    // Mappa standard
+    const slug = t.name.toLowerCase().replace(/\s+/g, "-");
+    topicsMap[slug] = t._id.toString();
+  });
+
+  // Convertiamo anche nel formato inverso (id -> nome) per la visualizzazione
+  const topicNames = topics.reduce(
+    (acc, t) => {
+      acc[t._id.toString()] = t.name;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+
+  // Verifichiamo se il topic richiesto esiste (controllo sia nella mappa standard che in quella normalizzata)
+  const topicExists =
+    topicSlug in topicsMap || topicSlug in normalizedTopicsMap;
+
+  if (!rawTopic || !topicExists) {
+    console.log("❌ Topic non trovato:", topicSlug);
+    console.log("🔍 Topic disponibili:", Object.keys(topicsMap));
+    console.log(
+      "🔍 Topic normalizzati disponibili:",
+      Object.keys(normalizedTopicsMap),
+    );
+
     return (
-      <div>
-        <h1>Topic non trovato!</h1>
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <h1 className="text-2xl font-bold">Topic non trovato!</h1>
+        <p className="mt-4">
+          Il topic richiesto non esiste nel nostro database.
+        </p>
+        <pre className="bg-gray-100 p-4 rounded text-sm">
+          Richiesto: {topicSlug}
+        </pre>
       </div>
     );
   }
 
-  const section = topicsArr[topic as keyof typeof topicsArr];
+  // Otteniamo l'ID del topic dal mapping (controlla prima la mappa normalizzata)
+  const topicId = normalizedTopicsMap[topicSlug] || topicsMap[topicSlug];
+
+  // Otteniamo il nome del topic per la visualizzazione
+  const rawTopicDisplayName =
+    Object.values(topics).find((t) => t._id.toString() === topicId)?.name ||
+    decoded.split("-").join(" "); // Usa il nome decodificato invece del normalizzato
+
+  const topicDisplayName =
+    rawTopicDisplayName.charAt(0).toUpperCase() + rawTopicDisplayName.slice(1);
 
   const resolvedSearchParams = await searchParams;
   const filteredParams = Object.entries(resolvedSearchParams).reduce(
@@ -82,15 +109,13 @@ async function Page({
   const queryString = new URLSearchParams(filteredParams).toString();
   const hasFilters = Object.keys(resolvedSearchParams).length > 0;
 
-  // URL di base per ottenere tutti i post senza filtri
-  const baseUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/topic/${topic}`;
+  // URL di base per ottenere tutti i post senza filtri - usa rawTopic per preservare l'URL originale
+  const baseUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/topic/${rawTopic}`;
 
   // URL filtrato per la griglia di post
   const filteredUrl = hasFilters
     ? `${baseUrl}?${queryString}`
     : `${baseUrl}?${new URLSearchParams({ limit: "8" }).toString()}`;
-
-  console.log("🔍 Fetching URLs:", { baseUrl, filteredUrl });
 
   // Fetch degli articoli: originali per Featured e filtrati per la griglia
   let originalPosts = [];
@@ -113,10 +138,6 @@ async function Page({
 
       originalPosts = originalData.articles;
       filteredPosts = filteredData.articles;
-
-      console.log(
-        `✅ Fetched ${originalPosts.length} original posts and ${filteredPosts.length} filtered posts`,
-      );
     } else {
       // Se non ci sono filtri, eseguiamo due query: una per tutti gli articoli (featured) e una limitata per la griglia
       const [fullRes, limitedRes] = await Promise.all([
@@ -133,17 +154,10 @@ async function Page({
 
       originalPosts = fullData.articles;
       filteredPosts = limitedData.articles;
-
-      console.log(
-        `✅ Fetched ${originalPosts.length} original posts and ${filteredPosts.length} initial limited posts`,
-      );
     }
   } catch (error) {
     console.error("❌ Errore nel fetch degli articoli:", error);
   }
-
-  // Get proper display name for the topic by converting URL format to display format
-  const topicName = top[section - 1]?.title || topic.split("-").join(" ");
 
   // Funzione per determinare il titolo e il messaggio del NoArticlesScreen
   const getNoArticlesContent = (isFiltered = false) => {
@@ -156,7 +170,7 @@ async function Page({
       };
     } else {
       return {
-        title: `Purtroppo non ci sono ancora contenuti ${prepositions[topic]}${topicName} disponibili`,
+        title: `Purtroppo non ci sono ancora contenuti in ${topicDisplayName}`,
         message: `Non abbiamo ancora articoli per questo topic. Torna a visitarci presto per scoprire nuovi contenuti!`,
         actionText: "",
         onAction: null,
@@ -181,14 +195,15 @@ async function Page({
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="mx-12 relative w-screen bg-background">
-        <SectionHeader section={section - 1} type={top} />
+        {/* Invece di usare l'indice per SectionHeader, passiamo il titolo direttamente */}
+        <SectionHeader title={topicDisplayName} />
         {/* Usiamo i post originali (non filtrati) per il componente Featured */}
         <FeaturedPost posts={originalPosts} isNew />
       </div>
 
-      {/* Slider con il pulsante per il menu */}
+      {/* Titolo aggiornato con preposizione neutrale "in" */}
       <h1 className="text-center text-4xl text-gradient font-title p-4 mt-8 font-semibold">
-        {`Tutti i contenuti ${prepositions[topic]}${topicName}`}
+        {`Tutto in ${topicDisplayName}`}
       </h1>
 
       <div className="w-full flex items-center justify-center px-12 mb-8 mt-6">
@@ -204,7 +219,7 @@ async function Page({
         {filteredPosts.length > 0 ? (
           <ArticlesGrid
             initialPosts={filteredPosts}
-            type={topic as TopicKeys}
+            type={topicSlug as TopicKeys}
             baseUrl={baseUrl}
             queryString={queryString}
           />

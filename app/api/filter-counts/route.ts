@@ -4,6 +4,7 @@ import Category from "@/database/Category";
 import Genre from "@/database/Genre";
 import Topic from "@/database/Topic";
 import dbConnect from "@/lib/mongoose";
+import { denormalizeSlug } from "@/lib/normalizeSlug";
 
 interface GenreCount {
   id: any; // Using 'any' as we don't know the exact type but it has toString()
@@ -26,23 +27,25 @@ interface FilterModelItem {
 }
 
 /**
- * Funzione per capitalizzare i nomi (es. "fantasy" → "Fantasy")
- */
-const capitalize = (str: string): string => {
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-};
-
-/**
  * Funzione per estrarre e normalizzare i filtri dalla query string
  */
 const parseFilters = (query: URLSearchParams) => {
   const filters: any = {};
   if (query.has("categories"))
-    filters.categories = query.get("categories")!.split(",").map(capitalize);
+    filters.categories = query
+      .get("categories")!
+      .split(",")
+      .map((s) => s.trim());
   if (query.has("genres"))
-    filters.genres = query.get("genres")!.split(",").map(capitalize);
+    filters.genres = query
+      .get("genres")!
+      .split(",")
+      .map((s) => s.trim());
   if (query.has("topics"))
-    filters.topics = query.get("topics")!.split(",").map(capitalize);
+    filters.topics = query
+      .get("topics")!
+      .split(",")
+      .map((s) => s.trim());
   return filters;
 };
 
@@ -80,11 +83,12 @@ export async function GET(req: NextRequest) {
     // Estrai i parametri dalla URL
     const url = new URL(req.url);
     const pageType = url.searchParams.get("pageType") || "";
-    const pageValue = url.searchParams.get("pageValue") || "";
+    const pageValue =
+      denormalizeSlug(url.searchParams.get("pageValue") || "") || "";
 
     console.log("📩 Parametri pagina:", pageType, pageValue);
 
-    // Estrai e capitalizza i filtri dalla query string
+    // Estrai i filtri dalla query string
     const appliedFilters = parseFilters(url.searchParams);
     console.log("🔍 Filtri applicati:", appliedFilters);
 
@@ -101,9 +105,8 @@ export async function GET(req: NextRequest) {
     );
 
     // CASO 1: Siamo su una pagina di categoria specifica
-    if (pageType === "categoria" && pageValue) {
-      const capitalizedValue = capitalize(pageValue);
-      const category = await Category.findOne({ name: capitalizedValue });
+    if (pageType === "categorie" && pageValue) {
+      const category = await Category.findOne({ name: pageValue });
 
       if (category) {
         console.log(`📊 Categoria trovata: ${category.name} (${category._id})`);
@@ -124,13 +127,12 @@ export async function GET(req: NextRequest) {
           result.topics = safeMapCounts(category.topicCounts);
         }
       } else {
-        console.log(`❌ Categoria non trovata: ${capitalizedValue}`);
+        console.log(`❌ Categoria non trovata: ${pageValue}`);
       }
     }
     // CASO 2: Siamo su una pagina di genere specifica
-    else if (pageType === "genere" && pageValue) {
-      const capitalizedValue = capitalize(pageValue);
-      const genre = await Genre.findOne({ name: capitalizedValue });
+    else if (pageType === "generi" && pageValue) {
+      const genre = await Genre.findOne({ name: pageValue });
 
       if (genre) {
         console.log(`📊 Genere trovato: ${genre.name} (${genre._id})`);
@@ -147,13 +149,12 @@ export async function GET(req: NextRequest) {
           result.topics = safeMapCounts(genre.topicCounts);
         }
       } else {
-        console.log(`❌ Genere non trovato: ${capitalizedValue}`);
+        console.log(`❌ Genere non trovato: ${pageValue}`);
       }
     }
     // CASO 3: Siamo su una pagina di topic specifica
-    else if (pageType === "topic" && pageValue) {
-      const capitalizedValue = capitalize(pageValue);
-      const topic = await Topic.findOne({ name: capitalizedValue });
+    else if (pageType === "topics" && pageValue) {
+      const topic = await Topic.findOne({ name: pageValue });
 
       if (topic) {
         console.log(`📊 Topic trovato: ${topic.name} (${topic._id})`);
@@ -170,7 +171,7 @@ export async function GET(req: NextRequest) {
           result.genres = safeMapCounts(topic.genreCounts);
         }
       } else {
-        console.log(`❌ Topic non trovato: ${capitalizedValue}`);
+        console.log(`❌ Topic non trovato: ${pageValue}`);
       }
     }
     // CASO 4: Siamo sulla home o una pagina generica

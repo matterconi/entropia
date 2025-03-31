@@ -5,7 +5,7 @@ import { signIn } from "next-auth/react";
 import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 
-import AuthForm from "@/components/auth/AuthForm";
+import AuthForm from "@/components/auth/authform/AuthForm";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { ShinyButton } from "@/components/ui/shiny-button";
 import { useUser } from "@/context/UserContext"; // Assicurati di avere il percorso corretto

@@ -1,19 +1,98 @@
+import mongoose from "mongoose";
 import { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-import Article, { IArticle } from "@/database/Article";
+import Article from "@/database/Article";
 import Category from "@/database/Category";
 import Genre from "@/database/Genre";
 import Topic from "@/database/Topic";
 import User from "@/database/User";
 import dbConnect from "@/lib/mongoose";
+import { denormalizeSlug } from "@/lib/normalizeSlug";
 
-/**
- * Funzione per capitalizzare i nomi (es. "fantasy" → "Fantasy")
- */
-const capitalize = (str: string): string => {
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-};
+// Definiamo le interfacce per i modelli
+interface ICategory {
+  _id: string | { toString(): string };
+  name: string;
+}
+
+interface IGenre {
+  _id: string | { toString(): string };
+  name: string;
+}
+
+interface ITopic {
+  _id: string | { toString(): string };
+  name: string;
+}
+
+interface IUser {
+  _id: string | { toString(): string };
+  username: string;
+  profileImg?: string;
+}
+
+interface IArticle {
+  _id: string | { toString(): string };
+  title: string;
+  chapterTitle?: string;
+  chapterIndex?: number;
+  markdownPath: string;
+  coverImage: string;
+  author: string | { toString(): string } | IUser;
+  series?: string | { toString(): string };
+  isSeriesChapter: boolean;
+  genres: Array<{
+    id: string | { toString(): string };
+    relevance: number;
+  }>;
+  categories: Array<string | { toString(): string }>;
+  topics: Array<{
+    id: string | { toString(): string };
+    relevance: number;
+  }>;
+  publicationDate: Date;
+  likeCount: number;
+  comments: Array<string | { toString(): string }>;
+  aiDescription?: string;
+  embedding?: number[];
+  createdAt: Date;
+  [key: string]: any; // Per permettere altre proprietà
+}
+
+interface IFormattedCategory {
+  id: string;
+  name: string;
+}
+
+interface IFormattedGenreOrTopic {
+  id: string;
+  name: string;
+  relevance: number;
+}
+
+interface IFormattedAuthor {
+  _id: string;
+  username: string;
+  profileImg?: string;
+}
+
+interface IFormattedArticle
+  extends Omit<IArticle, "categories" | "genres" | "topics" | "author"> {
+  categories: IFormattedCategory[];
+  genres: IFormattedGenreOrTopic[];
+  topics: IFormattedGenreOrTopic[];
+  author: IFormattedAuthor | null;
+}
+
+interface Filters {
+  authors?: string[];
+  categories?: string[];
+  genres?: string[];
+  sort?: string;
+  searchQuery?: string;
+  limit?: number;
+}
 
 /**
  * Funzione per estrarre e normalizzare i filtri dalla query string
@@ -21,7 +100,7 @@ const capitalize = (str: string): string => {
 const parseFilters = (query: URLSearchParams): Filters => {
   const filters: Filters = {};
 
-  // Estrazione degli autori - non applichiamo capitalize perché i nomi utente potrebbero essere case-sensitive
+  // Estrazione degli autori - non modifichiamo il case perché i nomi utente potrebbero essere case-sensitive
   if (query.has("authors")) {
     filters.authors = query
       .get("authors")!
@@ -34,13 +113,13 @@ const parseFilters = (query: URLSearchParams): Filters => {
     filters.categories = query
       .get("categories")!
       .split(",")
-      .map((category) => capitalize(category.trim()));
+      .map((category) => category.trim().toLowerCase());
 
   if (query.has("genres"))
     filters.genres = query
       .get("genres")!
       .split(",")
-      .map((genre) => capitalize(genre.trim()));
+      .map((genre) => genre.trim().toLowerCase());
 
   if (query.has("sort")) filters.sort = query.get("sort")!;
 
@@ -62,32 +141,24 @@ const parseFilters = (query: URLSearchParams): Filters => {
   return filters;
 };
 
-interface Filters {
-  authors?: string[];
-  categories?: string[];
-  genres?: string[];
-  sort?: string;
-  searchQuery?: string;
-  limit?: number;
-}
-
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ topic: string }> },
 ) {
   await dbConnect();
-
+  console.log("🚀 API ROUTE ESEGUITA - GET /topic/[topic]");
   try {
+    console.log("🚀 API ROUTE ESEGUITA - GET /topic/[topic]");
     // Risolviamo la Promise e estraiamo il topic
     const { topic } = await params;
-    // Capitalizziamo il topic
-    const capitalizedTopic = capitalize(topic);
+    // Convertiamo il topic in minuscolo
+    const lowerCaseTopic = denormalizeSlug(topic).toLowerCase();
 
-    console.log("🔍 Topic richiesto:", topic);
+    console.log("🔍 Topic richiesto:", lowerCaseTopic);
 
     // Trovare l'ID del topic corrispondente
     const foundTopic = await Topic.findOne({
-      name: capitalizedTopic,
+      name: lowerCaseTopic,
     }).select("_id");
     if (!foundTopic) {
       console.error("❌ Topic non trovato!");
@@ -105,7 +176,7 @@ export async function GET(
     console.log("🔍 Filtri elaborati:", filters);
 
     // Inizializziamo la query con il topic
-    let query: Record<string, any> = { topics: foundTopic._id };
+    let query: Record<string, any> = { "topics.id": foundTopic._id };
 
     // Condizioni per costruire la query con operatori OR per categorie e generi
     let orConditions: any[] = [];
@@ -154,19 +225,23 @@ export async function GET(
 
       if (genres.length > 0) {
         // Creiamo una condizione per includere articoli che hanno uno qualsiasi dei generi selezionati
-        orConditions.push({ genres: { $in: genres.map((g) => g._id) } });
+        orConditions.push({ "genres.id": { $in: genres.map((g) => g._id) } });
       }
     }
 
     // Aggiungiamo la ricerca per testo se è presente una query di ricerca
     if (filters.searchQuery && filters.searchQuery.length > 0) {
-      // Creiamo un indice di ricerca in più campi: titolo
+      // Creiamo un indice di ricerca in più campi: titolo, sottotitolo e descrizione
       const searchRegex = new RegExp(filters.searchQuery, "i"); // 'i' per case-insensitive
 
       // Aggiungiamo una condizione $or per cercare in diversi campi dell'articolo
       query.$and = query.$and || [];
       query.$and.push({
-        $or: [{ title: searchRegex }],
+        $or: [
+          { title: searchRegex },
+          { chapterTitle: searchRegex },
+          { aiDescription: searchRegex },
+        ],
       });
 
       console.log("🔍 Aggiunta ricerca di testo per:", filters.searchQuery);
@@ -219,26 +294,125 @@ export async function GET(
 
     console.log("🔄 Ordinamento applicato:", sortOptions);
 
-    // Prepariamo la query base
-    let articlesQuery = Article.find(query)
-      .populate("categories", "name")
-      .populate("genres", "name")
-      .populate("topics", "name")
-      .populate("author", "username profileImg") // Aggiungiamo profileImg per avere l'immagine dell'autore
-      .sort(sortOptions);
+    // Applicare limit se specificato
+    let articlesQuery = Article.find(query).sort(sortOptions);
 
-    // Applichiamo il limite se specificato
     if (filters.limit) {
       articlesQuery = articlesQuery.limit(filters.limit);
     }
 
-    // Eseguire la query degli articoli con l'ordinamento specificato
-    const articles: IArticle[] = await articlesQuery.lean<IArticle[]>();
+    // Eseguiamo la query senza popolamento
+    const articles = (await articlesQuery.lean()) as unknown as IArticle[];
 
-    console.log(`✅ Trovati ${articles.length} articoli`);
+    // Recupera tutte le categorie, generi, topic e autori necessari per la formattazione manuale
+    const allCategories =
+      (await Category.find().lean()) as unknown as ICategory[];
+    const allGenres = (await Genre.find().lean()) as unknown as IGenre[];
+    const allTopics = (await Topic.find().lean()) as unknown as ITopic[];
+
+    // Ottieni tutti gli ID autori dagli articoli
+    const authorIds = articles.map((article) => article.author).filter(Boolean);
+    const allAuthors = (await User.find({ _id: { $in: authorIds } })
+      .select("_id username profileImg")
+      .lean()) as unknown as IUser[];
+
+    // Crea mappe per lookup veloce
+    const categoryMap = new Map<string, ICategory>(
+      allCategories.map((category) => [category._id.toString(), category]),
+    );
+    const genreMap = new Map<string, IGenre>(
+      allGenres.map((genre) => [genre._id.toString(), genre]),
+    );
+    const topicMap = new Map<string, ITopic>(
+      allTopics.map((topic) => [topic._id.toString(), topic]),
+    );
+    const authorMap = new Map<string, IUser>(
+      allAuthors.map((author) => [author._id.toString(), author]),
+    );
+
+    // Funzione per convertire qualsiasi formato di ID in stringa
+    const safeId = (id: any): string | null => {
+      if (!id) return null;
+      if (typeof id === "object" && id._id) return id._id.toString();
+      return id.toString();
+    };
+
+    // Formatta gli articoli nel nuovo formato
+    const formattedArticles: IFormattedArticle[] = articles.map((article) => {
+      // Gestisci categorie
+      const safeCategories: IFormattedCategory[] = (
+        article.categories || []
+      ).map((catId) => {
+        const id = safeId(catId);
+        const category = id ? categoryMap.get(id) : undefined;
+        return {
+          id: id || "",
+          name: category?.name || "Categoria Sconosciuta",
+        };
+      });
+
+      // Gestisci i generi - adattato per il nuovo modello
+      const safeGenres: IFormattedGenreOrTopic[] = [];
+      if (Array.isArray(article.genres)) {
+        article.genres.forEach((genre) => {
+          const id = safeId(genre.id);
+          if (id) {
+            const genreObj = genreMap.get(id);
+            safeGenres.push({
+              id,
+              name: genreObj?.name || "Genere Sconosciuto",
+              relevance:
+                typeof genre.relevance === "number" ? genre.relevance : 0,
+            });
+          }
+        });
+      }
+
+      // Gestisci i topic - adattato per il nuovo modello
+      const safeTopics: IFormattedGenreOrTopic[] = [];
+      if (Array.isArray(article.topics)) {
+        article.topics.forEach((topic) => {
+          const id = safeId(topic.id);
+          if (id) {
+            const topicObj = topicMap.get(id);
+            safeTopics.push({
+              id,
+              name: topicObj?.name || "Topic Sconosciuto",
+              relevance:
+                typeof topic.relevance === "number" ? topic.relevance : 0,
+            });
+          }
+        });
+      }
+
+      // Gestisci l'autore
+      const authorId = safeId(article.author);
+      const author = authorId ? authorMap.get(authorId) : null;
+
+      // Restituisci l'articolo formattato
+      return {
+        ...article,
+        _id: article._id.toString(),
+        author: author
+          ? {
+              _id: authorId!,
+              username: author.username,
+              profileImg: author.profileImg,
+            }
+          : null,
+        categories: safeCategories,
+        genres: safeGenres,
+        topics: safeTopics,
+      };
+    });
+
+    console.log(`✅ Trovati e formattati ${formattedArticles.length} articoli`);
 
     return NextResponse.json(
-      { message: "Articles retrieved successfully", articles },
+      {
+        message: "Articles retrieved successfully",
+        articles: formattedArticles,
+      },
       { status: 200 },
     );
   } catch (error: any) {

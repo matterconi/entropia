@@ -7,38 +7,52 @@ import React, { useEffect, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { IoCloseSharp } from "react-icons/io5";
 
-import AuthForm from "@/components/auth/AuthForm";
-import RegistrationSuccess from "@/components/auth/RegistrationSuccess";
+import AuthForm from "@/components/auth/authform/AuthForm";
+import RegistrationRequest from "@/components/auth/registration-request/RegistrationRequest";
 import { ShinyButton } from "@/components/ui/shiny-button";
-import { useSignModal } from "@/context/SignModalContext";
-import { useUser } from "@/context/UserContext"; // Assicurati di usare il percorso corretto
+import { useAuth } from "@/context/AuthContext"; // Importa il nuovo hook unificato
+import { useUser } from "@/context/UserContext";
 import { SignUpSchema } from "@/validations/authSchema";
 
 import { RainbowButton } from "../ui/rainbow-button";
 
 export default function SignUpModal() {
   const [isRegistered, setIsRegistered] = useState(false);
+  const [registrationData, setRegistrationData] = useState<{
+    email: string | null;
+    registrationToken: string | null;
+  }>({ email: null, registrationToken: null });
+
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { isOpen, closeModal } = useSignModal();
+  const { isOpen, closeModal, signType, setSignType } = useAuth(); // Utilizziamo il nuovo hook unificato
   const { user, loading } = useUser();
 
-  // Blocca lo scroll quando il modal è aperto
-
+  // Assicuriamoci che il tipo sia impostato correttamente all'inizio
   useEffect(() => {
-    const storedRegistered = localStorage.getItem("isRegistered");
-    if (storedRegistered === "true") {
-      setIsRegistered(true);
+    if (isOpen && signType !== "signUp") {
+      console.log("Setting sign type to signUp in SignUpModal");
+      setSignType("signUp");
     }
-  }, []);
+  }, [isOpen, signType, setSignType]);
 
-  // Aggiorna localStorage se la query string contiene "registered=true"
-  useEffect(() => {
-    if (searchParams.get("isverified") === "true") {
+  // Funzione per gestire il cambio di stato della registrazione
+  const handleSetIsRegistered = (value: boolean) => {
+    console.log("Setting isRegistered to:", value);
+    setIsRegistered(value);
+    if (value) {
       localStorage.setItem("isRegistered", "true");
-      setIsRegistered(true);
     }
-  }, [searchParams]);
+  };
+
+  // Handler per gestire i dati di registrazione
+  const handleSetRegistrationData = (data: {
+    email: string;
+    registrationToken: string;
+  }) => {
+    console.log("Setting registration data:", data);
+    setRegistrationData(data);
+  };
 
   // Funzione per gestire il Google Sign-Up
   const handleGoogleSignUp = async () => {
@@ -115,6 +129,9 @@ export default function SignUpModal() {
     );
   }
 
+  // Debug: log prima del rendering
+  console.log("Rendering SignUpModal with isRegistered =", isRegistered);
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-background bg-opacity-50"
@@ -129,9 +146,10 @@ export default function SignUpModal() {
             {/* Sign-Up Form */}
             <AuthForm
               schema={SignUpSchema}
-              defaultValues={{ username: "", email: "", password: "" }}
+              defaultValues={{ email: "", "conferma email": "", password: "" }}
               formType="SIGN_UP"
-              setIsRegistered={setIsRegistered}
+              setIsRegistered={handleSetIsRegistered}
+              setRegistrationData={handleSetRegistrationData}
               onClose={closeModal}
             >
               {/* Google Sign-Up Button */}
@@ -159,7 +177,12 @@ export default function SignUpModal() {
             </AuthForm>
           </>
         ) : (
-          <RegistrationSuccess isModal onClose={closeModal} />
+          <RegistrationRequest
+            isModal
+            onClose={closeModal}
+            email={registrationData.email || undefined}
+            registrationToken={registrationData.registrationToken || undefined}
+          />
         )}
       </div>
     </div>

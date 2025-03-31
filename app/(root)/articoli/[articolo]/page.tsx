@@ -40,7 +40,6 @@ async function PostPage({
   try {
     // 📥 Fetcha i dati del post
     const post = await fetchPostData(postId);
-
     if (!post) {
       return <div>⚠️ Post non trovato</div>;
     }

@@ -1,20 +1,19 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useParams } from "next/navigation"; // Import per leggere i parametri della route
 import React, { useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { IoClose } from "react-icons/io5";
 import { z } from "zod";
 
-import FilterChips from "@/components/filters/shared/FilterChips"; // Importiamo i chip
+import FilterChips from "@/components/filters/shared/FilterChips";
 import SelectMenu from "@/components/filters/shared/SelectMenu";
 import SortPost from "@/components/filters/shared/SortPost";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 import { useFilterContext } from "@/context/FilterContext";
 import { useFilterCounts } from "@/context/FilterCountsContext";
-import { getFiltersConfig } from "@/data/filterConfig";
 
+// Schema per la validazione
 const filtersSchema = z.object({
   authors: z.array(z.string()).optional(),
   categories: z.array(z.string()).optional(),
@@ -42,8 +41,8 @@ interface Filter {
     | "chips"
     | "checkbox"
     | "multiselect"
-    | "radio"; // ✅ Expanded to match all cases
-  options: { label: string; value: string }[];
+    | "radio";
+  options: { label: string; value: string; count?: number; id?: string }[];
 }
 
 interface Field {
@@ -51,47 +50,7 @@ interface Field {
   onChange: (value: string | string[]) => void;
 }
 
-// Funzione per processare le opzioni dei filtri (aggiungere conteggi e filtrare)
-const processFilterOptions = (
-  filter: Filter,
-  filterCounts: any,
-  selectedOptions: string[] = [],
-) => {
-  // Se non abbiamo conteggi per questo tipo di filtro, restituiamo le opzioni originali
-  if (!filterCounts[filter.id]) {
-    return filter.options;
-  }
-
-  // Prima aggiungiamo i conteggi a tutte le opzioni
-  const optionsWithCounts = filter.options.map((option) => {
-    // Cerca il conteggio corrispondente a questa opzione
-    const countItem = filterCounts[filter.id]?.find(
-      (item: { name: string }) => item.name === option.label,
-    );
-
-    // Se troviamo un conteggio, lo aggiungiamo all'opzione
-    if (countItem) {
-      return {
-        ...option,
-        count: countItem.count,
-      };
-    }
-
-    // Altrimenti, impostiamo esplicitamente count a 0
-    return {
-      ...option,
-      count: 0, // Impostiamo esplicitamente a 0 anziché lasciare undefined
-    };
-  });
-
-  // Poi filtriamo le opzioni per mostrare solo quelle con count > 0 o già selezionate
-  return optionsWithCounts.filter((option) => {
-    const isSelected = selectedOptions.includes(option.value);
-    return isSelected || (option.count !== undefined && option.count > 0);
-  });
-};
-
-// Componente per renderizzare i filtri
+// Componente per renderizzare un filtro
 const FilterComponent = ({
   filter,
   field,
@@ -99,28 +58,13 @@ const FilterComponent = ({
   filter: Filter;
   field: Field;
 }) => {
-  const { filterCounts } = useFilterCounts();
-
-  // Processa le opzioni (aggiungi conteggi e filtra)
-  const processedOptions = useMemo(() => {
-    // Ottieni l'array di opzioni selezionate all'interno del callback
-    const selectedOptions = Array.isArray(field.value)
-      ? field.value
-      : field.value
-        ? [field.value]
-        : [];
-    return processFilterOptions(filter, filterCounts, selectedOptions);
-  }, [filter, filterCounts, field.value]);
-
-  // Se non ci sono opzioni da mostrare dopo il filtraggio e non è il filtro sort, non renderizzare
-  if (processedOptions.length === 0 && filter.id !== "sort") {
+  // Se non ci sono opzioni da mostrare e non è il filtro sort, non renderizzare
+  if (filter.options.length === 0 && filter.id !== "sort") {
     return null;
   }
 
-  // This fixes the issue with SortPost not having a default valueat
-  // SortPost con Data come opzione di default
+  // Handle SortPost
   if (filter.id === "sort") {
-    // Prioritizziamo "Data" come valore di default
     const defaultOption =
       filter.options.find(
         (opt) => opt.value === "Più Recenti" || opt.value === "new",
@@ -156,7 +100,7 @@ const FilterComponent = ({
       <div className="pt-2">
         <FilterChips
           label={filter.label}
-          options={processedOptions}
+          options={filter.options}
           selectedOptions={field.value}
           onChange={field.onChange}
         />
@@ -167,7 +111,7 @@ const FilterComponent = ({
   return (
     <SelectMenu
       label={filter.label}
-      options={processedOptions}
+      options={filter.options}
       selectedOptions={field.value}
       onChange={field.onChange}
     />
@@ -190,6 +134,20 @@ const FilterSection: React.FC<FilterSectionProps> = ({ label, children }) => {
   );
 };
 
+// Configurazione statica per il filtro di ordinamento
+const SORT_FILTER = {
+  id: "sort",
+  label: "Ordina per",
+  componentType: "radio",
+  options: [
+    { value: "alphabetical", label: "Ordine Alfabetico" },
+    { value: "new", label: "Più recenti" },
+    { value: "old", label: "Più vecchi" },
+    { value: "views", label: "Visualizzazioni" },
+    { value: "likes", label: "Like" },
+  ],
+};
+
 interface MobileFilterMenuProps {
   isOpen: boolean;
   onClose: () => void;
@@ -200,7 +158,7 @@ const MobileFilterMenu: React.FC<MobileFilterMenuProps> = ({
   onClose,
 }) => {
   useEffect(() => {
-    const isMobile = window.matchMedia("(max-width: 1200px)").matches; // lg:hidden corrisponde a max-width: 1024px
+    const isMobile = window.matchMedia("(max-width: 1200px)").matches;
 
     if (isOpen && isMobile) {
       document.body.style.overflowY = "hidden";
@@ -209,28 +167,71 @@ const MobileFilterMenu: React.FC<MobileFilterMenuProps> = ({
     }
 
     return () => {
-      document.body.style.overflow = "auto"; // Ripristina lo scroll quando il componente si smonta
+      document.body.style.overflow = "auto";
     };
   }, [isOpen]);
 
   const { filters, updateFilters } = useFilterContext();
-  const { isLoadingCounts } = useFilterCounts(); // Aggiungiamo l'accesso ai conteggi
+  const { isLoadingCounts, filterCounts } = useFilterCounts();
 
-  const params = useParams(); // Legge i parametri dalla route
-  const { categoria, genere, topic } = params; // Controlliamo quale parametro è presente
+  // Genera dinamicamente i filtri basandosi direttamente sui dati di filterCounts
+  const dynamicFilters = useMemo(() => {
+    if (!filterCounts || isLoadingCounts) return [];
 
-  // Determina quale filtro nascondere in base alla route
-  let filterToRemove = "";
-  if (categoria) filterToRemove = "categories";
-  if (genere) filterToRemove = "genres";
-  if (topic) filterToRemove = "topics";
+    const isMobile =
+      typeof window !== "undefined" ? window.innerWidth < 768 : false;
+    const filters: Filter[] = [];
 
-  // Filtra i filtri visibili
-  const filtersConfig = getFiltersConfig();
+    // Genera filtro per categorie se presente
+    if (filterCounts.categories && filterCounts.categories.length > 0) {
+      filters.push({
+        id: "categories",
+        label: "Categorie",
+        componentType: isMobile ? "multiselect" : "chips",
+        options: filterCounts.categories.map((cat) => ({
+          value: cat.name,
+          label: cat.name,
+          count: cat.count,
+          id: cat.id,
+        })),
+      });
+    }
 
-  const visibleFilters = filtersConfig.filter(
-    (filter) => filter.id !== filterToRemove,
-  );
+    // Genera filtro per generi se presente
+    if (filterCounts.genres && filterCounts.genres.length > 0) {
+      filters.push({
+        id: "genres",
+        label: "Generi",
+        componentType: isMobile ? "multiselect" : "chips",
+        options: filterCounts.genres.map((genre) => ({
+          value: genre.name,
+          label: genre.name,
+          count: genre.count,
+          id: genre.id,
+        })),
+      });
+    }
+
+    // Genera filtro per topics se presente
+    if (filterCounts.topics && filterCounts.topics.length > 0) {
+      filters.push({
+        id: "topics",
+        label: "Topics",
+        componentType: isMobile ? "multiselect" : "chips",
+        options: filterCounts.topics.map((topic) => ({
+          value: topic.name,
+          label: topic.name,
+          count: topic.count,
+          id: topic.id,
+        })),
+      });
+    }
+
+    // Aggiungi il filtro di ordinamento (sempre presente)
+    filters.push(SORT_FILTER);
+
+    return filters;
+  }, [filterCounts, isLoadingCounts]);
 
   const form = useForm({
     resolver: zodResolver(filtersSchema),
@@ -261,7 +262,7 @@ const MobileFilterMenu: React.FC<MobileFilterMenuProps> = ({
               Caricamento filtri in corso...
             </div>
           ) : (
-            visibleFilters.map((filter) => (
+            dynamicFilters.map((filter) => (
               <Controller
                 key={filter.id}
                 name={filter.id}
